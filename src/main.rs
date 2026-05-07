@@ -90,6 +90,7 @@ impl App {
     fn view(&self) -> Element<'_, Message> {
         Column::new()
             .push(
+                // video view
                 Container::new(
                     VideoPlayer::new(&self.video)
                         .width(iced::Length::Fill)
@@ -98,67 +99,28 @@ impl App {
                         .on_end_of_stream(Message::EndOfStream)
                         .on_new_frame(Message::NewFrame),
                 )
-                    .align_x(iced::Alignment::Center)
-                    .align_y(iced::Alignment::Center)
-                    .width(iced::Length::Fill)
-                    .height(iced::Length::Fill),
+                .align_x(iced::Alignment::Center)
+                .align_y(iced::Alignment::Center)
+                .width(iced::Length::Fill)
+                .height(iced::Length::Fill),
             )
             .push(
-                Container::new(
-                    Slider::new(
-                        0.0..=self.video.duration().as_secs_f64(),
-                        self.position,
-                        Message::Seek,
-                    )
-                        .step(0.1)
-                        .on_release(Message::SeekRelease),
-                )
-                    .padding(iced::Padding::new(5.0).left(10.0).right(10.0)),
-            )
-            .push(
+                // row for scrub bar and time stamp
                 Row::new()
-                    .spacing(5)
-                    .align_y(iced::alignment::Vertical::Center)
-                    .padding(iced::Padding::new(10.0).top(0.0))
+                    .spacing(0)
+                    .align_y(iced::Alignment::Center)
+                    .padding(iced::Padding::new(5.0).left(10.0).right(10.0))
                     .push(
-                        Button::new(Text::new(if self.video.paused() {
-                            "Play"
-                        } else {
-                            "Pause"
-                        }))
-                            .width(80.0)
-                            .on_press(Message::TogglePause),
-                    )
-                    .push(
-                        Button::new(Text::new(if self.video.looping() {
-                            "Disable Loop"
-                        } else {
-                            "Enable Loop"
-                        }))
-                            .width(120.0)
-                            .on_press(Message::ToggleLoop),
-                    )
-                    .push(
-                        Row::new()
-                            .spacing(5)
-                            .align_y(iced::alignment::Vertical::Center)
-                            .padding(iced::Padding::new(10.0).right(0.0))
-                            .push(
-                                Button::new(Text::new("Vol+"))
-                                    .width(50.0)
-                                    .on_press(Message::VolChange(0.1))
+                        // slider
+                        Container::new(
+                            Slider::new(
+                                0.0..=self.video.duration().as_secs_f64(),
+                                self.position,
+                                Message::Seek,
                             )
-                            .push(
-                                Button::new(Text::new("Vol-"))
-                                    .width(50.0)
-                                    .on_press(Message::VolChange(-0.1))
-                            )
-                            .push(Text::new(format!(
-                                "{:.0}%",
-                                self.video.volume() * 100.0, // turn the value into a percentage
-                            ))
-                                .width(iced::Length::Fill)
-                            )
+                            .step(0.1)
+                            .on_release(Message::SeekRelease),
+                        ),
                     )
                     .push(
                         Text::new(format!(
@@ -168,8 +130,81 @@ impl App {
                             self.video.duration().as_secs() / 60, // video total length, minute marker
                             self.video.duration().as_secs() % 60, // video total length, second marker
                         ))
-                            .width(iced::Length::Fill)
-                            .align_x(iced::alignment::Horizontal::Right),
+                        .width(iced::Length::Fixed(100.0))
+                        .align_x(iced::alignment::Horizontal::Right),
+                    ),
+            )
+            .push(
+                // row for main menu, loop/shuffle, player controls, set start/stop points and volume
+                Row::new()
+                    .spacing(5)
+                    .align_y(iced::alignment::Vertical::Center)
+                    .padding(iced::Padding::new(10.0).top(0.0))
+                    .push(
+                        // main menu
+                        Button::new(Text::new("Main Menu"))
+                            .width(80.0)
+                            .padding(iced::Padding::new(5.0).right(10.0)),
+                    )
+                    .push(
+                        // shuffle and loop keys
+                        Container::new(
+                            Row::new()
+                                .spacing(5)
+                                .padding(iced::Padding::new(5.0).left(10.0).right(10.0))
+                                .push(Button::new("Shuffle"))
+                                .push(
+                                    Button::new(Text::new(if self.video.looping() {
+                                        "Loop on"
+                                    } else {
+                                        "Loop off"
+                                    }))
+                                .width(80.0)
+                                .on_press(Message::ToggleLoop),
+                            ),
+                        ),
+                    )
+                    .push(
+                        // back, play/pause, forward keys
+                        Container::new(
+                            Row::new()
+                                .spacing(5)
+                                .padding(iced::Padding::new(5.0).left(10.0).right(10.0))
+                                .push(Button::new("<<"))
+                                .push(
+                                    Button::new(Text::new(if self.video.paused() {
+                                        "Play"
+                                    } else {
+                                        "Pause"
+                                    }))
+                                    .width(80.0)
+                                    .on_press(Message::TogglePause),
+                                )
+                                .push(Button::new(">>")),
+                        ),
+                    )
+                    .push(
+                        Row::new()
+                            .spacing(5)
+                            .align_y(iced::alignment::Vertical::Center)
+                            .padding(iced::Padding::new(10.0).right(0.0))
+                            .push(
+                                Button::new(Text::new("Vol+"))
+                                    .width(50.0)
+                                    .on_press(Message::VolChange(0.1)),
+                            )
+                            .push(
+                                Button::new(Text::new("Vol-"))
+                                    .width(50.0)
+                                    .on_press(Message::VolChange(-0.1)),
+                            )
+                            .push(
+                                Text::new(format!(
+                                    "{:.0}%",
+                                    self.video.volume() * 100.0, // turn the value into a percentage
+                                ))
+                                .width(iced::Length::Fill),
+                            ),
                     ),
             )
             .into()
