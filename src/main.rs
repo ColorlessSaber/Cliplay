@@ -1,17 +1,21 @@
 use iced::{
     Element,
-    widget::{Button, Column, Container, Row, Slider, Text, Image},
+    Length,
+    alignment::{Alignment, Horizontal, Vertical},
+    widget::{Button, Column, Container, Image, Row, Slider, Text, Space},
 };
 use iced_video_player::{Video, VideoPlayer};
 use std::time::Duration;
 
 // static images
+static MAIN_MENU_IMAGE: &str = "icons/main_menu.png";
 static PLAY_IMAGE: &str = "icons/play.png";
 static PAUSE_IMAGE: &str = "icons/pause.png";
 static FORWARD_IMAGE: &str = "icons/forward.png";
 static BACKWARD_IMAGE: &str = "icons/backward.png";
 static LOOP_IMAGE: &str = "icons/loop.png";
 static SHUFFLE_IMAGE: &str = "icons/shuffle.png";
+static VOLUME_IMAGE: &str = "icons/volume.png";
 
 fn main() -> iced::Result {
     iced::run(App::update, App::view)
@@ -101,22 +105,22 @@ impl App {
                 // video view
                 Container::new(
                     VideoPlayer::new(&self.video)
-                        .width(iced::Length::Fill)
-                        .height(iced::Length::Fill)
+                        .width(Length::Fill)
+                        .height(Length::Fill)
                         .content_fit(iced::ContentFit::Contain)
                         .on_end_of_stream(Message::EndOfStream)
                         .on_new_frame(Message::NewFrame),
                 )
-                .align_x(iced::Alignment::Center)
-                .align_y(iced::Alignment::Center)
-                .width(iced::Length::Fill)
-                .height(iced::Length::Fill),
+                .align_x(Alignment::Center)
+                .align_y(Alignment::Center)
+                .width(Length::Fill)
+                .height(Length::Fill),
             )
             .push(
                 // row for scrub bar and time stamp
                 Row::new()
-                    .spacing(0)
-                    .align_y(iced::Alignment::Center)
+                    .spacing(5)
+                    .align_y(Alignment::Center)
                     .padding(iced::Padding::new(5.0).left(10.0).right(10.0))
                     .push(
                         // slider
@@ -138,44 +142,31 @@ impl App {
                             self.video.duration().as_secs() / 60, // video total length, minute marker
                             self.video.duration().as_secs() % 60, // video total length, second marker
                         ))
-                        .width(iced::Length::Fixed(100.0))
-                        .align_x(iced::alignment::Horizontal::Right),
+                        .width(Length::Fixed(100.0))
+                        .align_x(Horizontal::Right),
                     ),
             )
             .push(
                 // row for main menu, loop/shuffle, player controls, set start/stop points and volume
                 Row::new()
                     .spacing(5)
-                    .align_y(iced::alignment::Vertical::Center)
+                    .align_y(Vertical::Center)
                     .padding(iced::Padding::new(10.0).top(0.0))
                     .push(
                         // main menu
-                        Button::new(Text::new("Main Menu"))
-                            .width(80.0)
-                            .padding(iced::Padding::new(5.0).right(10.0)),
+                        Button::new(Image::new(MAIN_MENU_IMAGE).width(32).height(32))
                     )
+                    .push(Space::new().width(Length::Fill))
                     .push(
                         // shuffle and loop keys
                         Container::new(
                             Row::new()
                                 .spacing(5)
-                                .padding(iced::Padding::new(5.0).left(10.0).right(10.0))
+                                .push(Button::new(Image::new(SHUFFLE_IMAGE).width(32).height(32)))
                                 .push(
-                                    Button::new(
-                                        Image::new(SHUFFLE_IMAGE)
-                                            .width(32)
-                                            .height(32),
-                                    )
-                                )
-                                .push(
-                                    Button::new(
-                                        Image::new(LOOP_IMAGE)
-                                            .width(32)
-                                            .height(32)
-                                    )
-                                .width(80.0)
-                                .on_press(Message::ToggleLoop),
-                            ),
+                                    Button::new(Image::new(LOOP_IMAGE).width(32).height(32))
+                                        .on_press(Message::ToggleLoop),
+                                ),
                         ),
                     )
                     .push(
@@ -183,60 +174,44 @@ impl App {
                         Container::new(
                             Row::new()
                                 .spacing(5)
-                                .padding(iced::Padding::new(5.0).left(10.0).right(10.0))
+                                .push(Button::new(Image::new(BACKWARD_IMAGE).width(32).height(32)))
                                 .push(
-                                    Button::new(
-                                        Image::new(BACKWARD_IMAGE)
-                                            .width(32)
-                                            .height(32)
-                                    )
-                                )
-                                .push(
-                                    Button::new(
-                                        if self.video.paused() {
-                                            Image::new(PLAY_IMAGE)
-                                                .width(32)
-                                                .height(32)
-                                        } else {
-                                            Image::new(PAUSE_IMAGE)
-                                                .width(32)
-                                                .height(32)
-                                        }
-                                    )
-                                    .width(64)
+                                    Button::new(if self.video.paused() {
+                                        Image::new(PLAY_IMAGE).width(32).height(32)
+                                    } else {
+                                        Image::new(PAUSE_IMAGE).width(32).height(32)
+                                    })
                                     .on_press(Message::TogglePause),
                                 )
-                                .push(
-                                    Button::new(
-                                        Image::new(FORWARD_IMAGE)
-                                            .width(32)
-                                            .height(32)
-                                    )
-                                ),
+                                .push(Button::new(Image::new(FORWARD_IMAGE).width(32).height(32))),
                         ),
                     )
+                    .push(Space::new().width(Length::Fill))
                     .push(
-                        Row::new()
-                            .spacing(5)
-                            .align_y(iced::alignment::Vertical::Center)
-                            .padding(iced::Padding::new(10.0).right(0.0))
-                            .push(
-                                Button::new(Text::new("Vol+"))
-                                    .width(50.0)
-                                    .on_press(Message::VolChange(0.1)),
-                            )
-                            .push(
-                                Button::new(Text::new("Vol-"))
-                                    .width(50.0)
-                                    .on_press(Message::VolChange(-0.1)),
-                            )
-                            .push(
-                                Text::new(format!(
-                                    "{:.0}%",
-                                    self.video.volume() * 100.0, // turn the value into a percentage
-                                ))
-                                .width(iced::Length::Fill),
-                            ),
+                        // volume controls
+                        Container::new(
+                            Row::new()
+                                .spacing(5)
+                                .align_y(Vertical::Center)
+                                .push(Image::new(VOLUME_IMAGE).width(32).height(32))
+                                .push(
+                                    Button::new(Text::new("-"))
+                                        .width(50.0)
+                                        .on_press(Message::VolChange(-0.1)),
+                                )
+                                .push(
+                                    Button::new(Text::new("+"))
+                                        .width(50.0)
+                                        .on_press(Message::VolChange(0.1)),
+                                )
+                                .push(
+                                    Text::new(format!(
+                                        "{:.0}%",
+                                        self.video.volume() * 100.0, // turn the value into a percentage
+                                    ))
+                                    .width(Length::Fill),
+                                ),
+                        ),
                     ),
             )
             .into()
