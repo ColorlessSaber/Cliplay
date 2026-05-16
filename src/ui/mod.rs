@@ -3,6 +3,7 @@ use styling::static_images::{
     MAIN_MENU_IMAGE, PLAY_IMAGE, PAUSE_IMAGE, FORWARD_IMAGE, BACKWARD_IMAGE, LOOP_IMAGE,
     SHUFFLE_IMAGE, VOLUME_IMAGE
 };
+use styling::btn_style;
 use iced::{
     Element,
     Length,
@@ -173,7 +174,8 @@ impl App {
                                     } else {
                                         Image::new(PAUSE_IMAGE).width(32).height(32)
                                     })
-                                        .on_press(Message::TogglePause),
+                                        .on_press(Message::TogglePause)
+                                        .style(btn_style),
                                 )
                                 .push(Button::new(Image::new(FORWARD_IMAGE).width(32).height(32))),
                         ),
