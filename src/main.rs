@@ -1,9 +1,17 @@
 use iced::{
     Element,
-    widget::{Button, Column, Container, Row, Slider, Text},
+    widget::{Button, Column, Container, Row, Slider, Text, Image},
 };
 use iced_video_player::{Video, VideoPlayer};
 use std::time::Duration;
+
+// static images
+static PLAY_IMAGE: &str = "icons/play.png";
+static PAUSE_IMAGE: &str = "icons/pause.png";
+static FORWARD_IMAGE: &str = "icons/forward.png";
+static BACKWARD_IMAGE: &str = "icons/backward.png";
+static LOOP_IMAGE: &str = "icons/loop.png";
+static SHUFFLE_IMAGE: &str = "icons/shuffle.png";
 
 fn main() -> iced::Result {
     iced::run(App::update, App::view)
@@ -152,13 +160,19 @@ impl App {
                             Row::new()
                                 .spacing(5)
                                 .padding(iced::Padding::new(5.0).left(10.0).right(10.0))
-                                .push(Button::new("Shuffle"))
                                 .push(
-                                    Button::new(Text::new(if self.video.looping() {
-                                        "Loop on"
-                                    } else {
-                                        "Loop off"
-                                    }))
+                                    Button::new(
+                                        Image::new(SHUFFLE_IMAGE)
+                                            .width(32)
+                                            .height(32),
+                                    )
+                                )
+                                .push(
+                                    Button::new(
+                                        Image::new(LOOP_IMAGE)
+                                            .width(32)
+                                            .height(32)
+                                    )
                                 .width(80.0)
                                 .on_press(Message::ToggleLoop),
                             ),
@@ -170,17 +184,35 @@ impl App {
                             Row::new()
                                 .spacing(5)
                                 .padding(iced::Padding::new(5.0).left(10.0).right(10.0))
-                                .push(Button::new("<<"))
                                 .push(
-                                    Button::new(Text::new(if self.video.paused() {
-                                        "Play"
-                                    } else {
-                                        "Pause"
-                                    }))
-                                    .width(80.0)
+                                    Button::new(
+                                        Image::new(BACKWARD_IMAGE)
+                                            .width(32)
+                                            .height(32)
+                                    )
+                                )
+                                .push(
+                                    Button::new(
+                                        if self.video.paused() {
+                                            Image::new(PLAY_IMAGE)
+                                                .width(32)
+                                                .height(32)
+                                        } else {
+                                            Image::new(PAUSE_IMAGE)
+                                                .width(32)
+                                                .height(32)
+                                        }
+                                    )
+                                    .width(64)
                                     .on_press(Message::TogglePause),
                                 )
-                                .push(Button::new(">>")),
+                                .push(
+                                    Button::new(
+                                        Image::new(FORWARD_IMAGE)
+                                            .width(32)
+                                            .height(32)
+                                    )
+                                ),
                         ),
                     )
                     .push(
