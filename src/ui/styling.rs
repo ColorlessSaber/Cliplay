@@ -25,6 +25,45 @@ pub enum StyleState {
     InactiveStyle,
 }
 
+// Holds the different style states for each button
+pub struct BtnStyle {
+    pub loop_button: StyleState,
+    pub shuffle_button: StyleState,
+}
+
+impl Default for BtnStyle {
+    fn default() -> Self {
+        Self {
+            loop_button: StyleState::InactiveStyle,
+            shuffle_button: StyleState::InactiveStyle,
+        }
+    }
+}
+
+impl BtnStyle {
+    pub fn toggle_loop_style(&mut self) {
+        match self.loop_button {
+            StyleState::InactiveStyle => {
+                self.loop_button = StyleState::ActiveStyle;
+            }
+            StyleState::ActiveStyle => {
+                self.loop_button = StyleState::InactiveStyle;
+            }
+        }
+    }
+    
+    pub fn toggle_shuffle_style(&mut self) {
+        match self.shuffle_button {
+            StyleState::InactiveStyle => {
+                self.shuffle_button = StyleState::ActiveStyle;
+            }
+            StyleState::ActiveStyle => {
+                self.shuffle_button = StyleState::InactiveStyle;
+            }
+        }
+    }
+}
+
 pub fn btn_active_style(_: &Theme, status: Status) -> Style {
     match status {
         Status::Active | Status::Pressed => Style {

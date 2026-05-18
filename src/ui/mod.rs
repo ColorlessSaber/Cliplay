@@ -6,6 +6,7 @@ use styling::static_images::{
 use styling::{
     btn_inactive_style,
     btn_active_style,
+    BtnStyle,
     StyleState
 };
 use iced::{
@@ -18,28 +19,19 @@ use iced_video_player::{Video, VideoPlayer};
 use std::time::Duration;
 
 
-// Holds the different style states for each button
-struct BtnStyle {
-    shuffle_btn: StyleState,
-}
-
-impl Default for BtnStyle {
-    fn default() -> Self {
-        Self {
-            shuffle_btn: StyleState::InactiveStyle,
-        }
-    }
-}
-
 #[derive(Clone, Debug)]
 pub enum Message {
     TogglePause,
     ToggleLoop,
+    ToggleShuffle,
     Seek(f64),
     SeekRelease,
+    Forward(f64),
+    Backward(f64),
     VolChange(f64),
     EndOfStream,
     NewFrame,
+    MainMenu,
 }
 
 pub struct App {
@@ -78,15 +70,12 @@ impl App {
                 self.video.set_paused(!self.video.paused());
             }
             Message::ToggleLoop => {
-                match self.btn_state.shuffle_btn {
-                    StyleState::ActiveStyle => {
-                        self.btn_state.shuffle_btn = StyleState::InactiveStyle;
-                    },
-                    StyleState::InactiveStyle => {
-                        self.btn_state.shuffle_btn = StyleState::ActiveStyle;
-                    }
-                }
+                self.btn_state.toggle_loop_style();
                 self.video.set_looping(!self.video.looping());
+            }
+            Message::ToggleShuffle => {
+                self.btn_state.toggle_shuffle_style();
+                println!("Toggle Shuffle");
             }
             Message::Seek(secs) => {
                 self.dragging = true;
@@ -99,6 +88,18 @@ impl App {
                     .seek(Duration::from_secs_f64(self.position), false)
                     .expect("seek");
                 self.video.set_paused(false);
+            }
+            Message::Forward(secs) => {
+                self.position += secs;
+                self.video
+                    .seek(Duration::from_secs_f64(self.position), false)
+                    .expect("seek");
+            }
+            Message::Backward(secs) => {
+                self.position -= secs;
+                self.video
+                    .seek(Duration::from_secs_f64(self.position), false)
+                    .expect("seek");
             }
             Message::VolChange(vol) => {
                 let current_vol = self.video.volume();
@@ -115,6 +116,9 @@ impl App {
                 if !self.dragging {
                     self.position = self.video.position().as_secs_f64();
                 }
+            }
+            Message::MainMenu => {
+                println!("Main Menu");
             }
         }
     }
@@ -175,6 +179,8 @@ impl App {
                     .push(
                         // main menu
                         Button::new(Image::new(MAIN_MENU_IMAGE).width(32).height(32))
+                            .on_press(Message::MainMenu)
+                            .style(btn_active_style)
                     )
                     .push(Space::new().width(Length::Fill))
                     .push(
@@ -184,12 +190,20 @@ impl App {
                                 .spacing(5)
                                 .push(
                                     Button::new(Image::new(SHUFFLE_IMAGE).width(32).height(32))
+                                        .on_press(Message::ToggleShuffle)
+                                        .style(
+                                            if self.btn_state.shuffle_button == StyleState::ActiveStyle {
+                                                btn_active_style
+                                            } else {
+                                                btn_inactive_style
+                                            }
+                                        )
                                 )
                                 .push(
                                     Button::new(Image::new(LOOP_IMAGE).width(32).height(32))
                                         .on_press(Message::ToggleLoop)
                                         .style(
-                                            if self.btn_state.shuffle_btn == StyleState::ActiveStyle {
+                                            if self.btn_state.loop_button == StyleState::ActiveStyle {
                                                 btn_active_style
                                             } else {
                                                 btn_inactive_style
@@ -203,7 +217,11 @@ impl App {
                         Container::new(
                             Row::new()
                                 .spacing(5)
-                                .push(Button::new(Image::new(BACKWARD_IMAGE).width(32).height(32)))
+                                .push(
+                                    Button::new(Image::new(BACKWARD_IMAGE).width(32).height(32))
+                                        .on_press(Message::Backward(10.0))
+                                        .style(btn_active_style)
+                                )
                                 .push(
                                     Button::new(if self.video.paused() {
                                         Image::new(PLAY_IMAGE).width(32).height(32)
@@ -213,7 +231,11 @@ impl App {
                                         .on_press(Message::TogglePause)
                                         .style(btn_active_style),
                                 )
-                                .push(Button::new(Image::new(FORWARD_IMAGE).width(32).height(32))),
+                                .push(
+                                    Button::new(Image::new(FORWARD_IMAGE).width(32).height(32))
+                                        .on_press(Message::Forward(10.0))
+                                        .style(btn_active_style)
+                                ),
                         ),
                     )
                     .push(Space::new().width(Length::Fill))
