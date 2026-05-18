@@ -3,7 +3,11 @@ use styling::static_images::{
     MAIN_MENU_IMAGE, PLAY_IMAGE, PAUSE_IMAGE, FORWARD_IMAGE, BACKWARD_IMAGE, LOOP_IMAGE,
     SHUFFLE_IMAGE, VOLUME_IMAGE
 };
-use styling::btn_style;
+use styling::{
+    btn_inactive_style,
+    btn_active_style,
+    StyleState
+};
 use iced::{
     Element,
     Length,
@@ -13,6 +17,19 @@ use iced::{
 use iced_video_player::{Video, VideoPlayer};
 use std::time::Duration;
 
+
+// Holds the different style states for each button
+struct BtnStyle {
+    shuffle_btn: StyleState,
+}
+
+impl Default for BtnStyle {
+    fn default() -> Self {
+        Self {
+            shuffle_btn: StyleState::InactiveStyle,
+        }
+    }
+}
 
 #[derive(Clone, Debug)]
 pub enum Message {
@@ -29,6 +46,7 @@ pub struct App {
     video: Video,
     position: f64,
     dragging: bool,
+    btn_state: BtnStyle,
 }
 
 impl Default for App {
@@ -48,6 +66,7 @@ impl Default for App {
                 .unwrap(),
             position: 0.0,
             dragging: false,
+            btn_state: BtnStyle::default(),
         }
     }
 }
@@ -59,6 +78,14 @@ impl App {
                 self.video.set_paused(!self.video.paused());
             }
             Message::ToggleLoop => {
+                match self.btn_state.shuffle_btn {
+                    StyleState::ActiveStyle => {
+                        self.btn_state.shuffle_btn = StyleState::InactiveStyle;
+                    },
+                    StyleState::InactiveStyle => {
+                        self.btn_state.shuffle_btn = StyleState::ActiveStyle;
+                    }
+                }
                 self.video.set_looping(!self.video.looping());
             }
             Message::Seek(secs) => {
@@ -155,10 +182,19 @@ impl App {
                         Container::new(
                             Row::new()
                                 .spacing(5)
-                                .push(Button::new(Image::new(SHUFFLE_IMAGE).width(32).height(32)))
+                                .push(
+                                    Button::new(Image::new(SHUFFLE_IMAGE).width(32).height(32))
+                                )
                                 .push(
                                     Button::new(Image::new(LOOP_IMAGE).width(32).height(32))
-                                        .on_press(Message::ToggleLoop),
+                                        .on_press(Message::ToggleLoop)
+                                        .style(
+                                            if self.btn_state.shuffle_btn == StyleState::ActiveStyle {
+                                                btn_active_style
+                                            } else {
+                                                btn_inactive_style
+                                            }
+                                        )
                                 ),
                         ),
                     )
@@ -175,7 +211,7 @@ impl App {
                                         Image::new(PAUSE_IMAGE).width(32).height(32)
                                     })
                                         .on_press(Message::TogglePause)
-                                        .style(btn_style),
+                                        .style(btn_active_style),
                                 )
                                 .push(Button::new(Image::new(FORWARD_IMAGE).width(32).height(32))),
                         ),
