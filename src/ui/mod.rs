@@ -18,17 +18,16 @@ use iced::{
 use iced_video_player::{Video, VideoPlayer};
 use std::time::Duration;
 
-
 #[derive(Clone, Debug)]
 pub enum Message {
     TogglePause,
     ToggleLoop,
     ToggleShuffle,
-    Seek(f64),
-    SeekRelease,
+    VideoSeek(f64),
+    VideoSeekRelease,
     Forward(f64),
     Backward(f64),
-    VolChange(f64),
+    VolSeek(f64),
     EndOfStream,
     NewFrame,
     MainMenu,
@@ -77,12 +76,12 @@ impl App {
                 self.btn_state.toggle_shuffle_style();
                 println!("Toggle Shuffle");
             }
-            Message::Seek(secs) => {
+            Message::VideoSeek(secs) => {
                 self.dragging = true;
                 self.video.set_paused(true);
                 self.position = secs;
             }
-            Message::SeekRelease => {
+            Message::VideoSeekRelease => {
                 self.dragging = false;
                 self.video
                     .seek(Duration::from_secs_f64(self.position), false)
@@ -101,13 +100,8 @@ impl App {
                     .seek(Duration::from_secs_f64(self.position), false)
                     .expect("seek");
             }
-            Message::VolChange(vol) => {
-                let current_vol = self.video.volume();
-                let new_vol = current_vol + vol;
-                // limit volume between 0% and 150% (upper bound set to 1.6 to get 150%)
-                if new_vol >= 0.0 && new_vol <= 1.6 {
-                    self.video.set_volume(new_vol);
-                }
+            Message::VolSeek(vol) => {
+                self.video.set_volume(vol);
             }
             Message::EndOfStream => {
                 println!("end of stream");
@@ -152,13 +146,14 @@ impl App {
                             Slider::new(
                                 0.0..=self.video.duration().as_secs_f64(),
                                 self.position,
-                                Message::Seek,
+                                Message::VideoSeek,
                             )
                                 .step(0.1)
-                                .on_release(Message::SeekRelease),
+                                .on_release(Message::VideoSeekRelease),
                         ),
                     )
                     .push(
+                        // Video time stamp
                         Text::new(format!(
                             "{}:{:02}s / {}:{:02}s",
                             self.position as u64 / 60, // current minute marker
@@ -247,14 +242,12 @@ impl App {
                                 .align_y(Vertical::Center)
                                 .push(Image::new(VOLUME_IMAGE).width(32).height(32))
                                 .push(
-                                    Button::new(Text::new("-"))
-                                        .width(50.0)
-                                        .on_press(Message::VolChange(-0.1)),
-                                )
-                                .push(
-                                    Button::new(Text::new("+"))
-                                        .width(50.0)
-                                        .on_press(Message::VolChange(0.1)),
+                                    Slider::new(
+                                        0.0..=1.5,
+                                        self.video.volume(),
+                                        Message::VolSeek
+                                    )
+                                        .step(0.1)
                                 )
                                 .push(
                                     Text::new(format!(
