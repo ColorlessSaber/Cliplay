@@ -18,8 +18,7 @@ impl Default for ButtonStruct {
 }
 
 
-// Holds information about a button widget: style, etc.
-#[derive(Debug, PartialEq)]
+// Holds information about a button widget: style state, etc.
 pub struct ButtonInfo {
     pub current_style: StyleState,
 }

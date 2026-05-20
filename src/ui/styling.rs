@@ -19,7 +19,6 @@ pub mod static_images {
 }
 
 // The different style states for a given widget
-#[derive(Debug, PartialEq)]
 pub enum StyleState {
     ActiveStyle,
     InactiveStyle,
