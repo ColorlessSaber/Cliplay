@@ -1,4 +1,6 @@
 mod styling;
+mod buttons;
+
 use styling::static_images::{
     MAIN_MENU_IMAGE, PLAY_IMAGE, PAUSE_IMAGE, FORWARD_IMAGE, BACKWARD_IMAGE, LOOP_IMAGE,
     SHUFFLE_IMAGE, VOLUME_IMAGE
@@ -6,9 +8,9 @@ use styling::static_images::{
 use styling::{
     btn_inactive_style,
     btn_active_style,
-    BtnStyle,
     StyleState
 };
+use buttons::{ButtonStruct};
 use iced::{
     Element,
     Length,
@@ -37,7 +39,7 @@ pub struct App {
     video: Video,
     position: f64,
     dragging: bool,
-    btn_state: BtnStyle,
+    btn_struct: ButtonStruct,
 }
 
 impl Default for App {
@@ -57,7 +59,7 @@ impl Default for App {
                 .unwrap(),
             position: 0.0,
             dragging: false,
-            btn_state: BtnStyle::default(),
+            btn_struct: ButtonStruct::default(),
         }
     }
 }
@@ -69,11 +71,11 @@ impl App {
                 self.video.set_paused(!self.video.paused());
             }
             Message::ToggleLoop => {
-                self.btn_state.toggle_loop_style();
+                self.btn_struct.loop_button.toggle_style();
                 self.video.set_looping(!self.video.looping());
             }
             Message::ToggleShuffle => {
-                self.btn_state.toggle_shuffle_style();
+                self.btn_struct.shuffle_button.toggle_style();
                 println!("Toggle Shuffle");
             }
             Message::VideoSeek(secs) => {
@@ -104,7 +106,26 @@ impl App {
                 self.video.set_volume(vol);
             }
             Message::EndOfStream => {
-                println!("end of stream");
+                if self.video.looping() {
+                    println!("Repeat video");
+                } else {
+                    // test to see how to launch a new video
+                    self.video = Video::new(
+                        &url::Url::from_file_path(
+                            std::path::PathBuf::from(file!())
+                                .parent()
+                                .unwrap()
+                                .join("/home/admin/Videos/Misc Videos/Zenless Zone Zero/Caesar Character Demo -  Calydon's Ride    Zenless Zone Zero.mp4")
+                                .canonicalize()
+                                .unwrap(),
+                        )
+                            .unwrap(),
+                    )
+                        .unwrap();
+                    self.position = 0.0;
+                    self.dragging = false;
+                    self.btn_struct = ButtonStruct::default();
+                }
             }
             Message::NewFrame => {
                 if !self.dragging {
@@ -187,10 +208,9 @@ impl App {
                                     Button::new(Image::new(SHUFFLE_IMAGE).width(32).height(32))
                                         .on_press(Message::ToggleShuffle)
                                         .style(
-                                            if self.btn_state.shuffle_button == StyleState::ActiveStyle {
-                                                btn_active_style
-                                            } else {
-                                                btn_inactive_style
+                                            match self.btn_struct.shuffle_button.current_style {
+                                                StyleState::ActiveStyle => btn_active_style,
+                                                StyleState::InactiveStyle => btn_inactive_style,
                                             }
                                         )
                                 )
@@ -198,10 +218,9 @@ impl App {
                                     Button::new(Image::new(LOOP_IMAGE).width(32).height(32))
                                         .on_press(Message::ToggleLoop)
                                         .style(
-                                            if self.btn_state.loop_button == StyleState::ActiveStyle {
-                                                btn_active_style
-                                            } else {
-                                                btn_inactive_style
+                                            match self.btn_struct.loop_button.current_style {
+                                                StyleState::ActiveStyle => btn_active_style,
+                                                StyleState::InactiveStyle => btn_inactive_style,
                                             }
                                         )
                                 ),
