@@ -18,12 +18,13 @@ pub mod static_images {
     pub static VOLUME_IMAGE: &str = "icons/volume.png";
 }
 
-// The different style states for a given widget
+// Help differentiate the state of the widget; IE, active, inactive, etc.
 pub enum StyleState {
     ActiveStyle,
     InactiveStyle,
 }
 
+// styles when the button is active
 pub fn btn_active_style(_: &Theme, status: Status) -> Style {
     match status {
         Status::Active | Status::Pressed => Style {
@@ -50,6 +51,7 @@ pub fn btn_active_style(_: &Theme, status: Status) -> Style {
     }
 }
 
+// styles when the button is inactive
 pub fn btn_inactive_style(_: &Theme, status: Status) -> Style {
     match status {
         Status::Active | Status::Pressed => Style {

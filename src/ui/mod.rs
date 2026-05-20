@@ -56,6 +56,8 @@ impl Default for App {
 }
 
 impl App {
+
+    // Iced methods
     pub fn update(&mut self, message: Message) {
         match message {
             Message::TogglePause => {
@@ -103,8 +105,6 @@ impl App {
                     // test to see how to launch a new video
                     self.video = new_video_to_play("/home/admin/Videos/Misc Videos/Zenless Zone Zero/Caesar Character Demo -  Calydon's Ride    Zenless Zone Zero.mp4");
                     self.position = 0.0;
-                    self.dragging = false;
-                    self.btn_struct = ButtonStruct::default();
                 }
             }
             Message::NewFrame => {
@@ -217,11 +217,12 @@ impl App {
                                         .style(btn_active_style)
                                 )
                                 .push(
-                                    Button::new(if self.video.paused() {
-                                        Image::new(PLAY_IMAGE).width(32).height(32)
-                                    } else {
-                                        Image::new(PAUSE_IMAGE).width(32).height(32)
-                                    })
+                                    Button::new(
+                                        match self.video.paused() {
+                                            true => Image::new(PLAY_IMAGE).width(32).height(32),
+                                            false => Image::new(PAUSE_IMAGE).width(32).height(32)
+                                        }
+                                    )
                                         .on_press(Message::TogglePause)
                                         .style(btn_active_style),
                                 )
