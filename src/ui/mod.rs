@@ -11,7 +11,7 @@ use styling::{
     StyleState
 };
 use buttons::{ButtonStruct};
-use functions::new_video_to_play;
+use crate::functions::load_video_file;
 use iced::{
     Element,
     Length,
@@ -20,7 +20,7 @@ use iced::{
 };
 use iced_video_player::{Video, VideoPlayer};
 use std::time::Duration;
-use crate::functions;
+
 
 #[derive(Clone, Debug)]
 pub enum Message {
@@ -47,7 +47,7 @@ pub struct App {
 impl Default for App {
     fn default() -> Self {
         App {
-            video: new_video_to_play("/home/admin/Videos/Misc Videos/Zenless Zone Zero/ZZZ WIT Studio Animation.mkv"),
+            video: load_video_file("/home/admin/Videos/Misc Videos/Zenless Zone Zero/ZZZ WIT Studio Animation.mkv"),
             position: 0.0,
             dragging: false,
             btn_struct: ButtonStruct::default(),
@@ -103,7 +103,7 @@ impl App {
                     println!("Repeat video");
                 } else {
                     // test to see how to launch a new video
-                    self.video = new_video_to_play("/home/admin/Videos/Misc Videos/Zenless Zone Zero/Caesar Character Demo -  Calydon's Ride    Zenless Zone Zero.mp4");
+                    self.video = load_video_file("/home/admin/Videos/Misc Videos/Zenless Zone Zero/Caesar Character Demo -  Calydon's Ride    Zenless Zone Zero.mp4");
                     self.position = 0.0;
                 }
             }
