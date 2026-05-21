@@ -1,5 +1,5 @@
 mod ui;
-mod functions;
+mod utils;
 
 use ui::App;
 

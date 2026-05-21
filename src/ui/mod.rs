@@ -11,7 +11,10 @@ use styling::{
     StyleState
 };
 use buttons::{ButtonStruct};
-use crate::functions::load_video_file;
+use crate::utils::{
+    functions::load_video_file,
+    playlist_manager::{PlayListManager},
+};
 use iced::{
     Element,
     Length,
@@ -42,6 +45,8 @@ pub struct App {
     position: f64,
     dragging: bool,
     btn_struct: ButtonStruct,
+    playlist_manager: PlayListManager,
+    loop_on: bool,
 }
 
 impl Default for App {
@@ -51,6 +56,8 @@ impl Default for App {
             position: 0.0,
             dragging: false,
             btn_struct: ButtonStruct::default(),
+            playlist_manager: PlayListManager::default(),
+            loop_on: false,
         }
     }
 }
@@ -65,7 +72,7 @@ impl App {
             }
             Message::ToggleLoop => {
                 self.btn_struct.loop_button.toggle_style();
-                self.video.set_looping(!self.video.looping());
+                self.loop_on = !self.loop_on;
             }
             Message::ToggleShuffle => {
                 self.btn_struct.shuffle_button.toggle_style();
@@ -99,12 +106,23 @@ impl App {
                 self.video.set_volume(vol);
             }
             Message::EndOfStream => {
-                if self.video.looping() {
-                    println!("Repeat video");
-                } else {
-                    // test to see how to launch a new video
-                    self.video = load_video_file("/home/admin/Videos/Misc Videos/Zenless Zone Zero/Caesar Character Demo -  Calydon's Ride    Zenless Zone Zero.mp4");
-                    self.position = 0.0;
+                loop {
+                    let video_file = self.playlist_manager.next_file_in_playlist();
+                    match video_file {
+                        Some(video_file) => {
+                            self.video = load_video_file(video_file.as_str());
+                            self.position = 0.0;
+                            break;
+                        }
+                        None => {
+                            if self.loop_on {
+                                self.playlist_manager.reset_index();
+                            } else {
+                                println!("Reached end of playlist");
+                                break;
+                            }
+                        }
+                    }
                 }
             }
             Message::NewFrame => {
