@@ -21,22 +21,32 @@ impl Default for PlayListManager { // for testing purposes
 }
 
 impl PlayListManager {
-    pub fn new() -> Self {
-        Self {
-            playlist: Vec::new(),
-            index: 0,
+    // pub fn new() -> Self {
+    //     Self {
+    //         playlist: Vec::new(),
+    //         index: 0,
+    //     }
+    // }
+
+    pub fn next_file_in_playlist(&mut self, repeat: bool) -> Option<&String> {
+        // Returns none upon reaching the end of the playlist
+        loop {
+            let file = self.playlist.get(self.index as usize);
+            self.index += 1;
+            if file.is_none() {
+                if repeat {
+                    self.index = 0;
+                } else {
+                    return None;
+                }
+            } else {
+                return file;
+            }
         }
     }
 
-    pub fn next_file_in_playlist(&mut self) -> Option<&String> {
-        // An Option-None is when the application as reached the end of the playlist.
-        let file = self.playlist.get(self.index as usize);
-        self.index += 1;
-        file
-    }
-
-    pub fn reset_index(&mut self) {
-        self.index = 0;
-    }
+    // pub fn reset_index(&mut self) {
+    //     self.index = 0;
+    // }
 
 }
