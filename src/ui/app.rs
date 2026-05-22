@@ -7,7 +7,11 @@ use crate::ui::styling::{
     btn_active_style,
     StyleState
 };
-use crate::ui::buttons::{ButtonStruct, ButtonState};
+use crate::ui::buttons::{
+    ButtonStruct,
+    loop_button::LoopStates,
+    shuffle_button::ShuffleStates,
+};
 use crate::utils::{
     functions::load_video_file,
     playlist_manager::{PlayListManager},
@@ -71,7 +75,13 @@ impl App {
             }
             Message::ToggleShuffle => {
                 self.btn_struct.shuffle_button.toggle_style();
-                println!("Toggle Shuffle");
+                self.btn_struct.shuffle_button.toggle_state();
+
+                match self.btn_struct.shuffle_button.state() {
+                    ShuffleStates::ShuffleOn => println!("Shuffle on"),
+                    ShuffleStates::ShuffleOff => println!("Shuffle off"),
+                }
+
             }
             Message::VideoSeek(secs) => {
                 self.dragging = true;
@@ -101,11 +111,12 @@ impl App {
                 self.video.set_volume(vol);
             }
             Message::EndOfStream => {
-                let loop_btn_state = match self.btn_struct.loop_button.state() {
-                    ButtonState::OnState => true,
-                    ButtonState::OffState => false
+                let loop_entire_playlist = match self.btn_struct.loop_button.state() {
+                    LoopStates::LoopAll => true,
+                    _ => false,
                 };
-                let video_file = self.playlist_manager.next_file_in_playlist(loop_btn_state);
+
+                let video_file = self.playlist_manager.next_file_in_playlist(loop_entire_playlist);
 
                 match video_file {
                     Some(video_file) => {

@@ -1,64 +1,126 @@
-use crate::ui::styling::{
-    StyleState,
-};
+use crate::ui::buttons::loop_button::LoopButton;
+use crate::ui::buttons::shuffle_button::ShuffleButton;
 
 // holds information about each button that have dynamic information
 pub struct ButtonStruct {
-    pub loop_button: ButtonInfo,
-    pub shuffle_button: ButtonInfo,
+    pub loop_button: LoopButton,
+    pub shuffle_button: ShuffleButton,
 }
 
 impl Default for ButtonStruct {
     fn default() -> Self {
         Self {
-            loop_button: ButtonInfo::default(),
-            shuffle_button: ButtonInfo::default(),
+            loop_button: LoopButton::default(),
+            shuffle_button: ShuffleButton::default(),
         }
     }
 }
 
-// Keeps track of the different states of a buttons. IE, On or off.
-#[derive(Copy, Clone)]
-pub enum ButtonState {
-    OffState,
-    OnState,
-}
-
-// Holds information about a button widget: style state, etc.
-pub struct ButtonInfo {
-    pub current_style: StyleState,
-    current_state: ButtonState,
-}
-
-impl Default for ButtonInfo {
-    fn default() -> Self {
-        Self {
-            current_style: StyleState::InactiveStyle,
-            current_state: ButtonState::OffState,
-        }
+// the struct, enum and methods for the loop button
+pub mod loop_button {
+    use crate::ui::styling::StyleState;
+    
+    #[derive(Copy, Clone)]
+    pub enum LoopStates {
+        LoopAll,
+        LoopSingle,
+        LoopOff,
     }
-}
-
-impl ButtonInfo {
-
-    pub fn state(&self) -> ButtonState {
-        self.current_state
+    
+    pub struct LoopButton {
+        pub current_style: StyleState,
+        current_state: LoopStates,
     }
-
-    pub fn toggle_state(&mut self) {
-        match self.current_state {
-            ButtonState::OffState => self.current_state = ButtonState::OnState,
-            ButtonState::OnState => self.current_state = ButtonState::OffState,
-        }
-    }
-
-    pub fn toggle_style(&mut self) {
-        match self.current_style {
-            StyleState::InactiveStyle => {
-                self.current_style = StyleState::ActiveStyle;
+    
+    impl Default for LoopButton {
+        fn default() -> Self {
+            Self {
+                current_style: StyleState::InactiveStyle,
+                current_state: LoopStates::LoopOff,
             }
-            StyleState::ActiveStyle => {
-                self.current_style = StyleState::InactiveStyle;
+        }
+    }
+    
+    impl LoopButton {
+        pub fn state(&self) -> LoopStates {
+            self.current_state
+        }
+        
+        pub fn toggle_state(&mut self) {
+            match self.current_state {
+                LoopStates::LoopAll => {
+                    self.current_state = LoopStates::LoopSingle;
+                }
+                LoopStates::LoopSingle => {
+                    self.current_state = LoopStates::LoopOff;
+                }
+                LoopStates::LoopOff => {
+                    self.current_state = LoopStates::LoopAll;
+                }
+            }
+        }
+        
+        pub fn toggle_style(&mut self) {
+            match self.current_style {
+                StyleState::InactiveStyle => {
+                    self.current_style = StyleState::ActiveStyle;
+                }
+                StyleState::ActiveStyle => {
+                    self.current_style = StyleState::InactiveStyle;
+                }
+            }
+        }
+    }
+}
+
+// the struct, enum and methods for the shuffle button
+pub mod shuffle_button {
+    use crate::ui::styling::StyleState;
+    
+    #[derive(Copy, Clone)]
+    pub enum ShuffleStates {
+        ShuffleOn,
+        ShuffleOff,
+    }
+    
+    pub struct ShuffleButton {
+        pub current_style: StyleState,
+        current_state: ShuffleStates,
+    }
+    
+    impl Default for ShuffleButton {
+        fn default() -> Self {
+            Self {
+                current_style: StyleState::InactiveStyle,
+                current_state: ShuffleStates::ShuffleOff
+            }
+        }
+    }
+    
+    impl ShuffleButton {
+        pub fn state(&self) -> ShuffleStates {
+            self.current_state
+        }
+        
+        pub fn toggle_state(&mut self) {
+            match self.current_state {
+                ShuffleStates::ShuffleOn => {
+                    self.current_state = ShuffleStates::ShuffleOff;
+                }
+                ShuffleStates::ShuffleOff => {
+                    self.current_state = ShuffleStates::ShuffleOn;
+                }
+            }
+        }
+        
+        pub fn toggle_style(&mut self) {
+            match self.current_style {
+                StyleState::InactiveStyle => {
+                    self.current_style = StyleState::ActiveStyle;
+                }
+                StyleState::ActiveStyle => {
+                    self.current_style = StyleState::InactiveStyle;
+                }
             }
         }
     }
