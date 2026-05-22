@@ -19,19 +19,19 @@ impl Default for ButtonStruct {
 // the struct, enum and methods for the loop button
 pub mod loop_button {
     use crate::ui::styling::StyleState;
-    
+
     #[derive(Copy, Clone)]
     pub enum LoopStates {
         LoopAll,
         LoopSingle,
         LoopOff,
     }
-    
+
     pub struct LoopButton {
         pub current_style: StyleState,
         current_state: LoopStates,
     }
-    
+
     impl Default for LoopButton {
         fn default() -> Self {
             Self {
@@ -40,13 +40,13 @@ pub mod loop_button {
             }
         }
     }
-    
+
     impl LoopButton {
         pub fn state(&self) -> LoopStates {
             self.current_state
         }
-        
-        pub fn toggle_state(&mut self) {
+
+        pub fn toggle_state_and_style(&mut self) {
             match self.current_state {
                 LoopStates::LoopAll => {
                     self.current_state = LoopStates::LoopSingle;
@@ -58,36 +58,45 @@ pub mod loop_button {
                     self.current_state = LoopStates::LoopAll;
                 }
             }
-        }
-        
-        pub fn toggle_style(&mut self) {
-            match self.current_style {
-                StyleState::InactiveStyle => {
-                    self.current_style = StyleState::ActiveStyle;
-                }
-                StyleState::ActiveStyle => {
-                    self.current_style = StyleState::InactiveStyle;
-                }
+            match self.current_state {
+                LoopStates::LoopAll => self.current_style = StyleState::ActiveStyle,
+                LoopStates::LoopSingle => self.current_style = StyleState::ActiveStyle,
+                LoopStates::LoopOff => self.current_style = StyleState::InactiveStyle,
             }
         }
+
+        pub fn is_state_set_to_loop_all(&self) -> bool {
+            match self.current_state {
+                LoopStates::LoopAll => true,
+                _ => false,
+            }
+        }
+
+        pub fn is_state_set_to_loop_single(&self) -> bool {
+            match self.current_state {
+                LoopStates::LoopSingle => true,
+                _ => false,
+            }
+        }
+
     }
 }
 
 // the struct, enum and methods for the shuffle button
 pub mod shuffle_button {
     use crate::ui::styling::StyleState;
-    
+
     #[derive(Copy, Clone)]
     pub enum ShuffleStates {
         ShuffleOn,
         ShuffleOff,
     }
-    
+
     pub struct ShuffleButton {
         pub current_style: StyleState,
         current_state: ShuffleStates,
     }
-    
+
     impl Default for ShuffleButton {
         fn default() -> Self {
             Self {
@@ -96,13 +105,13 @@ pub mod shuffle_button {
             }
         }
     }
-    
+
     impl ShuffleButton {
         pub fn state(&self) -> ShuffleStates {
             self.current_state
         }
-        
-        pub fn toggle_state(&mut self) {
+
+        pub fn toggle_state_and_style(&mut self) {
             match self.current_state {
                 ShuffleStates::ShuffleOn => {
                     self.current_state = ShuffleStates::ShuffleOff;
@@ -111,16 +120,9 @@ pub mod shuffle_button {
                     self.current_state = ShuffleStates::ShuffleOn;
                 }
             }
-        }
-        
-        pub fn toggle_style(&mut self) {
-            match self.current_style {
-                StyleState::InactiveStyle => {
-                    self.current_style = StyleState::ActiveStyle;
-                }
-                StyleState::ActiveStyle => {
-                    self.current_style = StyleState::InactiveStyle;
-                }
+            match self.current_state {
+                ShuffleStates::ShuffleOn => self.current_style = StyleState::ActiveStyle,
+                ShuffleStates::ShuffleOff => self.current_style = StyleState::InactiveStyle,
             }
         }
     }

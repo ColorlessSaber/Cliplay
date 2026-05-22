@@ -1,7 +1,4 @@
-use crate::ui::styling::static_images::{
-    MAIN_MENU_IMAGE, PLAY_IMAGE, PAUSE_IMAGE, FORWARD_IMAGE, BACKWARD_IMAGE, LOOP_IMAGE,
-    SHUFFLE_IMAGE, VOLUME_IMAGE
-};
+use crate::ui::styling::static_images::*;
 use crate::ui::styling::{
     btn_inactive_style,
     btn_active_style,
@@ -70,13 +67,13 @@ impl App {
                 self.video.set_paused(!self.video.paused());
             }
             Message::ToggleLoop => {
-                self.btn_struct.loop_button.toggle_style();
-                self.btn_struct.loop_button.toggle_state();
+                self.btn_struct.loop_button.toggle_state_and_style();
+                if self.btn_struct.loop_button.is_state_set_to_loop_single() {
+                    self.video.set_looping(!self.video.looping());
+                }
             }
             Message::ToggleShuffle => {
-                self.btn_struct.shuffle_button.toggle_style();
-                self.btn_struct.shuffle_button.toggle_state();
-
+                self.btn_struct.shuffle_button.toggle_state_and_style();
                 match self.btn_struct.shuffle_button.state() {
                     ShuffleStates::ShuffleOn => println!("Shuffle on"),
                     ShuffleStates::ShuffleOff => println!("Shuffle off"),
@@ -111,23 +108,22 @@ impl App {
                 self.video.set_volume(vol);
             }
             Message::EndOfStream => {
-                let loop_entire_playlist = match self.btn_struct.loop_button.state() {
-                    LoopStates::LoopAll => true,
-                    _ => false,
-                };
+                if !self.btn_struct.loop_button.is_state_set_to_loop_single() {
+                    let loop_entire_playlist = self.btn_struct.loop_button.is_state_set_to_loop_all();
+                    let video_file = self.playlist_manager.next_file_in_playlist(loop_entire_playlist);
 
-                let video_file = self.playlist_manager.next_file_in_playlist(loop_entire_playlist);
-
-                match video_file {
-                    Some(video_file) => {
-                        self.video = load_video_file(&video_file);
-                        self.position = 0.0;
+                    match video_file {
+                        Some(video_file) => {
+                            self.video = load_video_file(&video_file);
+                            self.position = 0.0;
+                        }
+                        None => {
+                            println!("reach end of playlist")
+                        }
                     }
-                    None => {
-                        println!("reach end of playlist")
-                    }
+                } else {
+                    println!("Playing video again")
                 }
-
             }
             Message::NewFrame => {
                 if !self.dragging {
@@ -217,7 +213,13 @@ impl App {
                                         )
                                 )
                                 .push(
-                                    Button::new(Image::new(LOOP_IMAGE).width(32).height(32))
+                                    Button::new(
+                                        match self.btn_struct.loop_button.state() {
+                                            LoopStates::LoopAll => Image::new(LOOP_INFINITE_IMAGE).width(32).height(32),
+                                            LoopStates::LoopSingle => Image::new(LOOP_ONE_IMAGE).width(32).height(32),
+                                            LoopStates::LoopOff => Image::new(LOOP_OFF_IMAGE).width(32).height(32),
+                                        }
+                                    )
                                         .on_press(Message::ToggleLoop)
                                         .style(
                                             match self.btn_struct.loop_button.current_style {
