@@ -35,14 +35,14 @@ pub enum Message {
     VideoSeekRelease,
     Forward(f64),
     Backward(f64),
-    VolSeek(f64),
+    VolumeSeek(f64),
     EndOfStream,
     NewFrame,
     MainMenu,
 }
 
 pub struct App {
-    video: Video,
+    video: Option<Video>,
     position: f64,
     dragging: bool,
     btn_struct: ButtonStruct,
@@ -52,11 +52,11 @@ pub struct App {
 impl App {
     pub fn new() -> Self {
         Self {
-            video: load_video_file("/home/admin/Videos/Misc Videos/Zenless Zone Zero/ZZZ WIT Studio Animation.mkv"),
+            video: None,
             position: 0.0,
             dragging: false,
             btn_struct: ButtonStruct::default(),
-            playlist_manager: PlayListManager::default(),
+            playlist_manager: PlayListManager::new(),
         }
     }
     pub fn title(&self) -> String {
@@ -67,12 +67,18 @@ impl App {
     pub fn update(&mut self, message: Message) {
         match message {
             Message::TogglePause => {
-                self.video.set_paused(!self.video.paused());
+                if let Some(video) = self.video.as_mut() {
+                    video.set_paused(!video.paused());
+                } else {
+                    println!("No video selected");
+                }
             }
             Message::ToggleLoop => {
                 self.btn_struct.loop_button.toggle_state_and_style();
                 if self.btn_struct.loop_button.is_state_set_to_loop_single() {
-                    self.video.set_looping(!self.video.looping());
+                    if let Some(video) = self.video.as_mut() {
+                        video.set_looping(!video.looping());
+                    }
                 }
             }
             Message::ToggleShuffle => {
@@ -84,30 +90,36 @@ impl App {
             }
             Message::VideoSeek(secs) => {
                 self.dragging = true;
-                self.video.set_paused(true);
+                self.video.as_mut().unwrap().set_paused(true); // Will remove unwrap once ready
                 self.position = secs;
             }
             Message::VideoSeekRelease => {
                 self.dragging = false;
                 self.video
+                    .as_mut()
+                    .unwrap()// will remove unwrap once ready
                     .seek(Duration::from_secs_f64(self.position), false)
                     .expect("seek");
-                self.video.set_paused(false);
+                self.video.as_mut().unwrap().set_paused(false); // will remove unwrap once ready
             }
             Message::Forward(secs) => {
                 self.position += secs;
                 self.video
+                    .as_mut()
+                    .unwrap() // will remove unwrap once ready
                     .seek(Duration::from_secs_f64(self.position), false)
                     .expect("forward");
             }
             Message::Backward(secs) => {
                 self.position -= secs;
                 self.video
+                    .as_mut()
+                    .unwrap() // will remove unwrap once ready
                     .seek(Duration::from_secs_f64(self.position), false)
                     .expect("backward");
             }
-            Message::VolSeek(vol) => {
-                self.video.set_volume(vol);
+            Message::VolumeSeek(vol) => {
+                self.video.as_mut().unwrap().set_volume(vol);
             }
             Message::EndOfStream => {
                 if !self.btn_struct.loop_button.is_state_set_to_loop_single() {
@@ -116,7 +128,8 @@ impl App {
 
                     match video_file {
                         Some(video_file) => {
-                            self.video = load_video_file(&video_file);
+                            let vid = load_video_file(&video_file);
+                            self.video = Some(vid);
                             self.position = 0.0;
                         }
                         None => {
@@ -129,31 +142,66 @@ impl App {
             }
             Message::NewFrame => {
                 if !self.dragging {
-                    self.position = self.video.position().as_secs_f64();
+                    self.position = self.video.as_ref().unwrap().position().as_secs_f64(); // will remove as_ref and unwrap when ready
                 }
             }
             Message::MainMenu => {
                 self.btn_struct.main_menu_button.toggle_state();
+                self.playlist_manager.load_playlist();
+                let video_file = self.playlist_manager.next_file_in_playlist(false);
+                let vid = load_video_file(video_file.as_ref().unwrap());
+                self.video = Some(vid);
+                self.position = 0.0;
             }
         }
     }
 
     pub fn view(&self) -> Element<'_, Message> {
+        let upper_scrub_position = {
+            if let Some(video) = self.video.as_ref() {
+                video.duration().as_secs_f64()
+            } else {
+                0.0
+            }
+        };
+
+        let video_duration = {
+            if let Some(video) = self.video.as_ref() {
+                video.duration().as_secs()
+            } else { 0 }
+        };
+
+        let current_video_volume = {
+            if let Some(video) = self.video.as_ref() {
+                video.volume()
+            } else { 1.0 }
+        };
+
+        let is_video_currently_paused = {
+            if let Some(video) = self.video.as_ref() {
+                video.paused()
+            } else { false }
+        };
+
         Column::new()
             .push(
                 // video view
-                Container::new(
-                    VideoPlayer::new(&self.video)
+                if let Some(video) = self.video.as_ref() {
+                    Container::new(
+                        VideoPlayer::new(video)
+                            .width(Length::Fill)
+                            .height(Length::Fill)
+                            .content_fit(iced::ContentFit::Contain)
+                            .on_end_of_stream(Message::EndOfStream)
+                            .on_new_frame(Message::NewFrame)
+                    )
+                        .align_x(Alignment::Center)
+                        .align_y(Alignment::Center)
                         .width(Length::Fill)
                         .height(Length::Fill)
-                        .content_fit(iced::ContentFit::Contain)
-                        .on_end_of_stream(Message::EndOfStream)
-                        .on_new_frame(Message::NewFrame),
-                )
-                    .align_x(Alignment::Center)
-                    .align_y(Alignment::Center)
-                    .width(Length::Fill)
-                    .height(Length::Fill),
+                } else {
+                    Container::new(Text::new("Hit the main menu button to start playlist")) // will update with a better view/interface
+                }
             )
             .push(
                 // row for scrub bar and time stamp
@@ -165,13 +213,13 @@ impl App {
                         // slider
                         Container::new(
                             Slider::new(
-                                0.0..=self.video.duration().as_secs_f64(),
+                                0.0..=upper_scrub_position,
                                 self.position,
                                 Message::VideoSeek,
                             )
                                 .step(0.1)
                                 .on_release(Message::VideoSeekRelease),
-                        ),
+                        )
                     )
                     .push(
                         // Video time stamp
@@ -179,12 +227,12 @@ impl App {
                             "{}:{:02}s / {}:{:02}s",
                             self.position as u64 / 60, // current minute marker
                             self.position as u64 % 60, // current second marker
-                            self.video.duration().as_secs() / 60, // video total length, minute marker
-                            self.video.duration().as_secs() % 60, // video total length, second marker
+                            video_duration / 60, // video total length, minute marker
+                            video_duration % 60, // video total length, second marker
                         ))
                             .width(Length::Fixed(100.0))
                             .align_x(Horizontal::Right),
-                    ),
+                    )
             )
             .push(
                 // row for main menu, loop/shuffle, player controls, set start/stop points and volume
@@ -234,8 +282,8 @@ impl App {
                                                 StyleState::InactiveStyle => btn_inactive_style,
                                             }
                                         )
-                                ),
-                        ),
+                                )
+                        )
                     )
                     .push(
                         // back, play/pause, forward keys
@@ -249,7 +297,7 @@ impl App {
                                 )
                                 .push(
                                     Button::new(
-                                        match self.video.paused() {
+                                        match is_video_currently_paused { // will remove unwrap when ready
                                             true => Image::new(PLAY_IMAGE).width(32).height(32),
                                             false => Image::new(PAUSE_IMAGE).width(32).height(32)
                                         }
@@ -261,8 +309,8 @@ impl App {
                                     Button::new(Image::new(FORWARD_IMAGE).width(32).height(32))
                                         .on_press(Message::Forward(10.0))
                                         .style(btn_active_style)
-                                ),
-                        ),
+                                )
+                        )
                     )
                     .push(Space::new().width(Length::Fill))
                     .push(
@@ -275,20 +323,20 @@ impl App {
                                 .push(
                                     Slider::new(
                                         0.0..=1.5,
-                                        self.video.volume(),
-                                        Message::VolSeek
+                                        current_video_volume,
+                                        Message::VolumeSeek
                                     )
                                         .step(0.1)
                                 )
                                 .push(
                                     Text::new(format!(
                                         "{:.0}%",
-                                        self.video.volume() * 100.0, // turn the value into a percentage
+                                        current_video_volume * 100.0, // turn the value into a percentage
                                     ))
                                         .width(Length::Fill),
-                                ),
-                        ),
-                    ),
+                                )
+                        )
+                    )
             )
             .into()
     }
@@ -303,8 +351,8 @@ impl App {
                 modifiers, ..
             } => match (key, modifiers) {
                 (keyboard::key::Named::Space, _) => Some(Message::TogglePause),
-                (keyboard::key::Named::AudioVolumeUp, _) => Some(Message::VolSeek(10.0)),
-                (keyboard::key::Named::AudioVolumeDown, _) => Some(Message::VolSeek(-10.0)),
+                (keyboard::key::Named::AudioVolumeUp, _) => Some(Message::VolumeSeek(0.1)),
+                (keyboard::key::Named::AudioVolumeDown, _) => Some(Message::VolumeSeek(-0.1)),
                 _ => None,
             },
             _ => None,

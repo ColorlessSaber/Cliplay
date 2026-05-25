@@ -5,13 +5,14 @@ playlist manipulation.
 
 pub struct PlayListManager {
     playlist: Vec<String>,
-    index: u8, // Keeps track of where in the current playlist we are at. Using 8-bit for not for seeing a playlist with +255 vids
+    index: usize, // Keeps track of where in the current playlist we are at.
 }
 
 impl Default for PlayListManager { // for testing purposes
     fn default() -> Self {
         Self {
             playlist: vec![
+                "/home/admin/Videos/Misc Videos/Zenless Zone Zero/ZZZ WIT Studio Animation.mkv".to_string(),
                 "/home/admin/Videos/Misc Videos/Zenless Zone Zero/Burnice Character Demo -  A Burnice Special for the Brokenhearted    Zenless Zone Zero.mp4".to_string(),
                 "/home/admin/Videos/Misc Videos/Zenless Zone Zero/Caesar Character Demo -  Calydon's Ride    Zenless Zone Zero.mp4".to_string(),
             ],
@@ -21,17 +22,17 @@ impl Default for PlayListManager { // for testing purposes
 }
 
 impl PlayListManager {
-    // pub fn new() -> Self {
-    //     Self {
-    //         playlist: Vec::new(),
-    //         index: 0,
-    //     }
-    // }
+    pub fn new() -> Self {
+        Self {
+            playlist: Vec::new(),
+            index: 0,
+        }
+    }
 
     pub fn next_file_in_playlist(&mut self, repeat: bool) -> Option<&String> {
         // Returns none upon reaching the end of the playlist
         loop {
-            let file = self.playlist.get(self.index as usize);
+            let file = self.playlist.get(self.index);
             self.index += 1;
             if file.is_none() {
                 if repeat {
@@ -43,6 +44,15 @@ impl PlayListManager {
                 return file;
             }
         }
+    }
+
+    pub fn load_playlist(&mut self) {
+        self.playlist = vec![
+            "/home/admin/Videos/Misc Videos/Zenless Zone Zero/ZZZ WIT Studio Animation.mkv".to_string(),
+            "/home/admin/Videos/Misc Videos/Zenless Zone Zero/Burnice Character Demo -  A Burnice Special for the Brokenhearted    Zenless Zone Zero.mp4".to_string(),
+            "/home/admin/Videos/Misc Videos/Zenless Zone Zero/Caesar Character Demo -  Calydon's Ride    Zenless Zone Zero.mp4".to_string(),
+        ];
+        self.index = 0;
     }
 
     // pub fn reset_index(&mut self) {
