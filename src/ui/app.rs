@@ -15,8 +15,10 @@ use crate::utils::{
     playlist_manager::{PlayListManager},
 };
 use iced::{
+    keyboard,
     Element,
     Length,
+    Subscription,
     alignment::{Alignment, Horizontal, Vertical},
     widget::{Button, Column, Container, Image, Row, Slider, Text, Space},
 };
@@ -47,9 +49,9 @@ pub struct App {
     playlist_manager: PlayListManager,
 }
 
-impl Default for App {
-    fn default() -> Self {
-        App {
+impl App {
+    pub fn new() -> Self {
+        Self {
             video: load_video_file("/home/admin/Videos/Misc Videos/Zenless Zone Zero/ZZZ WIT Studio Animation.mkv"),
             position: 0.0,
             dragging: false,
@@ -57,11 +59,11 @@ impl Default for App {
             playlist_manager: PlayListManager::default(),
         }
     }
-}
+    pub fn title(&self) -> String {
+        // The title of the GUI; shows at the top
+        "Cliplay - Video Player".to_string()
+    }
 
-impl App {
-
-    // Iced methods
     pub fn update(&mut self, message: Message) {
         match message {
             Message::TogglePause => {
@@ -79,7 +81,6 @@ impl App {
                     ShuffleStates::ShuffleOn => println!("Shuffle on"),
                     ShuffleStates::ShuffleOff => println!("Shuffle off"),
                 }
-
             }
             Message::VideoSeek(secs) => {
                 self.dragging = true;
@@ -290,5 +291,23 @@ impl App {
                     ),
             )
             .into()
+    }
+
+    pub fn subscription(&self) -> Subscription<Message> {
+        // Runs specific tasks in the background and or "listens" for a specific thing.
+
+        // Listen for specific key presses
+        keyboard::listen().filter_map(|event| match event {
+            keyboard::Event::KeyPressed {
+                key: keyboard::Key::Named(key),
+                modifiers, ..
+            } => match (key, modifiers) {
+                (keyboard::key::Named::Space, _) => Some(Message::TogglePause),
+                (keyboard::key::Named::AudioVolumeUp, _) => Some(Message::VolSeek(10.0)),
+                (keyboard::key::Named::AudioVolumeDown, _) => Some(Message::VolSeek(-10.0)),
+                _ => None,
+            },
+            _ => None,
+        })
     }
 }
