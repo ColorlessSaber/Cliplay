@@ -8,6 +8,7 @@ use crate::ui::buttons::{
     ButtonStruct,
     loop_button::LoopStates,
     shuffle_button::ShuffleStates,
+    main_menu_button::MainMenuStates,
 };
 use crate::utils::{
     functions::load_video_file,
@@ -74,7 +75,7 @@ impl App {
             }
             Message::ToggleShuffle => {
                 self.btn_struct.shuffle_button.toggle_state_and_style();
-                match self.btn_struct.shuffle_button.state() {
+                match self.btn_struct.shuffle_button.current_state() {
                     ShuffleStates::ShuffleOn => println!("Shuffle on"),
                     ShuffleStates::ShuffleOff => println!("Shuffle off"),
                 }
@@ -96,13 +97,13 @@ impl App {
                 self.position += secs;
                 self.video
                     .seek(Duration::from_secs_f64(self.position), false)
-                    .expect("seek");
+                    .expect("forward");
             }
             Message::Backward(secs) => {
                 self.position -= secs;
                 self.video
                     .seek(Duration::from_secs_f64(self.position), false)
-                    .expect("seek");
+                    .expect("backward");
             }
             Message::VolSeek(vol) => {
                 self.video.set_volume(vol);
@@ -131,7 +132,7 @@ impl App {
                 }
             }
             Message::MainMenu => {
-                println!("Main Menu");
+                self.btn_struct.main_menu_button.toggle_state();
             }
         }
     }
@@ -192,7 +193,12 @@ impl App {
                     .padding(iced::Padding::new(10.0).top(0.0))
                     .push(
                         // main menu
-                        Button::new(Image::new(MAIN_MENU_IMAGE).width(32).height(32))
+                        Button::new(
+                            match self.btn_struct.main_menu_button.current_state() {
+                                MainMenuStates::MainMenuClosed => Image::new(MAIN_MENU_CLOSED_IMAGE).width(32).height(32),
+                                MainMenuStates::MainMenuOpen => Image::new(MAIN_MENU_OPEN_IMAGE).width(32).height(32),
+                            }
+                        )
                             .on_press(Message::MainMenu)
                             .style(btn_active_style)
                     )
@@ -206,7 +212,7 @@ impl App {
                                     Button::new(Image::new(SHUFFLE_IMAGE).width(32).height(32))
                                         .on_press(Message::ToggleShuffle)
                                         .style(
-                                            match self.btn_struct.shuffle_button.current_style {
+                                            match self.btn_struct.shuffle_button.current_style() {
                                                 StyleState::ActiveStyle => btn_active_style,
                                                 StyleState::InactiveStyle => btn_inactive_style,
                                             }
@@ -214,7 +220,7 @@ impl App {
                                 )
                                 .push(
                                     Button::new(
-                                        match self.btn_struct.loop_button.state() {
+                                        match self.btn_struct.loop_button.current_state() {
                                             LoopStates::LoopAll => Image::new(LOOP_INFINITE_IMAGE).width(32).height(32),
                                             LoopStates::LoopSingle => Image::new(LOOP_ONE_IMAGE).width(32).height(32),
                                             LoopStates::LoopOff => Image::new(LOOP_OFF_IMAGE).width(32).height(32),
@@ -222,7 +228,7 @@ impl App {
                                     )
                                         .on_press(Message::ToggleLoop)
                                         .style(
-                                            match self.btn_struct.loop_button.current_style {
+                                            match self.btn_struct.loop_button.current_style() {
                                                 StyleState::ActiveStyle => btn_active_style,
                                                 StyleState::InactiveStyle => btn_inactive_style,
                                             }

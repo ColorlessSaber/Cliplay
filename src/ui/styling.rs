@@ -8,19 +8,21 @@ use iced::{
 };
 
 pub mod static_images {
-    pub static MAIN_MENU_IMAGE: &str = "icons/main_menu.png";
+    pub static MAIN_MENU_CLOSED_IMAGE: &str = "icons/main_menu_closed.png";
+    pub static MAIN_MENU_OPEN_IMAGE: &str = "icons/main_menu_open.png";
     pub static PLAY_IMAGE: &str = "icons/play.png";
     pub static PAUSE_IMAGE: &str = "icons/pause.png";
     pub static FORWARD_IMAGE: &str = "icons/forward.png";
     pub static BACKWARD_IMAGE: &str = "icons/backward.png";
-    pub static LOOP_OFF_IMAGE: &str = "icons/loop-off.png";
-    pub static LOOP_ONE_IMAGE: &str = "icons/loop-one.png";
-    pub static LOOP_INFINITE_IMAGE: &str = "icons/loop-infinite.png";
+    pub static LOOP_OFF_IMAGE: &str = "icons/loop_off.png";
+    pub static LOOP_ONE_IMAGE: &str = "icons/loop_single.png";
+    pub static LOOP_INFINITE_IMAGE: &str = "icons/loop_infinite.png";
     pub static SHUFFLE_IMAGE: &str = "icons/shuffle.png";
     pub static VOLUME_IMAGE: &str = "icons/volume.png";
 }
 
 // Help differentiate the state of the widget; IE, active, inactive, etc.
+#[derive(Copy, Clone)]
 pub enum StyleState {
     ActiveStyle,
     InactiveStyle,
