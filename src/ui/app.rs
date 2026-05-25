@@ -157,32 +157,6 @@ impl App {
     }
 
     pub fn view(&self) -> Element<'_, Message> {
-        let upper_scrub_position = {
-            if let Some(video) = self.video.as_ref() {
-                video.duration().as_secs_f64()
-            } else {
-                0.0
-            }
-        };
-
-        let video_duration = {
-            if let Some(video) = self.video.as_ref() {
-                video.duration().as_secs()
-            } else { 0 }
-        };
-
-        let current_video_volume = {
-            if let Some(video) = self.video.as_ref() {
-                video.volume()
-            } else { 1.0 }
-        };
-
-        let is_video_currently_paused = {
-            if let Some(video) = self.video.as_ref() {
-                video.paused()
-            } else { false }
-        };
-
         Column::new()
             .push(
                 // video view
@@ -204,6 +178,60 @@ impl App {
                 }
             )
             .push(
+                if let Some(video) = self.video.as_ref() {
+                    control_bar(
+                        self.position,
+                        video.duration().as_secs_f64(),
+                        video.duration().as_secs(),
+                        video.volume(),
+                        video.paused(),
+                        self.btn_struct,
+                    )
+                } else {
+                    control_bar(
+                        self.position,
+                        0.0,
+                        0,
+                        1.0,
+                        false,
+                        self.btn_struct,
+                    )
+                }
+            )
+            .into()
+    }
+
+    pub fn subscription(&self) -> Subscription<Message> {
+        // Runs specific tasks in the background and or "listens" for a specific thing.
+
+        // Listen for specific key presses
+        keyboard::listen().filter_map(|event| match event {
+            keyboard::Event::KeyPressed {
+                key: keyboard::Key::Named(key),
+                modifiers, ..
+            } => match (key, modifiers) {
+                (keyboard::key::Named::Space, _) => Some(Message::TogglePause),
+                (keyboard::key::Named::AudioVolumeUp, _) => Some(Message::VolumeSeek(0.1)),
+                (keyboard::key::Named::AudioVolumeDown, _) => Some(Message::VolumeSeek(-0.1)),
+                _ => None,
+            },
+            _ => None,
+        })
+    }
+}
+
+// the controls at the bottom of the interface: main menu, scrub bar, etc.
+fn control_bar<'a>(
+    scrub_bar_positon: f64,
+    upper_scrub_position: f64,
+    video_duration: u64,
+    current_video_volume: f64,
+    is_video_currently_paused: bool,
+    btn_struct: ButtonStruct,
+) -> Element<'a, Message> {
+    Container::new(
+        Column::new()
+            .push(
                 // row for scrub bar and time stamp
                 Row::new()
                     .spacing(5)
@@ -214,7 +242,7 @@ impl App {
                         Container::new(
                             Slider::new(
                                 0.0..=upper_scrub_position,
-                                self.position,
+                                scrub_bar_positon,
                                 Message::VideoSeek,
                             )
                                 .step(0.1)
@@ -225,8 +253,8 @@ impl App {
                         // Video time stamp
                         Text::new(format!(
                             "{}:{:02}s / {}:{:02}s",
-                            self.position as u64 / 60, // current minute marker
-                            self.position as u64 % 60, // current second marker
+                            scrub_bar_positon as u64 / 60, // current minute marker
+                            scrub_bar_positon as u64 % 60, // current second marker
                             video_duration / 60, // video total length, minute marker
                             video_duration % 60, // video total length, second marker
                         ))
@@ -243,7 +271,7 @@ impl App {
                     .push(
                         // main menu
                         Button::new(
-                            match self.btn_struct.main_menu_button.current_state() {
+                            match btn_struct.main_menu_button.current_state() {
                                 MainMenuStates::MainMenuClosed => Image::new(MAIN_MENU_CLOSED_IMAGE).width(32).height(32),
                                 MainMenuStates::MainMenuOpen => Image::new(MAIN_MENU_OPEN_IMAGE).width(32).height(32),
                             }
@@ -261,7 +289,7 @@ impl App {
                                     Button::new(Image::new(SHUFFLE_IMAGE).width(32).height(32))
                                         .on_press(Message::ToggleShuffle)
                                         .style(
-                                            match self.btn_struct.shuffle_button.current_style() {
+                                            match btn_struct.shuffle_button.current_style() {
                                                 StyleState::ActiveStyle => btn_active_style,
                                                 StyleState::InactiveStyle => btn_inactive_style,
                                             }
@@ -269,7 +297,7 @@ impl App {
                                 )
                                 .push(
                                     Button::new(
-                                        match self.btn_struct.loop_button.current_state() {
+                                        match btn_struct.loop_button.current_state() {
                                             LoopStates::LoopAll => Image::new(LOOP_INFINITE_IMAGE).width(32).height(32),
                                             LoopStates::LoopSingle => Image::new(LOOP_ONE_IMAGE).width(32).height(32),
                                             LoopStates::LoopOff => Image::new(LOOP_OFF_IMAGE).width(32).height(32),
@@ -277,7 +305,7 @@ impl App {
                                     )
                                         .on_press(Message::ToggleLoop)
                                         .style(
-                                            match self.btn_struct.loop_button.current_style() {
+                                            match btn_struct.loop_button.current_style() {
                                                 StyleState::ActiveStyle => btn_active_style,
                                                 StyleState::InactiveStyle => btn_inactive_style,
                                             }
@@ -338,24 +366,5 @@ impl App {
                         )
                     )
             )
-            .into()
-    }
-
-    pub fn subscription(&self) -> Subscription<Message> {
-        // Runs specific tasks in the background and or "listens" for a specific thing.
-
-        // Listen for specific key presses
-        keyboard::listen().filter_map(|event| match event {
-            keyboard::Event::KeyPressed {
-                key: keyboard::Key::Named(key),
-                modifiers, ..
-            } => match (key, modifiers) {
-                (keyboard::key::Named::Space, _) => Some(Message::TogglePause),
-                (keyboard::key::Named::AudioVolumeUp, _) => Some(Message::VolumeSeek(0.1)),
-                (keyboard::key::Named::AudioVolumeDown, _) => Some(Message::VolumeSeek(-0.1)),
-                _ => None,
-            },
-            _ => None,
-        })
-    }
+    ).into()
 }

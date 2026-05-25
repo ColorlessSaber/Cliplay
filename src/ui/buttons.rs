@@ -3,6 +3,7 @@ use crate::ui::buttons::shuffle_button::ShuffleButton;
 use crate::ui::buttons::main_menu_button::MainMenuButton;
 
 // holds information about each button that have dynamic information
+#[derive(Copy, Clone)]
 pub struct ButtonStruct {
     pub loop_button: LoopButton,
     pub shuffle_button: ShuffleButton,
@@ -30,6 +31,7 @@ pub mod loop_button {
         LoopOff,
     }
 
+    #[derive(Copy, Clone)]
     pub struct LoopButton {
         current_style: StyleState,
         current_state: LoopStates,
@@ -96,6 +98,7 @@ pub mod shuffle_button {
         ShuffleOff,
     }
 
+    #[derive(Copy, Clone)]
     pub struct ShuffleButton {
         current_style: StyleState,
         current_state: ShuffleStates,
@@ -142,6 +145,7 @@ pub mod main_menu_button {
         MainMenuOpen,
     }
 
+    #[derive(Copy, Clone)]
     pub struct MainMenuButton {
         current_state: MainMenuStates,
     }
