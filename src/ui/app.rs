@@ -35,6 +35,8 @@ pub enum Message {
     VideoSeekRelease,
     Forward(f64),
     Backward(f64),
+    SkipForward,
+    SkipBackward,
     VolumeSeek(f64),
     EndOfStream,
     NewFrame,
@@ -50,6 +52,24 @@ pub struct App {
 }
 
 impl App {
+
+    // Struct methods; IE, methods private to the struct.
+    fn load_next_video(&mut self) {
+        let loop_entire_playlist = self.btn_struct.loop_button.is_state_set_to_loop_all();
+        let video_file = self.playlist_manager.next_file_in_playlist(loop_entire_playlist);
+
+        match video_file {
+            Some(video_file) => {
+                self.video = Some(load_video_file(&video_file));
+                self.position = 0.0;
+            }
+            None => {
+                println!("reach end of playlist")
+            }
+        }
+    }
+
+    // Iced methods; IE, methods used by the Iced crate
     pub fn new() -> Self {
         Self {
             video: None,
@@ -118,26 +138,18 @@ impl App {
                     .seek(Duration::from_secs_f64(self.position), false)
                     .expect("backward");
             }
+            Message::SkipForward => {
+                self.load_next_video();
+            }
+            Message::SkipBackward => {
+                println!("Skip backward"); // TODO create the logic to go backwards in a playlist
+            }
             Message::VolumeSeek(vol) => {
                 self.video.as_mut().unwrap().set_volume(vol);
             }
             Message::EndOfStream => {
                 if !self.btn_struct.loop_button.is_state_set_to_loop_single() {
-                    let loop_entire_playlist = self.btn_struct.loop_button.is_state_set_to_loop_all();
-                    let video_file = self.playlist_manager.next_file_in_playlist(loop_entire_playlist);
-
-                    match video_file {
-                        Some(video_file) => {
-                            let vid = load_video_file(&video_file);
-                            self.video = Some(vid);
-                            self.position = 0.0;
-                        }
-                        None => {
-                            println!("reach end of playlist")
-                        }
-                    }
-                } else {
-                    println!("Playing video again")
+                    self.load_next_video()
                 }
             }
             Message::NewFrame => {
@@ -149,8 +161,7 @@ impl App {
                 self.btn_struct.main_menu_button.toggle_state();
                 self.playlist_manager.load_playlist();
                 let video_file = self.playlist_manager.next_file_in_playlist(false);
-                let vid = load_video_file(video_file.as_ref().unwrap());
-                self.video = Some(vid);
+                self.video = Some(load_video_file(video_file.as_ref().unwrap()));
                 self.position = 0.0;
             }
         }
@@ -314,10 +325,15 @@ fn control_bar<'a>(
                         )
                     )
                     .push(
-                        // back, play/pause, forward keys
+                        // back/forward keys, skip back/forward keys, and play/pause buttons
                         Container::new(
                             Row::new()
                                 .spacing(5)
+                                .push(
+                                    Button::new(Image::new(SKIP_BACKWARD_IMAGE).width(32).height(32))
+                                        .on_press(Message::SkipBackward)
+                                        .style(btn_active_style)
+                                )
                                 .push(
                                     Button::new(Image::new(BACKWARD_IMAGE).width(32).height(32))
                                         .on_press(Message::Backward(10.0))
@@ -336,6 +352,11 @@ fn control_bar<'a>(
                                 .push(
                                     Button::new(Image::new(FORWARD_IMAGE).width(32).height(32))
                                         .on_press(Message::Forward(10.0))
+                                        .style(btn_active_style)
+                                )
+                                .push(
+                                    Button::new(Image::new(SKIP_FORWARD_IMAGE).width(32).height(32))
+                                        .on_press(Message::SkipForward)
                                         .style(btn_active_style)
                                 )
                         )

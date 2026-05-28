@@ -14,6 +14,8 @@ pub mod static_images {
     pub static PAUSE_IMAGE: &str = "icons/pause.png";
     pub static FORWARD_IMAGE: &str = "icons/forward.png";
     pub static BACKWARD_IMAGE: &str = "icons/backward.png";
+    pub static SKIP_BACKWARD_IMAGE: &str = "icons/skip_backward.png";
+    pub static SKIP_FORWARD_IMAGE: &str = "icons/skip_forward.png";
     pub static LOOP_OFF_IMAGE: &str = "icons/loop_off.png";
     pub static LOOP_ONE_IMAGE: &str = "icons/loop_single.png";
     pub static LOOP_INFINITE_IMAGE: &str = "icons/loop_infinite.png";
