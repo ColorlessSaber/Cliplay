@@ -1,14 +1,20 @@
-use crate::ui::styling::static_images::*;
-use crate::ui::styling::{
-    btn_inactive_style,
-    btn_active_style,
-    StyleState
-};
-use crate::ui::buttons::{
-    ButtonStruct,
-    loop_button::LoopStates,
-    shuffle_button::ShuffleStates,
-    main_menu_button::MainMenuStates,
+use crate::ui::{
+    styling::static_images::*,
+    styling::{
+        btn_inactive_style,
+        btn_active_style,
+        StyleState
+    },
+    buttons::{
+        ButtonStruct,
+        loop_button::LoopStates,
+        shuffle_button::ShuffleStates,
+        main_menu_button::MainMenuStates,
+    },
+    main_menu_screen::{
+        MainMenuScreen,
+        MainMenuMessages,
+    }
 };
 use crate::utils::{
     functions::load_video_file,
@@ -40,8 +46,8 @@ pub enum Message {
     VolumeSeek(f64),
     EndOfStream,
     NewFrame,
-    MainMenu,
-    LoadPlaylist, // TODO remove! not needed during testing
+    ToggleMainMenu,
+    MainMenu(MainMenuMessages),
 }
 
 pub struct App {
@@ -50,6 +56,7 @@ pub struct App {
     dragging: bool,
     btn_struct: ButtonStruct,
     playlist_manager: PlayListManager,
+    main_menu_screen: MainMenuScreen,
 }
 
 impl App {
@@ -78,6 +85,7 @@ impl App {
             dragging: false,
             btn_struct: ButtonStruct::default(),
             playlist_manager: PlayListManager::new(),
+            main_menu_screen: MainMenuScreen::new(),
         }
     }
     pub fn title(&self) -> String {
@@ -158,12 +166,11 @@ impl App {
                     self.position = self.video.as_ref().unwrap().position().as_secs_f64(); // will remove as_ref and unwrap when ready
                 }
             }
-            Message::MainMenu => {
+            Message::ToggleMainMenu => {
                 self.btn_struct.main_menu_button.toggle_state();
             }
-            Message::LoadPlaylist => {
-                self.playlist_manager.load_playlist();
-                self.load_next_video();
+            Message::MainMenu(message) => {
+                self.main_menu_screen.update(message);
             }
         }
     }
@@ -193,7 +200,9 @@ impl App {
                         }
                     }
                     MainMenuStates::MainMenuOpen => {
-                        main_menu_view()
+                        Container::new(
+                            self.main_menu_screen.view().map(Message::MainMenu)
+                        )
                     }
                 }
             )
@@ -238,21 +247,6 @@ impl App {
             _ => None,
         })
     }
-}
-
-fn main_menu_view<'a>() -> Container<'a, Message> {
-    Container::new(
-        Column::new()
-            .push(
-                Button::new(Image::new(SELECT_SINGLE_VID_IMAGE).width(32).height(32))
-                    .style(btn_active_style)
-            )
-            .push(
-                Button::new(Image::new(PLAYLISTS_IMAGE).width(32).height(32))
-                    .on_press(Message::LoadPlaylist)
-                    .style(btn_active_style)
-            )
-    ).into()
 }
 
 // the controls at the bottom of the interface: main menu, scrub bar, etc.
@@ -311,7 +305,7 @@ fn control_bar<'a>(
                                 MainMenuStates::MainMenuOpen => Image::new(MAIN_MENU_OPEN_IMAGE).width(32).height(32),
                             }
                         )
-                            .on_press(Message::MainMenu)
+                            .on_press(Message::ToggleMainMenu)
                             .style(btn_active_style)
                     )
                     .push(Space::new().width(Length::Fill))
