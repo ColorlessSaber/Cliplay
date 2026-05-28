@@ -18,7 +18,7 @@ use crate::ui::{
 };
 use crate::utils::{
     functions::load_video_file,
-    playlist_manager::{PlayListManager},
+    app_state::AppState,
 };
 use iced::{
     keyboard,
@@ -28,7 +28,7 @@ use iced::{
     alignment::{Alignment, Horizontal, Vertical},
     widget::{Button, Column, Container, Image, Row, Slider, Text, Space},
 };
-use iced_video_player::{Video, VideoPlayer};
+use iced_video_player::{VideoPlayer};
 use std::time::Duration;
 
 
@@ -51,11 +51,9 @@ pub enum Message {
 }
 
 pub struct App {
-    video: Option<Video>,
-    position: f64,
+    position: f64, // TODO might have to put this into the AppState to allow changes to it
     dragging: bool,
-    btn_struct: ButtonStruct,
-    playlist_manager: PlayListManager,
+    state: AppState,
     main_menu_screen: MainMenuScreen,
 }
 
@@ -63,12 +61,12 @@ impl App {
 
     // Struct methods; IE, methods private to the struct.
     fn load_next_video(&mut self) {
-        let loop_entire_playlist = self.btn_struct.loop_button.is_state_set_to_loop_all();
-        let video_file = self.playlist_manager.next_file_in_playlist(loop_entire_playlist);
+        let loop_entire_playlist = self.state.btn_struct.loop_button.is_state_set_to_loop_all();
+        let video_file = self.state.playlist_manager.next_file_in_playlist(loop_entire_playlist);
 
         match video_file {
             Some(video_file) => {
-                self.video = Some(load_video_file(&video_file));
+                self.state.video = Some(load_video_file(&video_file));
                 self.position = 0.0;
             }
             None => {
@@ -80,11 +78,9 @@ impl App {
     // Iced methods; IE, methods used by the Iced crate
     pub fn new() -> Self {
         Self {
-            video: None,
             position: 0.0,
             dragging: false,
-            btn_struct: ButtonStruct::default(),
-            playlist_manager: PlayListManager::new(),
+            state: AppState::default(),
             main_menu_screen: MainMenuScreen::new(),
         }
     }
@@ -96,44 +92,44 @@ impl App {
     pub fn update(&mut self, message: Message) {
         match message {
             Message::TogglePause => {
-                if let Some(video) = self.video.as_mut() {
+                if let Some(video) = self.state.video.as_mut() {
                     video.set_paused(!video.paused());
                 } else {
                     println!("No video selected");
                 }
             }
             Message::ToggleLoop => {
-                self.btn_struct.loop_button.toggle_state_and_style();
-                if self.btn_struct.loop_button.is_state_set_to_loop_single() {
-                    if let Some(video) = self.video.as_mut() {
+                self.state.btn_struct.loop_button.toggle_state_and_style();
+                if self.state.btn_struct.loop_button.is_state_set_to_loop_single() {
+                    if let Some(video) = self.state.video.as_mut() {
                         video.set_looping(!video.looping());
                     }
                 }
             }
             Message::ToggleShuffle => {
-                self.btn_struct.shuffle_button.toggle_state_and_style();
-                match self.btn_struct.shuffle_button.current_state() {
+                self.state.btn_struct.shuffle_button.toggle_state_and_style();
+                match self.state.btn_struct.shuffle_button.current_state() {
                     ShuffleStates::ShuffleOn => println!("Shuffle on"),
                     ShuffleStates::ShuffleOff => println!("Shuffle off"),
                 }
             }
             Message::VideoSeek(secs) => {
                 self.dragging = true;
-                self.video.as_mut().unwrap().set_paused(true); // Will remove unwrap once ready
+                self.state.video.as_mut().unwrap().set_paused(true); // Will remove unwrap once ready
                 self.position = secs;
             }
             Message::VideoSeekRelease => {
                 self.dragging = false;
-                self.video
+                self.state.video
                     .as_mut()
                     .unwrap()// will remove unwrap once ready
                     .seek(Duration::from_secs_f64(self.position), false)
                     .expect("seek");
-                self.video.as_mut().unwrap().set_paused(false); // will remove unwrap once ready
+                self.state.video.as_mut().unwrap().set_paused(false); // will remove unwrap once ready
             }
             Message::Forward(secs) => {
                 self.position += secs;
-                self.video
+                self.state.video
                     .as_mut()
                     .unwrap() // will remove unwrap once ready
                     .seek(Duration::from_secs_f64(self.position), false)
@@ -141,7 +137,7 @@ impl App {
             }
             Message::Backward(secs) => {
                 self.position -= secs;
-                self.video
+                self.state.video
                     .as_mut()
                     .unwrap() // will remove unwrap once ready
                     .seek(Duration::from_secs_f64(self.position), false)
@@ -154,23 +150,23 @@ impl App {
                 println!("Skip backward"); // TODO create the logic to go backwards in a playlist
             }
             Message::VolumeSeek(vol) => {
-                self.video.as_mut().unwrap().set_volume(vol);
+                self.state.video.as_mut().unwrap().set_volume(vol);
             }
             Message::EndOfStream => {
-                if !self.btn_struct.loop_button.is_state_set_to_loop_single() {
+                if !self.state.btn_struct.loop_button.is_state_set_to_loop_single() {
                     self.load_next_video()
                 }
             }
             Message::NewFrame => {
                 if !self.dragging {
-                    self.position = self.video.as_ref().unwrap().position().as_secs_f64(); // will remove as_ref and unwrap when ready
+                    self.position = self.state.video.as_ref().unwrap().position().as_secs_f64(); // will remove as_ref and unwrap when ready
                 }
             }
             Message::ToggleMainMenu => {
-                self.btn_struct.main_menu_button.toggle_state();
+                self.state.btn_struct.main_menu_button.toggle_state();
             }
             Message::MainMenu(message) => {
-                self.main_menu_screen.update(message);
+                self.main_menu_screen.update(message, &mut self.state);
             }
         }
     }
@@ -178,11 +174,11 @@ impl App {
     pub fn view(&self) -> Element<'_, Message> {
         Column::new()
             .push(
-                match self.btn_struct.main_menu_button.current_state() {
+                match self.state.btn_struct.main_menu_button.current_state() {
                     MainMenuStates::MainMenuClosed => {
                         // TODO future look into. Have the scrub bar update when video is playing and on main menu screen
                         // video view
-                        if let Some(video) = self.video.as_ref() {
+                        if let Some(video) = self.state.video.as_ref() {
                             Container::new(
                                 VideoPlayer::new(video)
                                     .width(Length::Fill)
@@ -196,7 +192,12 @@ impl App {
                                 .width(Length::Fill)
                                 .height(Length::Fill)
                         } else {
-                            Container::new(Text::new("Hit the main menu button to start playlist")) // will update with a better view/interface
+                            // will update this section to be more "video player" no video playing screen
+                            Container::new(
+                                Column::new()
+                                    .push(Text::new("Hit the main menu button to start playlist"))
+                                    .push(Space::new().height(Length::Fill).width(Length::Fill))
+                            )
                         }
                     }
                     MainMenuStates::MainMenuOpen => {
@@ -207,14 +208,14 @@ impl App {
                 }
             )
             .push(
-                if let Some(video) = self.video.as_ref() {
+                if let Some(video) = self.state.video.as_ref() {
                     control_bar(
                         self.position,
                         video.duration().as_secs_f64(),
                         video.duration().as_secs(),
                         video.volume(),
                         video.paused(),
-                        self.btn_struct,
+                        self.state.btn_struct,
                     )
                 } else {
                     control_bar(
@@ -223,7 +224,7 @@ impl App {
                         0,
                         1.0,
                         false,
-                        self.btn_struct,
+                        self.state.btn_struct,
                     )
                 }
             )
