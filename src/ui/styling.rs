@@ -10,6 +10,8 @@ use iced::{
 pub mod static_images {
     pub static MAIN_MENU_CLOSED_IMAGE: &str = "icons/main_menu_closed.png";
     pub static MAIN_MENU_OPEN_IMAGE: &str = "icons/main_menu_open.png";
+    pub static PLAYLISTS_IMAGE: &str = "icons/playlists_icon.png";
+    pub static SELECT_SINGLE_VID_IMAGE: &str = "icons/select_single_vid.png";
     pub static PLAY_IMAGE: &str = "icons/play.png";
     pub static PAUSE_IMAGE: &str = "icons/pause.png";
     pub static FORWARD_IMAGE: &str = "icons/forward.png";

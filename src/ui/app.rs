@@ -41,6 +41,7 @@ pub enum Message {
     EndOfStream,
     NewFrame,
     MainMenu,
+    LoadPlaylist, // TODO remove! not needed during testing
 }
 
 pub struct App {
@@ -159,10 +160,10 @@ impl App {
             }
             Message::MainMenu => {
                 self.btn_struct.main_menu_button.toggle_state();
+            }
+            Message::LoadPlaylist => {
                 self.playlist_manager.load_playlist();
-                let video_file = self.playlist_manager.next_file_in_playlist(false);
-                self.video = Some(load_video_file(video_file.as_ref().unwrap()));
-                self.position = 0.0;
+                self.load_next_video();
             }
         }
     }
@@ -170,22 +171,30 @@ impl App {
     pub fn view(&self) -> Element<'_, Message> {
         Column::new()
             .push(
-                // video view
-                if let Some(video) = self.video.as_ref() {
-                    Container::new(
-                        VideoPlayer::new(video)
-                            .width(Length::Fill)
-                            .height(Length::Fill)
-                            .content_fit(iced::ContentFit::Contain)
-                            .on_end_of_stream(Message::EndOfStream)
-                            .on_new_frame(Message::NewFrame)
-                    )
-                        .align_x(Alignment::Center)
-                        .align_y(Alignment::Center)
-                        .width(Length::Fill)
-                        .height(Length::Fill)
-                } else {
-                    Container::new(Text::new("Hit the main menu button to start playlist")) // will update with a better view/interface
+                match self.btn_struct.main_menu_button.current_state() {
+                    MainMenuStates::MainMenuClosed => {
+                        // TODO future look into. Have the scrub bar update when video is playing and on main menu screen
+                        // video view
+                        if let Some(video) = self.video.as_ref() {
+                            Container::new(
+                                VideoPlayer::new(video)
+                                    .width(Length::Fill)
+                                    .height(Length::Fill)
+                                    .content_fit(iced::ContentFit::Contain)
+                                    .on_end_of_stream(Message::EndOfStream)
+                                    .on_new_frame(Message::NewFrame)
+                            )
+                                .align_x(Alignment::Center)
+                                .align_y(Alignment::Center)
+                                .width(Length::Fill)
+                                .height(Length::Fill)
+                        } else {
+                            Container::new(Text::new("Hit the main menu button to start playlist")) // will update with a better view/interface
+                        }
+                    }
+                    MainMenuStates::MainMenuOpen => {
+                        main_menu_view()
+                    }
                 }
             )
             .push(
@@ -229,6 +238,21 @@ impl App {
             _ => None,
         })
     }
+}
+
+fn main_menu_view<'a>() -> Container<'a, Message> {
+    Container::new(
+        Column::new()
+            .push(
+                Button::new(Image::new(SELECT_SINGLE_VID_IMAGE).width(32).height(32))
+                    .style(btn_active_style)
+            )
+            .push(
+                Button::new(Image::new(PLAYLISTS_IMAGE).width(32).height(32))
+                    .on_press(Message::LoadPlaylist)
+                    .style(btn_active_style)
+            )
+    ).into()
 }
 
 // the controls at the bottom of the interface: main menu, scrub bar, etc.
