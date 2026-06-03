@@ -12,6 +12,7 @@ use crate::ui::styling::{
         PLAYLISTS_ICON
     }
 };
+use crate::ui::file_dialog::FileDialog;
 use crate::utils::{
     app_state::AppState,
     functions::load_video_file
@@ -34,6 +35,9 @@ impl MainMenuScreen {
     pub fn update(&self, message: MainMenuMessages, state: &mut AppState) {
         match message {
             MainMenuMessages::SelectVideo => {
+                println!("Selecting Video");
+            }
+            MainMenuMessages::PlaylistsMenu => {
                 state.playlist_manager.load_playlist();
                 let loop_entire_playlist = state.btn_struct.loop_button.is_state_set_to_loop_all();
                 let video_file = state.playlist_manager.next_file_in_playlist(loop_entire_playlist);
@@ -48,9 +52,6 @@ impl MainMenuScreen {
                 }
 
                 state.btn_struct.main_menu_button.toggle_state(); // to switch to video view
-            }
-            MainMenuMessages::PlaylistsMenu => {
-                println!("Playlists selected");
             }
         }
     }
