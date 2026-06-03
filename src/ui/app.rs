@@ -1,5 +1,10 @@
 use crate::ui::{
     styling::icons::*,
+    styling::container_styles::{
+        splash_screen_style,
+        control_bar_style,
+        video_playing_style
+    },
     styling::{
         btn_inactive_style,
         btn_active_style,
@@ -191,6 +196,7 @@ impl App {
                                 .align_y(Alignment::Center)
                                 .width(Length::Fill)
                                 .height(Length::Fill)
+                                .style(video_playing_style)
                         } else {
                             // Splash screen when no video is playing
                             Container::new(
@@ -200,6 +206,7 @@ impl App {
                                 .align_y(Alignment::Center)
                                 .width(Length::Fill)
                                 .height(Length::Fill)
+                                .style(splash_screen_style)
                         }
                     }
                     MainMenuStates::MainMenuOpen => {
@@ -408,5 +415,7 @@ fn control_bar<'a>(
                         )
                     )
             )
-    ).into()
+    )
+        .style(control_bar_style)
+        .into()
 }

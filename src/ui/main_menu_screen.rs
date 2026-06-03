@@ -3,13 +3,19 @@ use iced::{
     Length,
     widget::{Button, Column, Image, Space},
 };
-use crate::ui::styling::btn_active_style;
-use crate::ui::styling::icons::{
-    SELECT_SINGLE_VID_ICON,
-    PLAYLISTS_ICON
+use iced::widget::Container;
+use crate::ui::styling::{
+    btn_active_style,
+    container_styles::main_section_style,
+    icons::{
+        SELECT_SINGLE_VID_ICON,
+        PLAYLISTS_ICON
+    }
 };
-use crate::utils::app_state::AppState;
-use crate::utils::functions::load_video_file;
+use crate::utils::{
+    app_state::AppState,
+    functions::load_video_file
+};
 
 #[derive(Debug, Copy, Clone)]
 pub enum MainMenuMessages {
@@ -49,22 +55,25 @@ impl MainMenuScreen {
         }
     }
 
-    pub fn view<'a, 'b>(&'a self) -> Element<'b, MainMenuMessages>
-    where 'a: 'b
+    pub fn view(&self) -> Element<'_, MainMenuMessages>
     {
-        Column::new()
-            .spacing(10)
-            .push(
-                Button::new(Image::new(SELECT_SINGLE_VID_ICON).width(64).height(64))
-                    .on_press(MainMenuMessages::SelectVideo)
-                    .style(btn_active_style)
-            )
-            .push(
-                Button::new(Image::new(PLAYLISTS_ICON).width(64).height(64))
-                    .on_press(MainMenuMessages::PlaylistsMenu)
-                    .style(btn_active_style)
-            )
-            .push(Space::new().height(Length::Fill))
+        Container::new(
+            Column::new()
+                .spacing(10)
+                .push(
+                    Button::new(Image::new(SELECT_SINGLE_VID_ICON).width(64).height(64))
+                        .on_press(MainMenuMessages::SelectVideo)
+                        .style(btn_active_style)
+                )
+                .push(
+                    Button::new(Image::new(PLAYLISTS_ICON).width(64).height(64))
+                        .on_press(MainMenuMessages::PlaylistsMenu)
+                        .style(btn_active_style)
+                )
+                .push(Space::new().height(Length::Fill))
+        )
+            .padding(10)
+            .style(main_section_style)
             .into()
     }
 }
