@@ -12,7 +12,6 @@ use crate::ui::styling::{
         PLAYLISTS_ICON
     }
 };
-use crate::ui::file_dialog::FileDialog;
 use crate::utils::{
     app_state::AppState,
     functions::load_video_file
