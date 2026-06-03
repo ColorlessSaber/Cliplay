@@ -159,7 +159,7 @@ impl App {
             }
             Message::NewFrame => {
                 if !self.dragging {
-                    self.position = self.state.video.as_ref().unwrap().position().as_secs_f64(); // will remove as_ref and unwrap when ready
+                    self.position = self.state.video.as_ref().unwrap().position().as_secs_f64(); // will remove unwrap when ready
                 }
             }
             Message::ToggleMainMenu => {
@@ -192,12 +192,14 @@ impl App {
                                 .width(Length::Fill)
                                 .height(Length::Fill)
                         } else {
-                            // will update this section to be more "video player" no video playing screen
+                            // Splash screen when no video is playing
                             Container::new(
-                                Column::new()
-                                    .push(Text::new("Hit the main menu button to start playlist"))
-                                    .push(Space::new().height(Length::Fill).width(Length::Fill))
+                                Image::new(CLIPLAY_LOGO_GREY_IMAGE)
                             )
+                                .align_x(Alignment::Center)
+                                .align_y(Alignment::Center)
+                                .width(Length::Fill)
+                                .height(Length::Fill)
                         }
                     }
                     MainMenuStates::MainMenuOpen => {

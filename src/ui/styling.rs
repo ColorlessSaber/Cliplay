@@ -8,6 +8,7 @@ use iced::{
 };
 
 pub mod static_images {
+    pub static CLIPLAY_LOGO_GREY_IMAGE: &str = "icons/cliplay_logo_grey.png";
     pub static MAIN_MENU_CLOSED_IMAGE: &str = "icons/main_menu_closed.png";
     pub static MAIN_MENU_OPEN_IMAGE: &str = "icons/main_menu_open.png";
     pub static PLAYLISTS_IMAGE: &str = "icons/playlists_icon.png";
