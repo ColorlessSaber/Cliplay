@@ -4,9 +4,9 @@ use iced::{
     widget::{Button, Column, Image, Space},
 };
 use crate::ui::styling::btn_active_style;
-use crate::ui::styling::static_images::{
-    SELECT_SINGLE_VID_IMAGE,
-    PLAYLISTS_IMAGE
+use crate::ui::styling::icons::{
+    SELECT_SINGLE_VID_ICON,
+    PLAYLISTS_ICON
 };
 use crate::utils::app_state::AppState;
 use crate::utils::functions::load_video_file;
@@ -55,12 +55,12 @@ impl MainMenuScreen {
         Column::new()
             .spacing(10)
             .push(
-                Button::new(Image::new(SELECT_SINGLE_VID_IMAGE).width(64).height(64))
+                Button::new(Image::new(SELECT_SINGLE_VID_ICON).width(64).height(64))
                     .on_press(MainMenuMessages::SelectVideo)
                     .style(btn_active_style)
             )
             .push(
-                Button::new(Image::new(PLAYLISTS_IMAGE).width(64).height(64))
+                Button::new(Image::new(PLAYLISTS_ICON).width(64).height(64))
                     .on_press(MainMenuMessages::PlaylistsMenu)
                     .style(btn_active_style)
             )

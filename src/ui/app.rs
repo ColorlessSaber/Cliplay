@@ -1,5 +1,5 @@
 use crate::ui::{
-    styling::static_images::*,
+    styling::icons::*,
     styling::{
         btn_inactive_style,
         btn_active_style,
@@ -194,7 +194,7 @@ impl App {
                         } else {
                             // Splash screen when no video is playing
                             Container::new(
-                                Image::new(CLIPLAY_LOGO_GREY_IMAGE)
+                                Image::new(CLIPLAY_LOGO_GREY_ICON)
                             )
                                 .align_x(Alignment::Center)
                                 .align_y(Alignment::Center)
@@ -304,8 +304,8 @@ fn control_bar<'a>(
                         // main menu
                         Button::new(
                             match btn_struct.main_menu_button.current_state() {
-                                MainMenuStates::MainMenuClosed => Image::new(MAIN_MENU_CLOSED_IMAGE).width(32).height(32),
-                                MainMenuStates::MainMenuOpen => Image::new(MAIN_MENU_OPEN_IMAGE).width(32).height(32),
+                                MainMenuStates::MainMenuClosed => Image::new(MAIN_MENU_CLOSED_ICON).width(32).height(32),
+                                MainMenuStates::MainMenuOpen => Image::new(MAIN_MENU_OPEN_ICON).width(32).height(32),
                             }
                         )
                             .on_press(Message::ToggleMainMenu)
@@ -318,7 +318,7 @@ fn control_bar<'a>(
                             Row::new()
                                 .spacing(5)
                                 .push(
-                                    Button::new(Image::new(SHUFFLE_IMAGE).width(32).height(32))
+                                    Button::new(Image::new(SHUFFLE_ICON).width(32).height(32))
                                         .on_press(Message::ToggleShuffle)
                                         .style(
                                             match btn_struct.shuffle_button.current_style() {
@@ -330,9 +330,9 @@ fn control_bar<'a>(
                                 .push(
                                     Button::new(
                                         match btn_struct.loop_button.current_state() {
-                                            LoopStates::LoopAll => Image::new(LOOP_INFINITE_IMAGE).width(32).height(32),
-                                            LoopStates::LoopSingle => Image::new(LOOP_ONE_IMAGE).width(32).height(32),
-                                            LoopStates::LoopOff => Image::new(LOOP_OFF_IMAGE).width(32).height(32),
+                                            LoopStates::LoopAll => Image::new(LOOP_INFINITE_ICON).width(32).height(32),
+                                            LoopStates::LoopSingle => Image::new(LOOP_ONE_ICON).width(32).height(32),
+                                            LoopStates::LoopOff => Image::new(LOOP_OFF_ICON).width(32).height(32),
                                         }
                                     )
                                         .on_press(Message::ToggleLoop)
@@ -351,32 +351,32 @@ fn control_bar<'a>(
                             Row::new()
                                 .spacing(5)
                                 .push(
-                                    Button::new(Image::new(SKIP_BACKWARD_IMAGE).width(32).height(32))
+                                    Button::new(Image::new(SKIP_BACKWARD_ICON).width(32).height(32))
                                         .on_press(Message::SkipBackward)
                                         .style(btn_active_style)
                                 )
                                 .push(
-                                    Button::new(Image::new(BACKWARD_IMAGE).width(32).height(32))
+                                    Button::new(Image::new(BACKWARD_ICON).width(32).height(32))
                                         .on_press(Message::Backward(10.0))
                                         .style(btn_active_style)
                                 )
                                 .push(
                                     Button::new(
                                         match is_video_currently_paused { // will remove unwrap when ready
-                                            true => Image::new(PLAY_IMAGE).width(32).height(32),
-                                            false => Image::new(PAUSE_IMAGE).width(32).height(32)
+                                            true => Image::new(PLAY_ICON).width(32).height(32),
+                                            false => Image::new(PAUSE_ICON).width(32).height(32)
                                         }
                                     )
                                         .on_press(Message::TogglePause)
                                         .style(btn_active_style),
                                 )
                                 .push(
-                                    Button::new(Image::new(FORWARD_IMAGE).width(32).height(32))
+                                    Button::new(Image::new(FORWARD_ICON).width(32).height(32))
                                         .on_press(Message::Forward(10.0))
                                         .style(btn_active_style)
                                 )
                                 .push(
-                                    Button::new(Image::new(SKIP_FORWARD_IMAGE).width(32).height(32))
+                                    Button::new(Image::new(SKIP_FORWARD_ICON).width(32).height(32))
                                         .on_press(Message::SkipForward)
                                         .style(btn_active_style)
                                 )
@@ -389,7 +389,7 @@ fn control_bar<'a>(
                             Row::new()
                                 .spacing(5)
                                 .align_y(Vertical::Center)
-                                .push(Image::new(VOLUME_IMAGE).width(32).height(32))
+                                .push(Image::new(VOLUME_ICON).width(32).height(32))
                                 .push(
                                     Slider::new(
                                         0.0..=1.5,
