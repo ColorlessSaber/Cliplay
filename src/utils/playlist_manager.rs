@@ -43,8 +43,14 @@ impl PlayListManager {
         self.index = 0;
     }
 
-    // pub fn reset_index(&mut self) {
-    //     self.index = 0;
-    // }
+    pub fn add_file_to_playlist(&mut self, file_path: String) {
+        self.playlist.push(file_path);
+    }
+
+    pub fn clear_playlist(&mut self) {
+        self.playlist.clear();
+        self.index = 0;
+    }
+
 
 }

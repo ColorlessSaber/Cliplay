@@ -55,7 +55,21 @@ impl MainMenuScreen {
             }
             MainMenuMessages::VideoFileSelected(path) => {
                 if let Some(path) = path {
-                    println!("Loading video from {}", path);
+                    state.playlist_manager.clear_playlist();
+                    state.playlist_manager.add_file_to_playlist(path);
+                    let loop_entire_playlist = state.btn_struct.loop_button.is_state_set_to_loop_all();
+                    let video_file = state.playlist_manager.next_file_in_playlist(loop_entire_playlist);
+
+                    match video_file {
+                        Some(video_file) => {
+                            state.video = Some(load_video_file(video_file));
+                        }
+                        None => {
+                            state.video = None;
+                        }
+                    }
+
+                    state.btn_struct.main_menu_button.toggle_state();
                 }
                 Task::none()
             }
@@ -69,7 +83,7 @@ impl MainMenuScreen {
                         state.video = Some(load_video_file(&video_file));
                     }
                     None => {
-                        println!("reach end of playlist")
+                        state.video = None;
                     }
                 }
 

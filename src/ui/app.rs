@@ -109,7 +109,11 @@ impl App {
                 self.state.btn_struct.loop_button.toggle_state_and_style();
                 if self.state.btn_struct.loop_button.is_state_set_to_loop_single() {
                     if let Some(video) = self.state.video.as_mut() {
-                        video.set_looping(!video.looping());
+                        video.set_looping(true);
+                    }
+                } else {
+                    if let Some(video) = self.state.video.as_mut() {
+                        video.set_looping(false);
                     }
                 }
                 Task::none()
