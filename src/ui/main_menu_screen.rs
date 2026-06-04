@@ -1,9 +1,16 @@
 use iced::{
     Element,
     Length,
-    widget::{Button, Column, Image, Space},
+    Task,
+    widget::{
+        Button,
+        Column,
+        Image,
+        Space,
+        Container
+    },
 };
-use iced::widget::Container;
+use rfd::AsyncFileDialog;
 use crate::ui::styling::{
     btn_active_style,
     container_styles::main_section_style,
@@ -17,10 +24,11 @@ use crate::utils::{
     functions::load_video_file
 };
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub enum MainMenuMessages {
     SelectVideo,
     PlaylistsMenu,
+    VideoFileSelected(Option<String>),
 }
 
 pub struct MainMenuScreen {}
@@ -31,10 +39,25 @@ impl MainMenuScreen {
         Self {}
     }
 
-    pub fn update(&self, message: MainMenuMessages, state: &mut AppState) {
+    pub fn update(&self, message: MainMenuMessages, state: &mut AppState) -> Task<MainMenuMessages> {
         match message {
             MainMenuMessages::SelectVideo => {
-                println!("Selecting Video");
+                Task::perform(
+                    async {
+                        AsyncFileDialog::new()
+                            .add_filter("video", &["mp4", "mkv", "m4v"])
+                            .pick_file()
+                            .await
+                            .map(|handle| handle.path().to_string_lossy().into_owned())
+                    },
+                    MainMenuMessages::VideoFileSelected,
+                )
+            }
+            MainMenuMessages::VideoFileSelected(path) => {
+                if let Some(path) = path {
+                    println!("Loading video from {}", path);
+                }
+                Task::none()
             }
             MainMenuMessages::PlaylistsMenu => {
                 state.playlist_manager.load_playlist();
@@ -51,6 +74,7 @@ impl MainMenuScreen {
                 }
 
                 state.btn_struct.main_menu_button.toggle_state(); // to switch to video view
+                Task::none()
             }
         }
     }

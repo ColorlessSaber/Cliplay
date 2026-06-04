@@ -30,6 +30,7 @@ use iced::{
     Element,
     Length,
     Subscription,
+    Task,
     alignment::{Alignment, Horizontal, Vertical},
     widget::{Button, Column, Container, Image, Row, Slider, Text, Space},
 };
@@ -94,7 +95,7 @@ impl App {
         "Cliplay - Video Player".to_string()
     }
 
-    pub fn update(&mut self, message: Message) {
+    pub fn update(&mut self, message: Message) -> Task<Message> {
         match message {
             Message::TogglePause => {
                 if let Some(video) = self.state.video.as_mut() {
@@ -102,6 +103,7 @@ impl App {
                 } else {
                     println!("No video selected");
                 }
+                Task::none()
             }
             Message::ToggleLoop => {
                 self.state.btn_struct.loop_button.toggle_state_and_style();
@@ -110,6 +112,7 @@ impl App {
                         video.set_looping(!video.looping());
                     }
                 }
+                Task::none()
             }
             Message::ToggleShuffle => {
                 self.state.btn_struct.shuffle_button.toggle_state_and_style();
@@ -117,11 +120,13 @@ impl App {
                     ShuffleStates::ShuffleOn => println!("Shuffle on"),
                     ShuffleStates::ShuffleOff => println!("Shuffle off"),
                 }
+                Task::none()
             }
             Message::VideoSeek(secs) => {
                 self.dragging = true;
                 self.state.video.as_mut().unwrap().set_paused(true); // Will remove unwrap once ready
                 self.position = secs;
+                Task::none()
             }
             Message::VideoSeekRelease => {
                 self.dragging = false;
@@ -131,6 +136,7 @@ impl App {
                     .seek(Duration::from_secs_f64(self.position), false)
                     .expect("seek");
                 self.state.video.as_mut().unwrap().set_paused(false); // will remove unwrap once ready
+                Task::none()
             }
             Message::Forward(secs) => {
                 self.position += secs;
@@ -139,6 +145,7 @@ impl App {
                     .unwrap() // will remove unwrap once ready
                     .seek(Duration::from_secs_f64(self.position), false)
                     .expect("forward");
+                Task::none()
             }
             Message::Backward(secs) => {
                 self.position -= secs;
@@ -147,31 +154,40 @@ impl App {
                     .unwrap() // will remove unwrap once ready
                     .seek(Duration::from_secs_f64(self.position), false)
                     .expect("backward");
+                Task::none()
             }
             Message::SkipForward => {
                 self.load_next_video();
+                Task::none()
             }
             Message::SkipBackward => {
                 println!("Skip backward"); // TODO create the logic to go backwards in a playlist
+                Task::none()
             }
             Message::VolumeSeek(vol) => {
                 self.state.video.as_mut().unwrap().set_volume(vol);
+                Task::none()
             }
             Message::EndOfStream => {
                 if !self.state.btn_struct.loop_button.is_state_set_to_loop_single() {
                     self.load_next_video()
                 }
+                Task::none()
             }
             Message::NewFrame => {
                 if !self.dragging {
                     self.position = self.state.video.as_ref().unwrap().position().as_secs_f64(); // will remove unwrap when ready
                 }
+                Task::none()
             }
             Message::ToggleMainMenu => {
                 self.state.btn_struct.main_menu_button.toggle_state();
+                Task::none()
             }
             Message::MainMenu(message) => {
-                self.main_menu_screen.update(message, &mut self.state);
+                self.main_menu_screen
+                    .update(message, &mut self.state)
+                    .map(|message| Message::MainMenu(message))
             }
         }
     }
