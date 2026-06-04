@@ -63,32 +63,45 @@ pub struct App {
     main_menu_screen: MainMenuScreen,
 }
 
+// handles the different ways the next video will be loaded
+enum NextVideoLoadingProcess {
+    EndOfVideo, // when reaching the end of the video currently being played
+    SkipForward, // when the skip forward button is pressed
+    SkipBackward, // when the skip backward button is pressed
+}
+
 impl App {
 
     // Struct methods; IE, methods private to the struct.
-    fn load_next_video(&mut self) {
-        let loop_entire_playlist = self.state.btn_struct.loop_button.is_state_set_to_loop_all();
-        let video_file = self.state.playlist_manager.next_file_in_playlist(loop_entire_playlist);
+    fn load_next_video(&mut self, loading_process: NextVideoLoadingProcess) {
+
+        let video_file = match loading_process {
+            NextVideoLoadingProcess::EndOfVideo => {
+                let loop_entire_playlist = self.state.btn_struct.loop_button.is_state_set_to_loop_all();
+                let video_file = self.state.playlist_manager.next_file_in_playlist(loop_entire_playlist);
+                video_file
+            }
+            NextVideoLoadingProcess::SkipForward => {
+                let video_file = self.state.playlist_manager.next_file_in_playlist(true);
+                video_file
+            }
+            NextVideoLoadingProcess::SkipBackward => {
+                let video_file = self.state.playlist_manager.previous_file_in_playlist();
+                video_file
+            }
+        };
 
         match video_file {
             Some(video_file) => {
                 self.state.video = Some(load_video_file(&video_file));
                 self.position = 0.0;
-            }
-            None => {
-                self.state.video = None;
-                self.position = 0.0;
-            }
-        }
-    }
 
-    fn load_previous_video(&mut self) {
-        let video_file = self.state.playlist_manager.previous_file_in_playlist();
-
-        match video_file {
-            Some(video_file) => {
-                self.state.video = Some(load_video_file(&video_file));
-                self.position = 0.0;
+                // Set the new video to single loop if the loop button is set as such
+                if self.state.btn_struct.loop_button.is_state_set_to_loop_single() {
+                    self.state.video.as_mut().unwrap().set_looping(true);
+                } else {
+                    self.state.video.as_mut().unwrap().set_looping(false);
+                }
             }
             None => {
                 self.state.video = None;
@@ -124,10 +137,14 @@ impl App {
             Message::ToggleLoop => {
                 self.state.btn_struct.loop_button.toggle_state_and_style();
                 if self.state.btn_struct.loop_button.is_state_set_to_loop_single() {
+
+                    // Handles the situation when no video is "loaded"
                     if let Some(video) = self.state.video.as_mut() {
                         video.set_looping(true);
                     }
                 } else {
+
+                    // Handles the situation when no video is "loaded"
                     if let Some(video) = self.state.video.as_mut() {
                         video.set_looping(false);
                     }
@@ -177,11 +194,11 @@ impl App {
                 Task::none()
             }
             Message::SkipForward => {
-                self.load_next_video();
+                self.load_next_video(NextVideoLoadingProcess::SkipForward);
                 Task::none()
             }
             Message::SkipBackward => {
-                self.load_previous_video();
+                self.load_next_video(NextVideoLoadingProcess::SkipBackward);
                 Task::none()
             }
             Message::VolumeSeek(vol) => {
@@ -190,7 +207,7 @@ impl App {
             }
             Message::EndOfStream => {
                 if !self.state.btn_struct.loop_button.is_state_set_to_loop_single() {
-                    self.load_next_video()
+                    self.load_next_video(NextVideoLoadingProcess::EndOfVideo)
                 }
                 Task::none()
             }
