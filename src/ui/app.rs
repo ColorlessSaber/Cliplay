@@ -176,29 +176,37 @@ impl App {
                 Task::none()
             }
             Message::Forward(secs) => {
-                self.position += secs;
-                self.state.video
-                    .as_mut()
-                    .unwrap() // will remove unwrap once ready
-                    .seek(Duration::from_secs_f64(self.position), false)
-                    .expect("forward");
+                if self.state.video.is_some() {
+                    self.position += secs;
+                    self.state.video
+                        .as_mut()
+                        .unwrap() // will remove unwrap once ready
+                        .seek(Duration::from_secs_f64(self.position), false)
+                        .expect("forward");
+                }
                 Task::none()
             }
             Message::Backward(secs) => {
-                self.position -= secs;
-                self.state.video
-                    .as_mut()
-                    .unwrap() // will remove unwrap once ready
-                    .seek(Duration::from_secs_f64(self.position), false)
-                    .expect("backward");
+                if self.state.video.is_some() {
+                    self.position -= secs;
+                    self.state.video
+                        .as_mut()
+                        .unwrap() // will remove unwrap once ready
+                        .seek(Duration::from_secs_f64(self.position), false)
+                        .expect("backward");
+                }
                 Task::none()
             }
             Message::SkipForward => {
-                self.load_next_video(NextVideoLoadingProcess::SkipForward);
+                if self.state.video.is_some() {
+                    self.load_next_video(NextVideoLoadingProcess::SkipForward);
+                }
                 Task::none()
             }
             Message::SkipBackward => {
-                self.load_next_video(NextVideoLoadingProcess::SkipBackward);
+                if self.state.video.is_some() {
+                    self.load_next_video(NextVideoLoadingProcess::SkipBackward);
+                }
                 Task::none()
             }
             Message::VolumeSeek(vol) => {
