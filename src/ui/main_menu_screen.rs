@@ -64,9 +64,7 @@ impl MainMenuScreen {
                         Some(video_file) => {
                             state.video = Some(load_video_file(video_file));
                         }
-                        None => {
-                            state.video = None;
-                        }
+                        None => {}
                     }
 
                     state.btn_struct.main_menu_button.toggle_state();
@@ -82,9 +80,7 @@ impl MainMenuScreen {
                     Some(video_file) => {
                         state.video = Some(load_video_file(&video_file));
                     }
-                    None => {
-                        state.video = None;
-                    }
+                    None => {}
                 }
 
                 state.btn_struct.main_menu_button.toggle_state(); // to switch to video view

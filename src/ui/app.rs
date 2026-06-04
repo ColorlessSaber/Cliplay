@@ -76,7 +76,8 @@ impl App {
                 self.position = 0.0;
             }
             None => {
-                println!("reach end of playlist")
+                self.state.video = None;
+                self.position = 0.0;
             }
         }
     }
@@ -252,7 +253,7 @@ impl App {
                         0.0,
                         0,
                         1.0,
-                        false,
+                        true,
                         self.state.btn_struct,
                     )
                 }
