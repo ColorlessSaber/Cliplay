@@ -57,9 +57,8 @@ impl MainMenuScreen {
                 if let Some(path) = path {
                     state.playlist_manager.clear_playlist();
                     state.playlist_manager.add_file_to_playlist(path);
-                    let loop_entire_playlist = state.btn_struct.loop_button.is_state_set_to_loop_all();
-                    let video_file = state.playlist_manager.next_file_in_playlist(loop_entire_playlist);
-
+                    let video_file = state.playlist_manager.pull_first_file_from_playlist();
+                    
                     match video_file {
                         Some(video_file) => {
                             state.video = Some(load_video_file(video_file));
@@ -73,9 +72,8 @@ impl MainMenuScreen {
             }
             MainMenuMessages::PlaylistsMenu => {
                 state.playlist_manager.load_playlist();
-                let loop_entire_playlist = state.btn_struct.loop_button.is_state_set_to_loop_all();
-                let video_file = state.playlist_manager.next_file_in_playlist(loop_entire_playlist);
-
+                let video_file = state.playlist_manager.pull_first_file_from_playlist();
+                
                 match video_file {
                     Some(video_file) => {
                         state.video = Some(load_video_file(&video_file));

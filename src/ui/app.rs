@@ -82,6 +82,21 @@ impl App {
         }
     }
 
+    fn load_previous_video(&mut self) {
+        let video_file = self.state.playlist_manager.previous_file_in_playlist();
+
+        match video_file {
+            Some(video_file) => {
+                self.state.video = Some(load_video_file(&video_file));
+                self.position = 0.0;
+            }
+            None => {
+                self.state.video = None;
+                self.position = 0.0;
+            }
+        }
+    }
+
     // Iced methods; IE, methods used by the Iced crate
     pub fn new() -> Self {
         Self {
@@ -166,7 +181,7 @@ impl App {
                 Task::none()
             }
             Message::SkipBackward => {
-                println!("Skip backward"); // TODO create the logic to go backwards in a playlist
+                self.load_previous_video();
                 Task::none()
             }
             Message::VolumeSeek(vol) => {
