@@ -67,6 +67,7 @@ pub struct App {
 // handles the different ways the next video will be loaded
 enum NextVideoLoadingProcess {
     EndOfVideo, // when reaching the end of the video currently being played
+    AfterVideoStopped, // when the video was stopped
     SkipForward, // when the skip forward button is pressed
     SkipBackward, // when the skip backward button is pressed
 }
@@ -80,6 +81,10 @@ impl App {
             NextVideoLoadingProcess::EndOfVideo => {
                 let loop_entire_playlist = self.state.btn_struct.loop_button.is_state_set_to_loop_all();
                 let video_file = self.state.playlist_manager.next_file_in_playlist(loop_entire_playlist);
+                video_file
+            }
+            NextVideoLoadingProcess::AfterVideoStopped => {
+                let video_file = self.state.playlist_manager.pull_current_index_file_from_playlist();
                 video_file
             }
             NextVideoLoadingProcess::SkipForward => {
@@ -131,7 +136,11 @@ impl App {
                 if let Some(video) = self.state.video.as_mut() {
                     video.set_paused(!video.paused());
                 } else {
-                    println!("No video selected");
+                    // if the user clicked stopped while the video is playing,
+                    // replay the video from the beginning
+                    if !self.state.playlist_manager.is_playlist_empty() {
+                        self.load_next_video(NextVideoLoadingProcess::AfterVideoStopped);
+                    }
                 }
                 Task::none()
             }
@@ -161,7 +170,6 @@ impl App {
                 Task::none()
             }
             Message::StopVideo => {
-                // TODO make it so when the user clicks play, it restarts the video that was playing and plays it.
                 self.state.video = None;
                 self.position = 0.0;
 

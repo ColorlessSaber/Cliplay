@@ -16,7 +16,16 @@ impl PlayListManager {
         }
     }
 
+    pub fn is_playlist_empty(&self) -> bool {
+        self.playlist.is_empty()
+    }
+
     pub fn pull_first_file_from_playlist(&mut self) -> Option<&String> {
+        let file = self.playlist.get(0);
+        file
+    }
+
+    pub fn pull_current_index_file_from_playlist(&mut self) -> Option<&String> {
         let file = self.playlist.get(self.index);
         file
     }
