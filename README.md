@@ -6,7 +6,6 @@
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
-[![GPL License][license-shield]][license-url]
 
 <!--Project header-->
 <br>
@@ -50,16 +49,11 @@ TBD
 
 <p align="right">(<a href="#readme-top">Back To Top</a>)</p>
 
-<!-- ROADMAP -->
-## Roadmap
-_Version 1 Features_
-- [ ] Play any kind of video format under the sun
-- [ ] Create playlist
-- [ ] Specify the start and stop positions of a video; allow each video in playlist have their own start and stop points
-
 <!-- License -->
 ## License
-Distributed under the GPL-3.0 License. See 'LICENSE.txt' for more information.
+The code is under the MIT License. See 'LICENSE-MIT.txt' for more information.
+<br><br>
+The all images under the icon folder are under the GPL-3.0 License. See 'LICENSE-GPL.txt' for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -88,8 +82,6 @@ Please head to my portfolio website and use the contact form to reach out to me:
 [stars-url]: https://github.com/ColorlessSaber/Cliplay/stargazers
 [issues-shield]: https://img.shields.io/github/issues/ColorlessSaber/Cliplay.svg?style=for-the-badge
 [issues-url]: https://github.com/ColorlessSaber/Cliplay/issues
-[license-shield]: https://img.shields.io/github/license/ColorlessSaber/Cliplay.svg?style=for-the-badge
-[license-url]: https://github.com/ColorlessSaber/Cliplay/blob/main/LICENSE
 
 [rust-shield]: https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white
 [rust-url]: https://rust-lang.org
