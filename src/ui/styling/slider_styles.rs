@@ -18,9 +18,12 @@ pub fn volume_slider_style(_: &Theme, status: Status) -> Style {
                 border: Border::default()
             },
             handle: Handle {
-                shape: HandleShape::Circle {radius: 8.0},
+                shape: HandleShape::Rectangle {
+                    width: 8,
+                    border_radius: iced::border::radius(0.0)
+                },
                 background: Background::Color(Color::from_rgb(0.0, 0.0, 0.0)),
-                border_width: 1.0,
+                border_width: 0.5,
                 border_color: Color::WHITE,
             }
         }
