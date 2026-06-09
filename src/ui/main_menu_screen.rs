@@ -12,7 +12,7 @@ use iced::{
 };
 use rfd::AsyncFileDialog;
 use crate::ui::styling::{
-    btn_active_style,
+    active_large_button_style,
     container_styles::main_section_style,
     icons::{
         SELECT_SINGLE_VID_ICON,
@@ -95,12 +95,12 @@ impl MainMenuScreen {
                 .push(
                     Button::new(Image::new(SELECT_SINGLE_VID_ICON).width(64).height(64))
                         .on_press(MainMenuMessages::SelectVideo)
-                        .style(btn_active_style)
+                        .style(active_large_button_style)
                 )
                 .push(
                     Button::new(Image::new(PLAYLISTS_ICON).width(64).height(64))
                         .on_press(MainMenuMessages::PlaylistsMenu)
-                        .style(btn_active_style)
+                        .style(active_large_button_style)
                 )
                 .push(Space::new().height(Length::Fill))
         )

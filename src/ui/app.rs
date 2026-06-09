@@ -6,8 +6,10 @@ use crate::ui::{
         video_playing_style
     },
     styling::{
-        btn_inactive_style,
-        btn_active_style,
+        player_control_button_style,
+        active_large_button_style,
+        inactive_large_button_style,
+        volume_slider_style,
         StyleState
     },
     buttons::{
@@ -226,7 +228,9 @@ impl App {
                 Task::none()
             }
             Message::VolumeSeek(vol) => {
-                self.state.video.as_mut().unwrap().set_volume(vol);
+                if self.state.video.is_some() {
+                    self.state.video.as_mut().unwrap().set_volume(vol);
+                }
                 Task::none()
             }
             Message::EndOfStream => {
@@ -393,7 +397,7 @@ fn control_bar<'a>(
                             }
                         )
                             .on_press(Message::ToggleMainMenu)
-                            .style(btn_active_style)
+                            .style(active_large_button_style)
                     )
                     .push(Space::new().width(Length::Fill))
                     .push(
@@ -406,8 +410,8 @@ fn control_bar<'a>(
                                         .on_press(Message::ToggleShuffle)
                                         .style(
                                             match btn_struct.shuffle_button.current_style() {
-                                                StyleState::ActiveStyle => btn_active_style,
-                                                StyleState::InactiveStyle => btn_inactive_style,
+                                                StyleState::ActiveStyle => active_large_button_style,
+                                                StyleState::InactiveStyle => inactive_large_button_style,
                                             }
                                         )
                                 )
@@ -422,8 +426,8 @@ fn control_bar<'a>(
                                         .on_press(Message::ToggleLoop)
                                         .style(
                                             match btn_struct.loop_button.current_style() {
-                                                StyleState::ActiveStyle => btn_active_style,
-                                                StyleState::InactiveStyle => btn_inactive_style,
+                                                StyleState::ActiveStyle => active_large_button_style,
+                                                StyleState::InactiveStyle => inactive_large_button_style,
                                             }
                                         )
                                 )
@@ -437,12 +441,12 @@ fn control_bar<'a>(
                                 .push(
                                     Button::new(Image::new(SKIP_BACKWARD_ICON).width(32).height(32))
                                         .on_press(Message::SkipBackward)
-                                        .style(btn_active_style)
+                                        .style(player_control_button_style)
                                 )
                                 .push(
                                     Button::new(Image::new(BACKWARD_ICON).width(32).height(32))
                                         .on_press(Message::Backward(10.0))
-                                        .style(btn_active_style)
+                                        .style(player_control_button_style)
                                 )
                                 .push(
                                     Button::new(
@@ -452,22 +456,22 @@ fn control_bar<'a>(
                                         }
                                     )
                                         .on_press(Message::TogglePause)
-                                        .style(btn_active_style),
+                                        .style(player_control_button_style),
                                 )
                                 .push(
                                     Button::new(Image::new(STOP_ICON).width(32).height(32))
                                         .on_press(Message::StopVideo)
-                                        .style(btn_active_style)
+                                        .style(player_control_button_style)
                                 )
                                 .push(
                                     Button::new(Image::new(FORWARD_ICON).width(32).height(32))
                                         .on_press(Message::Forward(10.0))
-                                        .style(btn_active_style)
+                                        .style(player_control_button_style)
                                 )
                                 .push(
                                     Button::new(Image::new(SKIP_FORWARD_ICON).width(32).height(32))
                                         .on_press(Message::SkipForward)
-                                        .style(btn_active_style)
+                                        .style(player_control_button_style)
                                 )
                         )
                     ) // TODO add a button to open Start/Stop position menu
@@ -485,6 +489,7 @@ fn control_bar<'a>(
                                         current_video_volume,
                                         Message::VolumeSeek
                                     )
+                                        .style(volume_slider_style)
                                         .step(0.1)
                                 )
                                 .push(

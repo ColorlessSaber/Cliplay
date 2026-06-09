@@ -1,6 +1,9 @@
 pub mod icons;
 mod button_styles;
 pub mod container_styles;
+pub mod slider_styles;
+
+pub use slider_styles::*;
 
 pub use button_styles::*;
 
