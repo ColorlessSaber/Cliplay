@@ -43,6 +43,7 @@ pub enum Message {
     TogglePause,
     ToggleLoop,
     ToggleShuffle,
+    StopVideo,
     VideoSeek(f64),
     VideoSeekRelease,
     Forward(f64),
@@ -157,6 +158,13 @@ impl App {
                     ShuffleStates::ShuffleOn => println!("Shuffle on"),
                     ShuffleStates::ShuffleOff => println!("Shuffle off"),
                 }
+                Task::none()
+            }
+            Message::StopVideo => {
+                // TODO make it so when the user clicks play, it restarts the video that was playing and plays it.
+                self.state.video = None;
+                self.position = 0.0;
+
                 Task::none()
             }
             Message::VideoSeek(secs) => {
@@ -414,7 +422,7 @@ fn control_bar<'a>(
                         )
                     )
                     .push(
-                        // back/forward keys, skip back/forward keys, and play/pause buttons
+                        // back/forward keys, skip back/forward keys, and play/pause/stop buttons
                         Container::new(
                             Row::new()
                                 .spacing(5)
@@ -439,6 +447,11 @@ fn control_bar<'a>(
                                         .style(btn_active_style),
                                 )
                                 .push(
+                                    Button::new(Image::new(STOP_ICON).width(32).height(32))
+                                        .on_press(Message::StopVideo)
+                                        .style(btn_active_style)
+                                )
+                                .push(
                                     Button::new(Image::new(FORWARD_ICON).width(32).height(32))
                                         .on_press(Message::Forward(10.0))
                                         .style(btn_active_style)
@@ -449,7 +462,7 @@ fn control_bar<'a>(
                                         .style(btn_active_style)
                                 )
                         )
-                    )
+                    ) // TODO add a button to open Start/Stop position menu
                     .push(Space::new().width(Length::Fill))
                     .push(
                         // volume controls

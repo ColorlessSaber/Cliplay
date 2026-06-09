@@ -4,6 +4,7 @@ pub static MAIN_MENU_OPEN_ICON: &str = "icons/main_menu_open.png";
 pub static PLAYLISTS_ICON: &str = "icons/playlists_icon.png";
 pub static SELECT_SINGLE_VID_ICON: &str = "icons/select_single_vid.png";
 pub static PLAY_ICON: &str = "icons/play.png";
+pub static STOP_ICON: &str = "icons/stop.png";
 pub static PAUSE_ICON: &str = "icons/pause.png";
 pub static FORWARD_ICON: &str = "icons/forward.png";
 pub static BACKWARD_ICON: &str = "icons/backward.png";
