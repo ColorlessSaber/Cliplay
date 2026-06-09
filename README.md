@@ -10,7 +10,8 @@
 <!--Project header-->
 <br>
 <div align="center">
-  <h1 align="center">Cliplay</h1>
+<img src="icons/cliplay_logo_grey.png" alt="Cliplay Logo" style="width:450px;height:450px;">
+<h1 style="text-align: center; font-size: 450%; font-family: 'Droid Sans', serif">Cliplay</h1>
 </div>
 
 <!--Table of Contents-->
@@ -29,8 +30,13 @@
 
 <!--ABOUT THE PROJECT -->
 ## About The Project
-Cliplay is a video play with the capabilities of specifying start and stop points for a video being played, and create
-a playlist of videos with their own start/stop points.
+A video player designed to allow users to specify start and stop points for the video being played. Cliplay
+also allows the creation of video playlists and each video in the playlist can have start/stop points.
+<br>
+All images created for this project--logo, widget icons--were custom-made using the Gimp app.
+<br><br>
+Currently in development. The final version will also include: selecting different subtitles and audio; file drag
+and drop for quick play; and, if possible, be an option when playing a video on the computer.
 
 <p align="right">(<a href="#readme-top">Back To Top</a>)</p>
 
