@@ -21,8 +21,13 @@ pub static VOLUME_ICON: &str = "icons/volume.png";
 pub static PLAYLISTS_ICON: &str = "icons/playlists_icon.png";
 pub static SELECT_SINGLE_VID_ICON: &str = "icons/select_single_vid.png";
 
-//  Playlist menu Icons
+//  Playlist Menu Icons
 pub static NEW_PLAYLIST_ICON: &str = "icons/new_playlist_icon.png";
 pub static EDIT_PLAYLIST_ICON: &str = "icons/edit_playlist_icon.png";
 pub static DELETE_PLAYLIST_ICON: &str = "icons/delete_playlist_icon.png";
 pub static PLAY_PLAYLIST_ICON: &str = "icons/play_playlist_icon.png";
+
+// Playlist Editor Icons
+pub static SELECT_VIDEO_FILE_ICON: &str = "icons/select_video_file.png";
+pub static REMOVE_VIDEO_FILE_ICON: &str = "icons/remove_video_file.png";
+pub static SAVE_ICON: &str = "icons/save_icon.png";
