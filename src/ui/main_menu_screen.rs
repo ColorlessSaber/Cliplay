@@ -186,77 +186,80 @@ impl MainMenuScreen {
                 // The changeable view based on currently selected menu button
                 match self.currently_selected_button {
                     MenuSelectedState::SelectVideo => Container::new(Image::new(SELECT_SINGLE_VID_ICON)),
-                    MenuSelectedState::PlaylistsMenu => {
-                        Container::new(
-                            Row::new()
-                                .push(
-                                    Container::new( // Playlist Menu buttons and playlist selection
-                                        Grid::new()
-                                            .spacing(10)
-                                            .columns(2)
-                                            .width(200) // control the size of the widgets
-                                            .push(
-                                                Button::new(Image::new(NEW_PLAYLIST_ICON).width(64).height(64))
-                                                    .on_press(MainMenuMessages::NewPlaylist)
-                                                    .style(active_large_button_style)
-                                            )
-                                            .push(
-                                                Button::new(Image::new(EDIT_PLAYLIST_ICON).width(64).height(64))
-                                                    .on_press(MainMenuMessages::EditPlaylist)
-                                                    .style(active_large_button_style)
-                                            )
-                                            .push(
-                                                Button::new(Image::new(DELETE_PLAYLIST_ICON).width(64).height(64))
-                                                    .on_press(MainMenuMessages::DeletePlaylist)
-                                                    .style(active_large_button_style)
-                                            )
-                                            .push(
-                                                Button::new(Image::new(PLAY_PLAYLIST_ICON).width(64).height(64))
-                                                    .on_press(MainMenuMessages::PlayPlaylist)
-                                                    .style(active_large_button_style)
-                                            )
-                                    )
-                                        .padding(10)
-                                        .width(200)
-                                        .height(Length::Fill)
-                                        .style(main_section_style)
-                                )
-                                .push(
-                                    Container::new(
-                                        Column::new()
-                                            .spacing(10)
-                                            .push(
-                                                Row::new() // Playlist editor buttons and name input
-                                                    .spacing(10)
-                                                    .push(
-                                                        text_input("Enter playlist name...", &self.temp_playlist_name)
-                                                            .on_input(MainMenuMessages::PlaylistNameEdited)
-                                                    )
-                                                    .push(
-                                                        Button::new(Image::new(SELECT_VIDEO_FILE_ICON).width(64).height(64))
-                                                            .on_press(MainMenuMessages::AddVideoToPlaylist)
-                                                            .style(active_large_button_style)
-                                                    )
-                                                    .push(
-                                                        Button::new(Image::new(REMOVE_VIDEO_FILE_ICON).width(64).height(64))
-                                                            .on_press(MainMenuMessages::RemoveVideoFromPlaylist)
-                                                            .style(active_large_button_style)
-                                                    )
-                                                    .push(
-                                                        Button::new(Image::new(SAVE_ICON).width(64).height(64))
-                                                            .on_press(MainMenuMessages::SavePlaylist)
-                                                            .style(active_large_button_style)
-                                                    )
-                                            )
-                                    )
-                                        .padding(10)
-                                        .width(Length::Fill)
-                                        .height(Length::Fill)
-                                        .style(main_section_style)
-                                )
-                        )
-                    }
+                    MenuSelectedState::PlaylistsMenu => playlist_menu(self.temp_playlist_name.as_str())
                 }
             ).into()
     }
+}
+
+fn playlist_menu(
+    playlist_name: &str,
+) -> Container<'_, MainMenuMessages> {
+    Container::new(
+        Row::new()
+            .push(
+                Container::new( // Playlist Menu buttons and playlist selection
+                    Grid::new()
+                        .spacing(10)
+                        .columns(2)
+                        .width(200) // It also controls the size of the widgets
+                        .push(
+                            Button::new(Image::new(NEW_PLAYLIST_ICON).width(64).height(64))
+                                .on_press(MainMenuMessages::NewPlaylist)
+                                .style(active_large_button_style)
+                        )
+                        .push(
+                            Button::new(Image::new(EDIT_PLAYLIST_ICON).width(64).height(64))
+                                .on_press(MainMenuMessages::EditPlaylist)
+                                .style(active_large_button_style)
+                        )
+                        .push(
+                            Button::new(Image::new(DELETE_PLAYLIST_ICON).width(64).height(64))
+                                .on_press(MainMenuMessages::DeletePlaylist)
+                                .style(active_large_button_style)
+                        )
+                        .push(
+                            Button::new(Image::new(PLAY_PLAYLIST_ICON).width(64).height(64))
+                                .on_press(MainMenuMessages::PlayPlaylist)
+                                .style(active_large_button_style)
+                        )
+                )
+                    .padding(10)
+                    .height(Length::Fill)
+                    .style(main_section_style)
+            )
+            .push(
+                Container::new( // Playlist editor buttons and name input
+                    Column::new()
+                        .spacing(10)
+                        .push(
+                            Row::new()
+                                .spacing(10)
+                                .push(
+                                    text_input("Enter playlist name...", playlist_name)
+                                        .on_input(MainMenuMessages::PlaylistNameEdited)
+                                )
+                                .push(
+                                    Button::new(Image::new(SELECT_VIDEO_FILE_ICON).width(64).height(64))
+                                        .on_press(MainMenuMessages::AddVideoToPlaylist)
+                                        .style(active_large_button_style)
+                                )
+                                .push(
+                                    Button::new(Image::new(REMOVE_VIDEO_FILE_ICON).width(64).height(64))
+                                        .on_press(MainMenuMessages::RemoveVideoFromPlaylist)
+                                        .style(active_large_button_style)
+                                )
+                                .push(
+                                    Button::new(Image::new(SAVE_ICON).width(64).height(64))
+                                        .on_press(MainMenuMessages::SavePlaylist)
+                                        .style(active_large_button_style)
+                                )
+                        )
+                )
+                    .padding(10)
+                    .width(Length::Fill)
+                    .height(Length::Fill)
+                    .style(main_section_style)
+            )
+    )
 }
