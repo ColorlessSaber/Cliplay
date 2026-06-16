@@ -14,9 +14,9 @@ use crate::ui::{
     },
     buttons::{
         ButtonStruct,
-        loop_button::LoopStates,
-        shuffle_button::ShuffleStates,
-        main_menu_button::MainMenuStates,
+        loop_button::LoopBtnStates,
+        shuffle_button::ShuffleBtnStates,
+        main_menu_button::MainMenuBtnStates,
     },
     main_menu_screen::{
         MainMenuScreen,
@@ -166,8 +166,8 @@ impl App {
             Message::ToggleShuffle => {
                 self.state.btn_struct.shuffle_button.toggle_state_and_style();
                 match self.state.btn_struct.shuffle_button.current_state() {
-                    ShuffleStates::ShuffleOn => println!("Shuffle on"),
-                    ShuffleStates::ShuffleOff => println!("Shuffle off"),
+                    ShuffleBtnStates::ShuffleOn => println!("Shuffle on"),
+                    ShuffleBtnStates::ShuffleOff => println!("Shuffle off"),
                 }
                 Task::none()
             }
@@ -261,7 +261,7 @@ impl App {
         Column::new()
             .push(
                 match self.state.btn_struct.main_menu_button.current_state() {
-                    MainMenuStates::MainMenuClosed => {
+                    MainMenuBtnStates::MainMenuClosed => {
                         // TODO future look into. Have the scrub bar update when video is playing and on main menu screen
                         // video view
                         if let Some(video) = self.state.video.as_ref() {
@@ -290,7 +290,7 @@ impl App {
                                 .style(splash_screen_style)
                         }
                     }
-                    MainMenuStates::MainMenuOpen => {
+                    MainMenuBtnStates::MainMenuOpen => {
                         Container::new(
                             self.main_menu_screen.view().map(Message::MainMenu)
                         )
@@ -392,8 +392,8 @@ fn control_bar<'a>(
                         // main menu
                         Button::new(
                             match btn_struct.main_menu_button.current_state() {
-                                MainMenuStates::MainMenuClosed => Image::new(MAIN_MENU_CLOSED_ICON).width(32).height(32),
-                                MainMenuStates::MainMenuOpen => Image::new(MAIN_MENU_OPEN_ICON).width(32).height(32),
+                                MainMenuBtnStates::MainMenuClosed => Image::new(MAIN_MENU_CLOSED_ICON).width(32).height(32),
+                                MainMenuBtnStates::MainMenuOpen => Image::new(MAIN_MENU_OPEN_ICON).width(32).height(32),
                             }
                         )
                             .on_press(Message::ToggleMainMenu)
@@ -418,9 +418,9 @@ fn control_bar<'a>(
                                 .push(
                                     Button::new(
                                         match btn_struct.loop_button.current_state() {
-                                            LoopStates::LoopAll => Image::new(LOOP_INFINITE_ICON).width(32).height(32),
-                                            LoopStates::LoopSingle => Image::new(LOOP_ONE_ICON).width(32).height(32),
-                                            LoopStates::LoopOff => Image::new(LOOP_OFF_ICON).width(32).height(32),
+                                            LoopBtnStates::LoopAll => Image::new(LOOP_INFINITE_ICON).width(32).height(32),
+                                            LoopBtnStates::LoopSingle => Image::new(LOOP_ONE_ICON).width(32).height(32),
+                                            LoopBtnStates::LoopOff => Image::new(LOOP_OFF_ICON).width(32).height(32),
                                         }
                                     )
                                         .on_press(Message::ToggleLoop)

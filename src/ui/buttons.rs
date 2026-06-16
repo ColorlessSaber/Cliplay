@@ -25,7 +25,7 @@ pub mod loop_button {
     use crate::ui::styling::StyleState;
 
     #[derive(Copy, Clone)]
-    pub enum LoopStates {
+    pub enum LoopBtnStates {
         LoopAll,
         LoopSingle,
         LoopOff,
@@ -34,20 +34,20 @@ pub mod loop_button {
     #[derive(Copy, Clone)]
     pub struct LoopButton {
         current_style: StyleState,
-        current_state: LoopStates,
+        current_state: LoopBtnStates,
     }
 
     impl Default for LoopButton {
         fn default() -> Self {
             Self {
                 current_style: StyleState::InactiveStyle,
-                current_state: LoopStates::LoopOff,
+                current_state: LoopBtnStates::LoopOff,
             }
         }
     }
 
     impl LoopButton {
-        pub fn current_state(&self) -> LoopStates {
+        pub fn current_state(&self) -> LoopBtnStates {
             self.current_state
         }
 
@@ -55,32 +55,32 @@ pub mod loop_button {
 
         pub fn toggle_state_and_style(&mut self) {
             match self.current_state {
-                LoopStates::LoopAll => {
-                    self.current_state = LoopStates::LoopSingle;
+                LoopBtnStates::LoopAll => {
+                    self.current_state = LoopBtnStates::LoopSingle;
                 }
-                LoopStates::LoopSingle => {
-                    self.current_state = LoopStates::LoopOff;
+                LoopBtnStates::LoopSingle => {
+                    self.current_state = LoopBtnStates::LoopOff;
                 }
-                LoopStates::LoopOff => {
-                    self.current_state = LoopStates::LoopAll;
+                LoopBtnStates::LoopOff => {
+                    self.current_state = LoopBtnStates::LoopAll;
                 }
             }
             match self.current_state {
-                LoopStates::LoopAll | LoopStates::LoopSingle => self.current_style = StyleState::ActiveStyle,
-                LoopStates::LoopOff => self.current_style = StyleState::InactiveStyle,
+                LoopBtnStates::LoopAll | LoopBtnStates::LoopSingle => self.current_style = StyleState::ActiveStyle,
+                LoopBtnStates::LoopOff => self.current_style = StyleState::InactiveStyle,
             }
         }
 
         pub fn is_state_set_to_loop_all(&self) -> bool {
             match self.current_state {
-                LoopStates::LoopAll => true,
+                LoopBtnStates::LoopAll => true,
                 _ => false,
             }
         }
 
         pub fn is_state_set_to_loop_single(&self) -> bool {
             match self.current_state {
-                LoopStates::LoopSingle => true,
+                LoopBtnStates::LoopSingle => true,
                 _ => false,
             }
         }
@@ -93,7 +93,7 @@ pub mod shuffle_button {
     use crate::ui::styling::StyleState;
 
     #[derive(Copy, Clone)]
-    pub enum ShuffleStates {
+    pub enum ShuffleBtnStates {
         ShuffleOn,
         ShuffleOff,
     }
@@ -101,20 +101,20 @@ pub mod shuffle_button {
     #[derive(Copy, Clone)]
     pub struct ShuffleButton {
         current_style: StyleState,
-        current_state: ShuffleStates,
+        current_state: ShuffleBtnStates,
     }
 
     impl Default for ShuffleButton {
         fn default() -> Self {
             Self {
                 current_style: StyleState::InactiveStyle,
-                current_state: ShuffleStates::ShuffleOff
+                current_state: ShuffleBtnStates::ShuffleOff
             }
         }
     }
 
     impl ShuffleButton {
-        pub fn current_state(&self) -> ShuffleStates {
+        pub fn current_state(&self) -> ShuffleBtnStates {
             self.current_state
         }
 
@@ -122,16 +122,16 @@ pub mod shuffle_button {
 
         pub fn toggle_state_and_style(&mut self) {
             match self.current_state {
-                ShuffleStates::ShuffleOn => {
-                    self.current_state = ShuffleStates::ShuffleOff;
+                ShuffleBtnStates::ShuffleOn => {
+                    self.current_state = ShuffleBtnStates::ShuffleOff;
                 }
-                ShuffleStates::ShuffleOff => {
-                    self.current_state = ShuffleStates::ShuffleOn;
+                ShuffleBtnStates::ShuffleOff => {
+                    self.current_state = ShuffleBtnStates::ShuffleOn;
                 }
             }
             match self.current_state {
-                ShuffleStates::ShuffleOn => self.current_style = StyleState::ActiveStyle,
-                ShuffleStates::ShuffleOff => self.current_style = StyleState::InactiveStyle,
+                ShuffleBtnStates::ShuffleOn => self.current_style = StyleState::ActiveStyle,
+                ShuffleBtnStates::ShuffleOff => self.current_style = StyleState::InactiveStyle,
             }
         }
     }
@@ -140,34 +140,34 @@ pub mod shuffle_button {
 // Module to hold the struct, enum and methods for the menu button
 pub mod main_menu_button {
     #[derive(Copy, Clone)]
-    pub enum MainMenuStates {
+    pub enum MainMenuBtnStates {
         MainMenuClosed,
         MainMenuOpen,
     }
 
     #[derive(Copy, Clone)]
     pub struct MainMenuButton {
-        current_state: MainMenuStates,
+        current_state: MainMenuBtnStates,
     }
 
     impl Default for MainMenuButton {
         fn default() -> Self {
             Self {
-                current_state: MainMenuStates::MainMenuClosed,
+                current_state: MainMenuBtnStates::MainMenuClosed,
             }
         }
     }
 
     impl MainMenuButton {
-        pub fn current_state(&self) -> MainMenuStates {self.current_state}
+        pub fn current_state(&self) -> MainMenuBtnStates {self.current_state}
 
         pub fn toggle_state(&mut self) {
             match self.current_state {
-                MainMenuStates::MainMenuOpen => {
-                    self.current_state = MainMenuStates::MainMenuClosed;
+                MainMenuBtnStates::MainMenuOpen => {
+                    self.current_state = MainMenuBtnStates::MainMenuClosed;
                 }
-                MainMenuStates::MainMenuClosed => {
-                    self.current_state = MainMenuStates::MainMenuOpen;
+                MainMenuBtnStates::MainMenuClosed => {
+                    self.current_state = MainMenuBtnStates::MainMenuOpen;
                 }
             }
         }
