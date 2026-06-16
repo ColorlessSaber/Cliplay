@@ -3,7 +3,8 @@ use iced::{
     Border,
     Color,
     Theme,
-    widget::container::Style
+    widget::container::Style,
+    border,
 };
 
 
@@ -40,6 +41,19 @@ pub fn main_section_style(_: &Theme) -> Style {
         background: Some(Background::Color(Color::from_rgb(0.502, 0.502, 0.502))),
         text_color: Some(Color::BLACK),
         border: custom_border.width(2).color(Color::from_rgb(0.0, 0.0, 0.0)),
+        ..Style::default()
+    }
+}
+
+pub fn playlist_entry_style(_: &Theme) -> Style {
+    let custom_border = Border::default();
+    Style {
+        background: Some(Background::Color(Color::from_rgb(0.722, 0.722, 0.722))),
+        text_color: Some(Color::BLACK),
+        border: custom_border
+            .width(1)
+            .color(Color::from_rgb(0.0, 0.0, 0.0))
+            .rounded(border::radius(5)),
         ..Style::default()
     }
 }

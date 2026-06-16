@@ -2,6 +2,7 @@ use iced::{
     Element,
     Length,
     Task,
+    Alignment,
     widget::{
         Button,
         Text,
@@ -16,7 +17,10 @@ use iced::{
 use rfd::AsyncFileDialog;
 use crate::ui::styling::{
     active_large_button_style,
-    container_styles::main_section_style,
+    container_styles::{
+        main_section_style,
+        playlist_entry_style
+    },
     icons::{
         SELECT_SINGLE_VID_ICON,
         PLAYLISTS_ICON,
@@ -209,24 +213,33 @@ fn playlist_menu(
                                 .style(active_large_button_style)
                         )
                         .push(
-                            Row::new()
-                                .spacing(10)
-                                .push(Text::new("Demo name").size(16))
-                                .push(
-                                    Button::new(Image::new(PLAY_PLAYLIST_ICON).width(32).height(32))
-                                        .on_press(MainMenuMessages::PlayPlaylist)
-                                        .style(active_large_button_style)
-                                )
-                                .push(
-                                    Button::new(Image::new(EDIT_PLAYLIST_ICON).width(32).height(32))
-                                        .on_press(MainMenuMessages::EditPlaylist)
-                                        .style(active_large_button_style)
-                                )
-                                .push(
-                                    Button::new(Image::new(DELETE_PLAYLIST_ICON).width(32).height(32))
-                                        .on_press(MainMenuMessages::DeletePlaylist)
-                                        .style(active_large_button_style)
-                                )
+                            Container::new(
+                                Row::new() // TODO Look into creating into a separate view struct, given all playlist will have the same structure
+                                    .spacing(10)
+                                    .align_y(Alignment::Center)
+                                    .push(
+                                        Text::new("Demo name").size(16) // TODO add a border around text
+                                    )
+                                    .push(Space::new().width(Length::Fill))
+                                    .push(
+                                        Button::new(Image::new(PLAY_PLAYLIST_ICON).width(32).height(32))
+                                            .on_press(MainMenuMessages::PlayPlaylist)
+                                            .style(active_large_button_style)
+                                    )
+                                    .push(
+                                        Button::new(Image::new(EDIT_PLAYLIST_ICON).width(32).height(32))
+                                            .on_press(MainMenuMessages::EditPlaylist)
+                                            .style(active_large_button_style)
+                                    )
+                                    .push(
+                                        Button::new(Image::new(DELETE_PLAYLIST_ICON).width(32).height(32))
+                                            .on_press(MainMenuMessages::DeletePlaylist)
+                                            .style(active_large_button_style)
+                                    )
+                            )
+                                .padding(10)
+                                .width(Length::Fill)
+                                .style(playlist_entry_style)
                         )
                 )
                     .padding(10)
