@@ -4,10 +4,10 @@ use iced::{
     Task,
     widget::{
         Button,
+        Text,
         text_input,
         Column,
         Row,
-        Grid,
         Image,
         Space,
         Container
@@ -198,30 +198,35 @@ fn playlist_menu(
     Container::new(
         Row::new()
             .push(
-                Container::new( // Playlist Menu buttons and playlist selection
-                    Grid::new()
+                // Playlist Menu buttons and playlist selection
+                Container::new(
+                    Column::new()
                         .spacing(10)
-                        .columns(2)
-                        .width(200) // It also controls the size of the widgets
+                        .width(Length::Fill)
                         .push(
                             Button::new(Image::new(NEW_PLAYLIST_ICON).width(64).height(64))
                                 .on_press(MainMenuMessages::NewPlaylist)
                                 .style(active_large_button_style)
                         )
                         .push(
-                            Button::new(Image::new(EDIT_PLAYLIST_ICON).width(64).height(64))
-                                .on_press(MainMenuMessages::EditPlaylist)
-                                .style(active_large_button_style)
-                        )
-                        .push(
-                            Button::new(Image::new(DELETE_PLAYLIST_ICON).width(64).height(64))
-                                .on_press(MainMenuMessages::DeletePlaylist)
-                                .style(active_large_button_style)
-                        )
-                        .push(
-                            Button::new(Image::new(PLAY_PLAYLIST_ICON).width(64).height(64))
-                                .on_press(MainMenuMessages::PlayPlaylist)
-                                .style(active_large_button_style)
+                            Row::new()
+                                .spacing(10)
+                                .push(Text::new("Demo name").size(16))
+                                .push(
+                                    Button::new(Image::new(PLAY_PLAYLIST_ICON).width(32).height(32))
+                                        .on_press(MainMenuMessages::PlayPlaylist)
+                                        .style(active_large_button_style)
+                                )
+                                .push(
+                                    Button::new(Image::new(EDIT_PLAYLIST_ICON).width(32).height(32))
+                                        .on_press(MainMenuMessages::EditPlaylist)
+                                        .style(active_large_button_style)
+                                )
+                                .push(
+                                    Button::new(Image::new(DELETE_PLAYLIST_ICON).width(32).height(32))
+                                        .on_press(MainMenuMessages::DeletePlaylist)
+                                        .style(active_large_button_style)
+                                )
                         )
                 )
                     .padding(10)
