@@ -4,8 +4,13 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-iced = { version = "0.14", features = ["debug", "image"] }
+iced = { version = "0.14", features = ["debug", "image", "tokio", "time-travel"] }
 #gstreamer = { version = "0.25.1" } # Not used, but keeping it in the Toml just in case
 iced_video_player = { version = "0.6.0" }
 url = { version = "2.5.8" }
 rfd = { version = "0.17.2" }
+#serde = { version = "1.0.228", features = ["derive"] }
+#serde_json = { version = "1.0.150" }
+#uuid = { version = "1.23.3", features = ["v4", "fast-rng", "serde"] }
+#tokio = { version = "1.49.0", features = ["full"] }
+#directories = { version = "6.0.0" }
