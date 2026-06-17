@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-iced = { version = "0.14", features = ["debug"] }
+iced = { version = "0.14", features = ["debug", "image"] }
 #gstreamer = { version = "0.25.1" } # Not used, but keeping it in the Toml just in case
 iced_video_player = { version = "0.6.0" }
 url = { version = "2.5.8" }

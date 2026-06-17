@@ -10,7 +10,9 @@ use iced::{
         Row,
         Image,
         Space,
-        Container
+        Container,
+        scrollable,
+        keyed_column,
     },
 };
 use rfd::AsyncFileDialog;
@@ -167,52 +169,59 @@ impl MainMenuScreen {
 }
 
 fn playlist_menu<'a>() -> Container<'a, MainMenuMessages> {
+
+    let playlist_column = keyed_column(
+        (0..=10).map(|i| {
+            (i, playlist_entry(i))
+        })).spacing(5);
+
     Container::new(
-        Row::new()
+        Column::new()
+            .spacing(10)
+            .width(Length::Fill)
             .push(
-                // Playlist Menu buttons and playlist selection
-                Container::new(
-                    Column::new()
-                        .spacing(10)
-                        .width(Length::Fill)
-                        .push(
-                            Button::new(Image::new(NEW_PLAYLIST_ICON).width(64).height(64))
-                                .on_press(MainMenuMessages::NewPlaylist)
-                                .style(active_large_button_style)
-                        )
-                        .push(
-                            Container::new(
-                                Row::new() // TODO Look into creating into a separate view struct, given all playlist will have the same structure
-                                    .spacing(10)
-                                    .align_y(Alignment::Center)
-                                    .push(
-                                        Text::new("Demo name").size(16) // TODO add a border around text
-                                    )
-                                    .push(Space::new().width(Length::Fill))
-                                    .push(
-                                        Button::new(Image::new(PLAY_PLAYLIST_ICON).width(32).height(32))
-                                            .on_press(MainMenuMessages::PlayPlaylist)
-                                            .style(active_large_button_style)
-                                    )
-                                    .push(
-                                        Button::new(Image::new(EDIT_PLAYLIST_ICON).width(32).height(32))
-                                            .on_press(MainMenuMessages::EditPlaylist)
-                                            .style(active_large_button_style)
-                                    )
-                                    .push(
-                                        Button::new(Image::new(DELETE_PLAYLIST_ICON).width(32).height(32))
-                                            .on_press(MainMenuMessages::DeletePlaylist)
-                                            .style(active_large_button_style)
-                                    )
-                            )
-                                .padding(10)
-                                .width(Length::Fill)
-                                .style(playlist_entry_style)
-                        )
-                )
-                    .padding(10)
-                    .height(Length::Fill)
-                    .style(main_section_style)
+                Button::new(Image::new(NEW_PLAYLIST_ICON).width(64).height(64))
+                    .on_press(MainMenuMessages::NewPlaylist)
+                    .style(active_large_button_style)
+            )
+            .push(
+                scrollable(playlist_column).spacing(20)
             )
     )
+        .padding(10)
+        .height(Length::Fill)
+        .style(main_section_style)
+}
+
+fn playlist_entry<'a>(number: usize) -> Element<'a, MainMenuMessages> {
+    let entry_name = format!("playlist_{}", number);
+
+    Container::new(
+        Row::new() // TODO Look into creating into a separate view struct, given all playlist will have the same structure
+            .spacing(10)
+            .align_y(Alignment::Center)
+            .push(
+                Text::new(entry_name).size(16) // TODO add a border around text
+            )
+            .push(Space::new().width(Length::Fill))
+            .push(
+                Button::new(Image::new(PLAY_PLAYLIST_ICON).width(32).height(32))
+                    .on_press(MainMenuMessages::PlayPlaylist)
+                    .style(active_large_button_style)
+            )
+            .push(
+                Button::new(Image::new(EDIT_PLAYLIST_ICON).width(32).height(32))
+                    .on_press(MainMenuMessages::EditPlaylist)
+                    .style(active_large_button_style)
+            )
+            .push(
+                Button::new(Image::new(DELETE_PLAYLIST_ICON).width(32).height(32))
+                    .on_press(MainMenuMessages::DeletePlaylist)
+                    .style(active_large_button_style)
+            )
+    )
+        .padding(10)
+        .width(Length::Fill)
+        .style(playlist_entry_style)
+        .into()
 }
