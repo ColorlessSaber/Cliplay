@@ -23,12 +23,15 @@ use crate::ui::styling::{
         playlist_entry_style
     },
     icons::{
-        SELECT_SINGLE_VID_ICON,
+        SELECT_VID_FROM_COMPUTER_ICON,
         PLAYLISTS_ICON,
         NEW_PLAYLIST_ICON,
         EDIT_PLAYLIST_ICON,
         DELETE_PLAYLIST_ICON,
         PLAY_PLAYLIST_ICON,
+        SELECT_VIDEO_FILE_ICON,
+        REMOVE_VIDEO_FILE_ICON,
+        SAVE_ICON,
     }
 };
 use crate::utils::{
@@ -45,23 +48,34 @@ pub enum MainMenuMessages {
     EditPlaylist,
     DeletePlaylist,
     PlayPlaylist,
+    AddVideoToPlaylist,
+    RemoveVideoFromPlaylist,
+    SavePlaylist,
 }
 
 // Keep track of what button was last pressed
 enum MenuSelectedState {
-    SelectVideo,
+    SelectVideo, // TODO replace with SettingsMenu
+    PlaylistsMenu,
+}
+#[derive(Debug, Clone)]
+enum PlaylistMenuState {
+    NewPlaylist,
     PlaylistsMenu,
 }
 
+// Main Menu GUI Struct
 pub struct MainMenuScreen {
-    currently_selected_button: MenuSelectedState,
+    currently_selected_main_menu_btn: MenuSelectedState,
+    playlist_menu_state: PlaylistMenuState
 }
 
 impl MainMenuScreen {
 
     pub fn new() -> Self {
         Self {
-            currently_selected_button: MenuSelectedState::SelectVideo,
+            currently_selected_main_menu_btn: MenuSelectedState::SelectVideo,
+            playlist_menu_state: PlaylistMenuState::PlaylistsMenu
         }
     }
 
@@ -80,7 +94,7 @@ impl MainMenuScreen {
                 )
             }
             MainMenuMessages::VideoFileSelected(path) => {
-                self.currently_selected_button = MenuSelectedState::SelectVideo;
+                self.currently_selected_main_menu_btn = MenuSelectedState::SelectVideo;
 
                 if let Some(path) = path {
                     state.playlist_manager.clear_playlist();
@@ -99,12 +113,12 @@ impl MainMenuScreen {
                 Task::none()
             }
             MainMenuMessages::PlaylistsMenu => {
-                self.currently_selected_button = MenuSelectedState::PlaylistsMenu;
+                self.currently_selected_main_menu_btn = MenuSelectedState::PlaylistsMenu;
 
                 Task::none()
             }
             MainMenuMessages::NewPlaylist => {
-                println!("New playlist");
+                self.playlist_menu_state = PlaylistMenuState::NewPlaylist;
 
                 Task::none()
             }
@@ -132,11 +146,26 @@ impl MainMenuScreen {
                 state.btn_struct.main_menu_button.toggle_state(); // to switch to video view
                 Task::none()
             }
+            MainMenuMessages::AddVideoToPlaylist => {
+                println!("Adding video to playlist");
+
+                Task::none()
+            }
+            MainMenuMessages::RemoveVideoFromPlaylist => {
+                println!("Removing video from playlist");
+
+                Task::none()
+            }
+            MainMenuMessages::SavePlaylist => {
+                println!("Saving playlist");
+                self.playlist_menu_state = PlaylistMenuState::PlaylistsMenu;
+
+                Task::none()
+            }
         }
     }
 
-    pub fn view(&self) -> Element<'_, MainMenuMessages>
-    {
+    pub fn view(&self) -> Element<'_, MainMenuMessages> {
         Row::new()
             .push(
                 // the main menu buttons: video select, playlist, and settings
@@ -144,7 +173,7 @@ impl MainMenuScreen {
                     Column::new()
                         .spacing(10)
                         .push(
-                            Button::new(Image::new(SELECT_SINGLE_VID_ICON).width(64).height(64))
+                            Button::new(Image::new(SELECT_VID_FROM_COMPUTER_ICON).width(64).height(64))
                                 .on_press(MainMenuMessages::SelectVideo)
                                 .style(active_large_button_style)
                         )
@@ -160,44 +189,74 @@ impl MainMenuScreen {
             )
             .push(
                 // The changeable view based on currently selected menu button
-                match self.currently_selected_button {
-                    MenuSelectedState::SelectVideo => Container::new(Image::new(SELECT_SINGLE_VID_ICON)),
-                    MenuSelectedState::PlaylistsMenu => playlist_menu()
+                match self.currently_selected_main_menu_btn {
+                    MenuSelectedState::SelectVideo => Container::new(Image::new(SELECT_VID_FROM_COMPUTER_ICON)),
+                    MenuSelectedState::PlaylistsMenu => playlist_menu(&self.playlist_menu_state)
                 }
             ).into()
     }
 }
 
-fn playlist_menu<'a>() -> Container<'a, MainMenuMessages> {
+fn playlist_menu<'a>(
+    playlist_menu_state: &PlaylistMenuState,
+) -> Container<'a, MainMenuMessages> {
+    match playlist_menu_state {
+        PlaylistMenuState::PlaylistsMenu => {
+            let playlist_column = keyed_column(
+                (0..=10).map(|i| {
+                    (i, playlist_entry_layout(i))
+                })).spacing(5);
 
-    let playlist_column = keyed_column(
-        (0..=10).map(|i| {
-            (i, playlist_entry(i))
-        })).spacing(5);
-
-    Container::new(
-        Column::new()
-            .spacing(10)
-            .width(Length::Fill)
-            .push(
-                Button::new(Image::new(NEW_PLAYLIST_ICON).width(64).height(64))
-                    .on_press(MainMenuMessages::NewPlaylist)
-                    .style(active_large_button_style)
+            Container::new(
+                Column::new()
+                    .spacing(10)
+                    .width(Length::Fill)
+                    .push(
+                        Button::new(Image::new(NEW_PLAYLIST_ICON).width(64).height(64))
+                            .on_press(MainMenuMessages::NewPlaylist)
+                            .style(active_large_button_style)
+                    )
+                    .push(
+                        scrollable(playlist_column).spacing(20)
+                    )
             )
-            .push(
-                scrollable(playlist_column).spacing(20)
+                .padding(10)
+                .height(Length::Fill)
+                .style(main_section_style)
+        }
+        PlaylistMenuState::NewPlaylist => {
+            Container::new(
+                Row::new()
+                    .spacing(10)
+                    .width(Length::Fill)
+                    .push(
+                        Button::new(Image::new(SELECT_VIDEO_FILE_ICON).width(64).height(64))
+                            .on_press(MainMenuMessages::AddVideoToPlaylist)
+                            .style(active_large_button_style)
+                    )
+                    .push(
+                        Button::new(Image::new(REMOVE_VIDEO_FILE_ICON).width(64).height(64))
+                            .on_press(MainMenuMessages::RemoveVideoFromPlaylist)
+                            .style(active_large_button_style)
+                    )
+                    .push(
+                        Button::new(Image::new(SAVE_ICON).width(64).height(64))
+                            .on_press(MainMenuMessages::SavePlaylist)
+                            .style(active_large_button_style)
+                    )
             )
-    )
-        .padding(10)
-        .height(Length::Fill)
-        .style(main_section_style)
+                .padding(10)
+                .height(Length::Fill)
+                .style(main_section_style)
+        }
+    }
 }
 
-fn playlist_entry<'a>(number: usize) -> Element<'a, MainMenuMessages> {
+fn playlist_entry_layout<'a>(number: usize) -> Element<'a, MainMenuMessages> {
     let entry_name = format!("playlist_{}", number);
 
     Container::new(
-        Row::new() // TODO Look into creating into a separate view struct, given all playlist will have the same structure
+        Row::new()
             .spacing(10)
             .align_y(Alignment::Center)
             .push(
