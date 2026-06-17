@@ -6,7 +6,6 @@ use iced::{
     widget::{
         Button,
         Text,
-        text_input,
         Column,
         Row,
         Image,
@@ -28,9 +27,6 @@ use crate::ui::styling::{
         EDIT_PLAYLIST_ICON,
         DELETE_PLAYLIST_ICON,
         PLAY_PLAYLIST_ICON,
-        SELECT_VIDEO_FILE_ICON,
-        REMOVE_VIDEO_FILE_ICON,
-        SAVE_ICON,
     }
 };
 use crate::utils::{
@@ -47,10 +43,6 @@ pub enum MainMenuMessages {
     EditPlaylist,
     DeletePlaylist,
     PlayPlaylist,
-    PlaylistNameEdited(String),
-    AddVideoToPlaylist,
-    RemoveVideoFromPlaylist,
-    SavePlaylist,
 }
 
 // Keep track of what button was last pressed
@@ -61,7 +53,6 @@ enum MenuSelectedState {
 
 pub struct MainMenuScreen {
     currently_selected_button: MenuSelectedState,
-    temp_playlist_name: String,
 }
 
 impl MainMenuScreen {
@@ -69,7 +60,6 @@ impl MainMenuScreen {
     pub fn new() -> Self {
         Self {
             currently_selected_button: MenuSelectedState::SelectVideo,
-            temp_playlist_name: String::new(),
         }
     }
 
@@ -140,26 +130,6 @@ impl MainMenuScreen {
                 state.btn_struct.main_menu_button.toggle_state(); // to switch to video view
                 Task::none()
             }
-            MainMenuMessages::PlaylistNameEdited(playlist_name) => {
-                self.temp_playlist_name = playlist_name;
-
-                Task::none()
-            }
-            MainMenuMessages::AddVideoToPlaylist => {
-                println!("Adding video to playlist");
-
-                Task::none()
-            }
-            MainMenuMessages::RemoveVideoFromPlaylist => {
-                println!("Removing video from playlist");
-
-                Task::none()
-            }
-            MainMenuMessages::SavePlaylist => {
-                println!("Saving playlist");
-
-                Task::none()
-            }
         }
     }
 
@@ -190,15 +160,13 @@ impl MainMenuScreen {
                 // The changeable view based on currently selected menu button
                 match self.currently_selected_button {
                     MenuSelectedState::SelectVideo => Container::new(Image::new(SELECT_SINGLE_VID_ICON)),
-                    MenuSelectedState::PlaylistsMenu => playlist_menu(self.temp_playlist_name.as_str())
+                    MenuSelectedState::PlaylistsMenu => playlist_menu()
                 }
             ).into()
     }
 }
 
-fn playlist_menu(
-    playlist_name: &str,
-) -> Container<'_, MainMenuMessages> {
+fn playlist_menu<'a>() -> Container<'a, MainMenuMessages> {
     Container::new(
         Row::new()
             .push(
@@ -243,39 +211,6 @@ fn playlist_menu(
                         )
                 )
                     .padding(10)
-                    .height(Length::Fill)
-                    .style(main_section_style)
-            )
-            .push(
-                Container::new( // Playlist editor buttons and name input
-                    Column::new()
-                        .spacing(10)
-                        .push(
-                            Row::new()
-                                .spacing(10)
-                                .push(
-                                    text_input("Enter playlist name...", playlist_name)
-                                        .on_input(MainMenuMessages::PlaylistNameEdited)
-                                )
-                                .push(
-                                    Button::new(Image::new(SELECT_VIDEO_FILE_ICON).width(64).height(64))
-                                        .on_press(MainMenuMessages::AddVideoToPlaylist)
-                                        .style(active_large_button_style)
-                                )
-                                .push(
-                                    Button::new(Image::new(REMOVE_VIDEO_FILE_ICON).width(64).height(64))
-                                        .on_press(MainMenuMessages::RemoveVideoFromPlaylist)
-                                        .style(active_large_button_style)
-                                )
-                                .push(
-                                    Button::new(Image::new(SAVE_ICON).width(64).height(64))
-                                        .on_press(MainMenuMessages::SavePlaylist)
-                                        .style(active_large_button_style)
-                                )
-                        )
-                )
-                    .padding(10)
-                    .width(Length::Fill)
                     .height(Length::Fill)
                     .style(main_section_style)
             )

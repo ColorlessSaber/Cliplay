@@ -1,14 +1,13 @@
 /*
-Holds the playlist manager struct with methods and functions related to CRUD commands for the
-playlist manipulation.
+Holds the methods and functions related to CRUD commands for single playlist.
 */
 
-pub struct PlayListManager {
+pub struct PlaylistManager {
     playlist: Vec<String>,
     index: usize, // Keeps track of where in the current playlist we are at.
 }
 
-impl PlayListManager {
+impl PlaylistManager {
     pub fn new() -> Self {
         Self {
             playlist: Vec::new(),

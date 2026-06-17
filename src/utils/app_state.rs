@@ -1,6 +1,6 @@
 use crate::ui::{buttons::ButtonStruct};
 use crate::utils::{
-    playlist_manager::PlayListManager,
+    playlist_manager::PlaylistManager,
 };
 use iced_video_player::Video;
 
@@ -8,7 +8,7 @@ use iced_video_player::Video;
 pub struct AppState {
     pub video: Option<Video>,
     pub btn_struct: ButtonStruct,
-    pub playlist_manager: PlayListManager,
+    pub playlist_manager: PlaylistManager,
 }
 
 impl Default for AppState {
@@ -16,7 +16,7 @@ impl Default for AppState {
         Self {
             video: None,
             btn_struct: ButtonStruct::default(),
-            playlist_manager: PlayListManager::new()
+            playlist_manager: PlaylistManager::new()
         }
     }
 }

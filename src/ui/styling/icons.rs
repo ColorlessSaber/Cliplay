@@ -28,6 +28,6 @@ pub static DELETE_PLAYLIST_ICON: &str = "icons/delete_playlist_icon.png";
 pub static PLAY_PLAYLIST_ICON: &str = "icons/play_playlist_icon.png";
 
 // Playlist Editor Icons
-pub static SELECT_VIDEO_FILE_ICON: &str = "icons/select_video_file.png";
-pub static REMOVE_VIDEO_FILE_ICON: &str = "icons/remove_video_file.png";
-pub static SAVE_ICON: &str = "icons/save_icon.png";
+//pub static SELECT_VIDEO_FILE_ICON: &str = "icons/select_video_file.png";
+//pub static REMOVE_VIDEO_FILE_ICON: &str = "icons/remove_video_file.png";
+//pub static SAVE_ICON: &str = "icons/save_icon.png";
