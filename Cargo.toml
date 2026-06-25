@@ -11,6 +11,5 @@ url = { version = "2.5.8" }
 rfd = { version = "0.17.2" }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = { version = "1.0.150" }
-uuid = { version = "1.23.3", features = ["v4", "fast-rng", "serde"] }
 tokio = { version = "1.52.3", features = ["full", "fs"] }
 directories = { version = "6.0.0" }
