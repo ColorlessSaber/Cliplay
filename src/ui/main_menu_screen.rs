@@ -46,6 +46,7 @@ use crate::utils::{
 pub enum MainMenuMessages {
     SelectVideo,
     PlaylistsMenu,
+    SettingsMenu,
     VideoFileSelected(Option<String>),
     NewPlaylist,
     EditPlaylist,
@@ -58,7 +59,7 @@ pub enum MainMenuMessages {
 
 // Keep track of what button was last pressed
 enum MenuSelectedState {
-    SelectVideo, // TODO replace with SettingsMenu
+    SettingsMenu,
     PlaylistsMenu,
 }
 #[derive(Debug, Clone)]
@@ -77,7 +78,7 @@ impl MainMenuScreen {
 
     pub fn new() -> Self {
         Self {
-            currently_selected_main_menu_btn: MenuSelectedState::SelectVideo,
+            currently_selected_main_menu_btn: MenuSelectedState::PlaylistsMenu,
             playlist_menu_state: PlaylistMenuState::PlaylistsMenu
         }
     }
@@ -97,8 +98,6 @@ impl MainMenuScreen {
                 )
             }
             MainMenuMessages::VideoFileSelected(path) => {
-                self.currently_selected_main_menu_btn = MenuSelectedState::SelectVideo;
-
                 if let Some(path) = path {
                     state.playlist_manager.play_single_video_file(path);
                     let video_file = state.playlist_manager.pull_first_file_from_playlist();
@@ -116,6 +115,11 @@ impl MainMenuScreen {
             }
             MainMenuMessages::PlaylistsMenu => {
                 self.currently_selected_main_menu_btn = MenuSelectedState::PlaylistsMenu;
+
+                Task::none()
+            }
+            MainMenuMessages::SettingsMenu => {
+                self.currently_selected_main_menu_btn = MenuSelectedState::SettingsMenu;
 
                 Task::none()
             }
@@ -187,6 +191,11 @@ impl MainMenuScreen {
                                 .on_press(MainMenuMessages::PlaylistsMenu)
                                 .style(active_large_button_style)
                         )
+                        .push(
+                            Button::new(Text::new("Settings").width(64).height(64))
+                                .on_press(MainMenuMessages::SettingsMenu)
+                                .style(active_large_button_style)
+                        )
                         .push(Space::new().height(Length::Fill))
                 )
                     .padding(10)
@@ -195,7 +204,7 @@ impl MainMenuScreen {
             .push(
                 // The changeable view based on currently selected menu button
                 match self.currently_selected_main_menu_btn {
-                    MenuSelectedState::SelectVideo => Container::new(Image::new(SELECT_VID_FROM_COMPUTER_ICON)),
+                    MenuSelectedState::SettingsMenu => Container::new(Text::new("Settings Menu")), // TODO create a fleshed out settings menu
                     MenuSelectedState::PlaylistsMenu => playlist_menu(&self.playlist_menu_state)
                 }
             ).into()
