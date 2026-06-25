@@ -3,6 +3,7 @@ Holds the methods and functions related to CRUD commands for single playlist.
 */
 
 pub struct PlaylistManager {
+    playlist_name: String,
     playlist: Vec<String>,
     index: usize, // Keeps track of where in the current playlist we are at.
 }
@@ -10,6 +11,7 @@ pub struct PlaylistManager {
 impl PlaylistManager {
     pub fn new() -> Self {
         Self {
+            playlist_name: String::new(),
             playlist: Vec::new(),
             index: 0,
         }
@@ -59,24 +61,13 @@ impl PlaylistManager {
         file
     }
 
-    pub fn load_playlist(&mut self) {
-        self.playlist = vec![
-            "/home/admin/Videos/Misc Videos/Zenless Zone Zero/Caesar Character Demo -  Calydon's Ride    Zenless Zone Zero.mp4".to_string(),
-            "/home/admin/Videos/Misc Videos/Zenless Zone Zero/Hoshimi Miyabi Character Demo -  Everlasting Training    Zenless Zone Zero.mkv".to_string(),
-            "/home/admin/Videos/Misc Videos/Zenless Zone Zero/ZZZ WIT Studio Animation.mkv".to_string(),
-            "/home/admin/Videos/Misc Videos/Zenless Zone Zero/Burnice Character Demo -  A Burnice Special for the Brokenhearted    Zenless Zone Zero.mp4".to_string(),
-        ];
+    pub fn load_playlist(&mut self, list: Vec<String>) {
+        self.playlist = list;
         self.index = 0;
     }
 
-    pub fn add_file_to_playlist(&mut self, file_path: String) {
-        self.playlist.push(file_path);
-    }
-
-    pub fn clear_playlist(&mut self) {
-        self.playlist.clear();
+    pub fn play_single_video_file(&mut self, file_path: String) {
+        self.playlist = vec![file_path];
         self.index = 0;
     }
-
-
 }

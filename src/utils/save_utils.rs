@@ -21,6 +21,7 @@ pub enum SaveError {
 pub fn app_directory_path() -> std::path::PathBuf {
     // First checks to see if the application's data directory exists.
     // if it does not exist then defaults to the current working directory.
+    // For linux: /home/<user_name>/.local/share/
     //
     // Causes to return current working directory:
     // * Running on Windows or when the app isn't installed via standard paths.

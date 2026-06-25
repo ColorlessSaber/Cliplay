@@ -36,7 +36,10 @@ use crate::ui::styling::{
 };
 use crate::utils::{
     app_state::AppState,
-    functions::load_video_file
+    functions::{
+        load_video_file,
+        currently_saved_playlists,
+    }
 };
 
 #[derive(Debug, Clone)]
@@ -97,8 +100,7 @@ impl MainMenuScreen {
                 self.currently_selected_main_menu_btn = MenuSelectedState::SelectVideo;
 
                 if let Some(path) = path {
-                    state.playlist_manager.clear_playlist();
-                    state.playlist_manager.add_file_to_playlist(path);
+                    state.playlist_manager.play_single_video_file(path);
                     let video_file = state.playlist_manager.pull_first_file_from_playlist();
                     
                     match video_file {
@@ -133,6 +135,7 @@ impl MainMenuScreen {
                 Task::none()
             }
             MainMenuMessages::PlayPlaylist => {
+                /* TODO update with loading existing/new playlist
                 state.playlist_manager.load_playlist();
                 let video_file = state.playlist_manager.pull_first_file_from_playlist();
 
@@ -144,6 +147,8 @@ impl MainMenuScreen {
                 }
 
                 state.btn_struct.main_menu_button.toggle_state(); // to switch to video view
+                 */
+                println!("Playing playlist");
                 Task::none()
             }
             MainMenuMessages::AddVideoToPlaylist => {
@@ -202,6 +207,54 @@ fn playlist_menu<'a>(
 ) -> Container<'a, MainMenuMessages> {
     match playlist_menu_state {
         PlaylistMenuState::PlaylistsMenu => {
+            let playlists_found = currently_saved_playlists();
+
+            match playlists_found {
+                Ok(playlists) => {
+                    let playlist_column = keyed_column(
+                        (0..=playlists.len()).map(|i|{
+                            (i, playlist_entry_layout(playlists.get(i).unwrap()))
+                        }));
+
+                    Container::new(
+                        Column::new()
+                            .spacing(10)
+                            .width(Length::Fill)
+                            .push(
+                                Button::new(Image::new(NEW_PLAYLIST_ICON).width(64).height(64))
+                                    .on_press(MainMenuMessages::NewPlaylist)
+                                    .style(active_large_button_style)
+                            )
+                            .push(
+                                scrollable(playlist_column).spacing(20)
+                            )
+                    )
+                        .padding(10)
+                        .height(Length::Fill)
+                        .style(main_section_style)
+
+                }
+                Err(_) => {
+                    Container::new(
+                        Column::new()
+                            .spacing(10)
+                            .width(Length::Fill)
+                            .push(
+                                Button::new(Image::new(NEW_PLAYLIST_ICON).width(64).height(64))
+                                    .on_press(MainMenuMessages::NewPlaylist)
+                                    .style(active_large_button_style)
+                            )
+                            .push(
+                                Text::new("No playlists found")
+                            )
+                    )
+                        .padding(10)
+                        .height(Length::Fill)
+                        .style(main_section_style)
+                }
+            }
+
+            /*
             let playlist_column = keyed_column(
                 (0..=10).map(|i| {
                     (i, playlist_entry_layout(i))
@@ -223,6 +276,7 @@ fn playlist_menu<'a>(
                 .padding(10)
                 .height(Length::Fill)
                 .style(main_section_style)
+             */
         }
         PlaylistMenuState::NewPlaylist => {
             Container::new(
@@ -252,8 +306,8 @@ fn playlist_menu<'a>(
     }
 }
 
-fn playlist_entry_layout<'a>(number: usize) -> Element<'a, MainMenuMessages> {
-    let entry_name = format!("playlist_{}", number);
+fn playlist_entry_layout<'a>(playlist_name: &String) -> Element<'a, MainMenuMessages> {
+    let entry_name = format!("{}", playlist_name);
 
     Container::new(
         Row::new()
