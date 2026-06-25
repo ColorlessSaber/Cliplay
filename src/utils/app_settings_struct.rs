@@ -8,6 +8,7 @@ use crate::utils::save_utils::{
     app_directory_path,
     LoadError,
     SaveError,
+    APP_SETTINGS_FILE_NAME
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -25,7 +26,7 @@ impl SaveUtils<AppSettings> for AppSettings {
     fn path() -> std::path::PathBuf {
         let mut path = app_directory_path();
 
-        path.push("/app_settings.json");
+        path.push(format!("/{}", APP_SETTINGS_FILE_NAME));
         path
     }
 

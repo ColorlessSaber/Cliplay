@@ -7,6 +7,7 @@ use crate::utils::save_utils::{
     app_directory_path,
     LoadError,
     SaveError,
+    PLAYLIST_FOLDER
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -34,7 +35,7 @@ impl SaveUtils<PlaylistData> for PlaylistData {
     fn path() -> std::path::PathBuf {
         let mut path = app_directory_path();
 
-        path.push("/playlists/test.json");
+        path.push(format!("{}/{}", PLAYLIST_FOLDER, "test.json"));
         path
     }
     
