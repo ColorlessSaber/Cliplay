@@ -37,8 +37,11 @@ pub fn currently_saved_playlists() -> Result<Vec<String>, DirError> {
     path.push(PLAYLIST_FOLDER);
 
     for entry in std::fs::read_dir(path).map_err(|_| DirError::DirNotFound)? {
-        if let Ok(entry) = entry {
-            currently_saved_playlists.push(entry.path().display().to_string());
+        let file_path = entry.map_err(|_| DirError::DirNotFound)?.path();
+        if file_path.is_file() {
+            if file_path.extension() == Some(std::ffi::OsStr::new("json")) {
+                currently_saved_playlists.push(file_path.file_stem().unwrap().to_string_lossy().to_string());
+            }
         }
     }
 
