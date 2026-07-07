@@ -32,15 +32,15 @@ impl PlaylistData {
 }
 
 impl SaveUtils<PlaylistData> for PlaylistData {
-    fn path() -> std::path::PathBuf {
+    fn path(&self) -> std::path::PathBuf {
         let mut path = app_directory_path();
 
-        path.push(format!("{}/{}", PLAYLIST_FOLDER, "test.json"));
+        path.push(format!("{}{}{}", PLAYLIST_FOLDER, self.name, ".json"));
         path
     }
     
-    async fn load() -> Result<PlaylistData, LoadError> {
-        let content = tokio::fs::read_to_string(Self::path())
+    async fn load(&self) -> Result<PlaylistData, LoadError> {
+        let content = tokio::fs::read_to_string(Self::path(&self))
             .await
             .map_err(|_| LoadError::File)?;
 
@@ -51,7 +51,7 @@ impl SaveUtils<PlaylistData> for PlaylistData {
         let json = serde_json::to_string(&self)
             .map_err(|_| SaveError::Format)?;
 
-        let path = Self::path();
+        let path = Self::path(&self);
 
         // if the directory does not exist, create it. Else, save the data
         if let Some(dir) = path.parent() {

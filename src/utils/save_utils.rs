@@ -37,9 +37,9 @@ pub fn app_directory_path() -> std::path::PathBuf {
 
 // The boilerplate methods for CRUD actions
 pub trait SaveUtils<T> {
-    fn path() -> std::path::PathBuf;
+    fn path(&self) -> std::path::PathBuf;
 
-    async fn load() -> Result<T, LoadError>;
+    async fn load(&self) -> Result<T, LoadError>;
 
     async fn save(&self) -> Result<(), SaveError>;
 }
