@@ -13,6 +13,7 @@ use iced::{
         Container,
         scrollable,
         keyed_column,
+        column,
     },
 };
 use iced::widget::button;
@@ -222,47 +223,34 @@ fn playlist_menu<'a>(
 
             match playlists_found {
                 Ok(playlists) => {
-                    let playlist_container = if playlists.is_empty() {
-                        Container::new(
-                            Column::new()
-                                .spacing(10)
-                                .width(Length::Fill)
-                                .push(
-                                    Button::new(Image::new(NEW_PLAYLIST_ICON).width(64).height(64))
-                                        .on_press(MainMenuMessages::NewPlaylist)
-                                        .style(active_large_button_style)
-                                )
-                                .push(
-                                    Text::new("No playlists found")
-                                )
-                        )
-                            .padding(10)
-                            .height(Length::Fill)
-                            .style(main_section_style)
+                    // to reduce duplicate code, created a starting playlist column and then depending
+                    // on the number of playlists found, generate the playlist column and then
+                    // pass it out to be inserted into an Iced container.
+                    let new_playlist_btn: Button<MainMenuMessages> = button(iced::widget::image(NEW_PLAYLIST_ICON).width(64).height(64))
+                        .on_press(MainMenuMessages::NewPlaylist)
+                        .style(active_large_button_style);
+
+                    let starting_playlist_column = column![new_playlist_btn]
+                        .spacing(10)
+                        .width(Length::Fill);
+
+                    let finalized_playlist_column = if playlists.is_empty() {
+                        starting_playlist_column.push(Text::new("No playlists found"))
                     } else {
-                        let playlist_column = keyed_column(
+                        let list_of_playlists = keyed_column(
                             (0..=playlists.len()-1).map(|i|{ // minus one for .len() counts with 1
                                 (i, playlist_entry_layout(playlists.get(i).unwrap()))
                             }));
 
-                        Container::new(
-                            Column::new()
-                                .spacing(10)
-                                .width(Length::Fill)
-                                .push(
-                                    Button::new(Image::new(NEW_PLAYLIST_ICON).width(64).height(64))
-                                        .on_press(MainMenuMessages::NewPlaylist)
-                                        .style(active_large_button_style)
-                                )
-                                .push(
-                                    scrollable(playlist_column).spacing(20)
-                                )
-                        )
-                            .padding(10)
-                            .height(Length::Fill)
-                            .style(main_section_style)
+                        starting_playlist_column.push(scrollable(list_of_playlists).spacing(20))
                     };
-                    playlist_container
+
+                    Container::new(
+                        finalized_playlist_column
+                    )
+                        .padding(10)
+                        .height(Length::Fill)
+                        .style(main_section_style)
                 }
                 Err(_) => {
                     Container::new(
