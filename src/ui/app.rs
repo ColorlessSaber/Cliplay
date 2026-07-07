@@ -24,8 +24,12 @@ use crate::ui::{
     }
 };
 use crate::utils::{
-    functions::load_video_file,
+    functions::{
+        load_video_file,
+        create_application_directory,
+    },
     app_state::AppState,
+    save_utils::app_directory_path,
 };
 use iced::{
     keyboard,
@@ -120,6 +124,7 @@ impl App {
 
     // Iced methods; IE, methods used by the Iced crate
     pub fn new() -> Self {
+        create_application_directory(app_directory_path()); // TODO eventually have a "loading" stage for the application where this will reside
         Self {
             position: 0.0,
             dragging: false,

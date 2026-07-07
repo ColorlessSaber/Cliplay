@@ -20,9 +20,9 @@ pub enum SaveError {
 
 pub fn app_directory_path() -> std::path::PathBuf {
     // First checks to see if the application's data directory exists.
-    // if it does not exist then defaults to the current working directory.
-    // For linux: /home/<user_name>/.local/share/
+    // Default location for linux: /home/<user_name>/.local/share/
     //
+    // if it does not exist then defaults to the current working directory.
     // Causes to return current working directory:
     // * Running on Windows or when the app isn't installed via standard paths.
     let path = if let Some(project_dirs) =
@@ -55,7 +55,7 @@ mod tests {
         // create mock app directory to be used for testing
         let temp_dir = tempdir().expect("Could not create temp dir");
         let test_path = temp_dir.path().join("test");
-        unsafe { env::set_var("HOME", test_path); }
+        unsafe { env::set_var("HOME", test_path); } // temporarily override the HOME
 
         // test to see directory does not exist
         let app_dir_path = app_directory_path();
@@ -68,7 +68,7 @@ mod tests {
         // create mock app directory to be used for testing
         let temp_dir = tempdir().expect("Could not create temp dir");
         let test_path = temp_dir.path().join("test");
-        unsafe { env::set_var("HOME", test_path.clone()); }
+        unsafe { env::set_var("HOME", test_path.clone()); } // temporarily override the HOME
 
         // create the mock app directory
         let mock_app_dir_path = test_path.join(".local/share/cliplay");

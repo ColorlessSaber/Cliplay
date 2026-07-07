@@ -15,6 +15,7 @@ use iced::{
         keyed_column,
     },
 };
+use iced::widget::button;
 use rfd::AsyncFileDialog;
 use crate::ui::styling::{
     active_large_button_style,
@@ -221,28 +222,47 @@ fn playlist_menu<'a>(
 
             match playlists_found {
                 Ok(playlists) => {
-                    let playlist_column = keyed_column(
-                        (0..=playlists.len()).map(|i|{
-                            (i, playlist_entry_layout(playlists.get(i).unwrap()))
-                        }));
+                    let playlist_container = if playlists.is_empty() {
+                        Container::new(
+                            Column::new()
+                                .spacing(10)
+                                .width(Length::Fill)
+                                .push(
+                                    Button::new(Image::new(NEW_PLAYLIST_ICON).width(64).height(64))
+                                        .on_press(MainMenuMessages::NewPlaylist)
+                                        .style(active_large_button_style)
+                                )
+                                .push(
+                                    Text::new("No playlists found")
+                                )
+                        )
+                            .padding(10)
+                            .height(Length::Fill)
+                            .style(main_section_style)
+                    } else {
+                        let playlist_column = keyed_column(
+                            (0..=playlists.len()-1).map(|i|{ // minus one for .len() counts with 1
+                                (i, playlist_entry_layout(playlists.get(i).unwrap()))
+                            }));
 
-                    Container::new(
-                        Column::new()
-                            .spacing(10)
-                            .width(Length::Fill)
-                            .push(
-                                Button::new(Image::new(NEW_PLAYLIST_ICON).width(64).height(64))
-                                    .on_press(MainMenuMessages::NewPlaylist)
-                                    .style(active_large_button_style)
-                            )
-                            .push(
-                                scrollable(playlist_column).spacing(20)
-                            )
-                    )
-                        .padding(10)
-                        .height(Length::Fill)
-                        .style(main_section_style)
-
+                        Container::new(
+                            Column::new()
+                                .spacing(10)
+                                .width(Length::Fill)
+                                .push(
+                                    Button::new(Image::new(NEW_PLAYLIST_ICON).width(64).height(64))
+                                        .on_press(MainMenuMessages::NewPlaylist)
+                                        .style(active_large_button_style)
+                                )
+                                .push(
+                                    scrollable(playlist_column).spacing(20)
+                                )
+                        )
+                            .padding(10)
+                            .height(Length::Fill)
+                            .style(main_section_style)
+                    };
+                    playlist_container
                 }
                 Err(_) => {
                     Container::new(
@@ -250,12 +270,7 @@ fn playlist_menu<'a>(
                             .spacing(10)
                             .width(Length::Fill)
                             .push(
-                                Button::new(Image::new(NEW_PLAYLIST_ICON).width(64).height(64))
-                                    .on_press(MainMenuMessages::NewPlaylist)
-                                    .style(active_large_button_style)
-                            )
-                            .push(
-                                Text::new("No playlists found")
+                                Text::new("An error occurred while trying to process the playlist folder.")
                             )
                     )
                         .padding(10)
@@ -263,30 +278,6 @@ fn playlist_menu<'a>(
                         .style(main_section_style)
                 }
             }
-
-            /*
-            let playlist_column = keyed_column(
-                (0..=10).map(|i| {
-                    (i, playlist_entry_layout(i))
-                })).spacing(5);
-
-            Container::new(
-                Column::new()
-                    .spacing(10)
-                    .width(Length::Fill)
-                    .push(
-                        Button::new(Image::new(NEW_PLAYLIST_ICON).width(64).height(64))
-                            .on_press(MainMenuMessages::NewPlaylist)
-                            .style(active_large_button_style)
-                    )
-                    .push(
-                        scrollable(playlist_column).spacing(20)
-                    )
-            )
-                .padding(10)
-                .height(Length::Fill)
-                .style(main_section_style)
-             */
         }
         PlaylistMenuState::NewPlaylist => {
             Container::new(
