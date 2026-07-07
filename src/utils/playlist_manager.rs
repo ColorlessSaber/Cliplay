@@ -71,3 +71,121 @@ impl PlaylistManager {
         self.index = 0;
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_check_playlist_is_empty() {
+        let manager = PlaylistManager::new();
+        assert!(manager.is_playlist_empty());
+    }
+
+    #[test]
+    fn test_pull_first_file_from_playlist() {
+        let mut playlist_manager = PlaylistManager{
+            playlist_name: String::new(),
+            playlist: vec!["test/video_0.mp4".to_string(), "test/video_1.mp4".to_string()],
+            index: 0,
+        };
+
+        assert!(playlist_manager.pull_first_file_from_playlist().is_some(), "should have successfully pulled first file");
+        assert_eq!(playlist_manager.pull_first_file_from_playlist().unwrap(), "test/video_0.mp4", "The file pulled should have matched");
+    }
+
+    #[test]
+    fn test_pull_current_index_file_from_playlist() {
+        let mut playlist_manager = PlaylistManager{
+            playlist_name: String::new(),
+            playlist: vec!["test/video_0.mp4".to_string(), "test/video_1.mp4".to_string()],
+            index: 1,
+        };
+
+        assert!(playlist_manager.pull_current_index_file_from_playlist().is_some(), "should have successfully pulled first file");
+        assert_eq!(playlist_manager.pull_current_index_file_from_playlist().unwrap(), "test/video_1.mp4", "The file pulled should have matched");
+    }
+
+    #[test]
+    fn test_next_file_in_playlist_loop_off() {
+        // so it is clear, this test assumes the loop is off
+
+        let mut playlist_manager = PlaylistManager{
+            playlist_name: String::new(),
+            playlist: vec!["test/video_0.mp4".to_string(), "test/video_1.mp4".to_string(), "test/video_2.mp4".to_string()],
+            index: 1,
+        };
+
+        // test to see if it returns the next file
+        let video_file = playlist_manager.next_file_in_playlist(false);
+        assert!(video_file.is_some(), "It should have grabbed an existing file from list");
+        assert_eq!(video_file.unwrap(), "test/video_2.mp4", "The file pulled should have matched");
+
+        // test that it returns none given loop is off
+        let video_file = playlist_manager.next_file_in_playlist(false);
+        assert!(video_file.is_none(), "Should have reached the end of the list");
+    }
+
+    #[test]
+    fn test_next_file_in_playlist_loop_on() {
+        // so it is clear, this test assumes the loop is on
+
+        let mut playlist_manager = PlaylistManager{
+            playlist_name: String::new(),
+            playlist: vec!["test/video_0.mp4".to_string(), "test/video_1.mp4".to_string(), "test/video_2.mp4".to_string()],
+            index: 1,
+        };
+
+        // test to see if it returns the next file
+        let video_file = playlist_manager.next_file_in_playlist(true);
+        assert!(video_file.is_some(), "It should have grabbed an existing file from list");
+        assert_eq!(video_file.unwrap(), "test/video_2.mp4", "The file pulled should have matched");
+
+        // test that it returns none given loop is off
+        let video_file = playlist_manager.next_file_in_playlist(true);
+        assert!(video_file.is_some(), "It should have grabbed an existing file from list");
+        assert_eq!(video_file.unwrap(), "test/video_0.mp4", "The file pulled should have matched");
+    }
+
+    #[test]
+    fn test_previous_file_in_playlist() {
+        let mut playlist_manager = PlaylistManager{
+            playlist_name: String::new(),
+            playlist: vec!["test/video_0.mp4".to_string(), "test/video_1.mp4".to_string(), "test/video_2.mp4".to_string()],
+            index: 1,
+        };
+
+        // test it properly grabbed previous file
+        let video_file = playlist_manager.previous_file_in_playlist();
+        assert!(video_file.is_some(), "It should have grabbed an existing file from list");
+        assert_eq!(video_file.unwrap(), "test/video_0.mp4", "The file pulled should have matched");
+
+        // test it properly loop to end of list upon reaching start of list
+        let video_file = playlist_manager.previous_file_in_playlist();
+        assert!(video_file.is_some(), "It should have grabbed an existing file from list");
+        assert_eq!(video_file.unwrap(), "test/video_2.mp4", "The file pulled should have matched");
+    }
+
+    #[test]
+    fn test_loading_playlist() {
+        let mut playlist_manager = PlaylistManager{
+            playlist_name: String::new(),
+            playlist: vec!["test/video_0.mp4".to_string(), "test/video_1.mp4".to_string(), "test/video_2.mp4".to_string()],
+            index: 1,
+        };
+        let video_list = vec!["test/video_0.mp4".to_string(), "test/video_1.mp4".to_string()];
+        playlist_manager.load_playlist(video_list);
+
+        assert_eq!(playlist_manager.playlist, vec!["test/video_0.mp4".to_string(), "test/video_1.mp4".to_string()], "The playlist should have matched");
+        assert_eq!(playlist_manager.index, 0, "the index should have reset");
+    }
+
+    #[test]
+    fn test_single_video_file() {
+        let mut playlist_manager = PlaylistManager::new();
+        playlist_manager.play_single_video_file("test/video_0.mp4".to_string());
+
+        assert_eq!(playlist_manager.playlist, vec!["test/video_0.mp4"], "The playlist should have matched");
+        assert_eq!(playlist_manager.index, 0, "the index should have reset");
+    }
+}

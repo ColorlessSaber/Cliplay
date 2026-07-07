@@ -3,7 +3,7 @@ Holds the enums and "utilities" for saving information.
  */
 
 // The static folder name(s) and file name(s) help keep things consistent
-pub static PLAYLIST_FOLDER: &str = "/playlists";
+pub static PLAYLIST_FOLDER: &str = "playlists/";
 pub static APP_SETTINGS_FILE_NAME: &str = "settings.json";
 
 #[derive(Debug, Clone)]
@@ -42,4 +42,41 @@ pub trait SaveUtils<T> {
     async fn load() -> Result<T, LoadError>;
 
     async fn save(&self) -> Result<(), SaveError>;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::tempdir;
+    use std::env;
+
+    #[test]
+    fn test_app_directory_does_not_exist() {
+        // create mock app directory to be used for testing
+        let temp_dir = tempdir().expect("Could not create temp dir");
+        let test_path = temp_dir.path().join("test");
+        unsafe { env::set_var("HOME", test_path); }
+
+        // test to see directory does not exist
+        let app_dir_path = app_directory_path();
+        assert!(!app_dir_path.exists(), "app dir path should not exist");
+        assert!(!app_dir_path.is_dir(), "app dir should not be dir");
+    }
+
+    #[test]
+    fn test_app_directory_exists() {
+        // create mock app directory to be used for testing
+        let temp_dir = tempdir().expect("Could not create temp dir");
+        let test_path = temp_dir.path().join("test");
+        unsafe { env::set_var("HOME", test_path.clone()); }
+
+        // create the mock app directory
+        let mock_app_dir_path = test_path.join(".local/share/cliplay");
+        std::fs::create_dir_all(&mock_app_dir_path).expect("Could not create mock app dir");
+
+        // test to see directory does exist
+        let app_dir_path = app_directory_path();
+        assert!(app_dir_path.exists(), "app dir path should exist");
+        assert!(app_dir_path.is_dir(), "app dir should be there");
+    }
 }

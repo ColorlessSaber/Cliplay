@@ -36,6 +36,7 @@ use crate::ui::styling::{
 };
 use crate::utils::{
     app_state::AppState,
+    save_utils::app_directory_path,
     functions::{
         load_video_file,
         currently_saved_playlists,
@@ -216,7 +217,7 @@ fn playlist_menu<'a>(
 ) -> Container<'a, MainMenuMessages> {
     match playlist_menu_state {
         PlaylistMenuState::PlaylistsMenu => {
-            let playlists_found = currently_saved_playlists();
+            let playlists_found = currently_saved_playlists(app_directory_path());
 
             match playlists_found {
                 Ok(playlists) => {
