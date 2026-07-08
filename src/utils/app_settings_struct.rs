@@ -24,10 +24,9 @@ impl AppSettings {
 
 impl SaveUtils<AppSettings> for AppSettings {
     fn path(&self) -> std::path::PathBuf {
-        let mut path = app_directory_path();
+        let path = app_directory_path();
 
-        path.push(format!("/{}", APP_SETTINGS_FILE_NAME));
-        path
+        path.join(APP_SETTINGS_FILE_NAME)
     }
 
     async fn load(&self) -> Result<AppSettings, LoadError> {
@@ -43,13 +42,6 @@ impl SaveUtils<AppSettings> for AppSettings {
             .map_err(|_| SaveError::Format)?;
 
         let path = Self::path(&self);
-
-        // if the directory does not exist, create it. Else, save the data
-        if let Some(dir) = path.parent() {
-            tokio::fs::create_dir_all(dir)
-                .await
-                .map_err(|_| SaveError::Write)?;
-        }
 
         {
             tokio::fs::write(path, json.as_bytes())
