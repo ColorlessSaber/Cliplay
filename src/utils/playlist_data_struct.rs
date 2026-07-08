@@ -12,23 +12,9 @@ use crate::utils::save_utils::{
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlaylistData {
-    version: String, // app version the playlist was created under
-    name: String,
-    list: Vec<String>
-}
-
-impl PlaylistData {
-    pub fn version(&self) -> String {
-        self.version.clone()
-    }
-    
-    pub fn name(&self) -> String {
-        self.name.clone()
-    }
-    
-    pub fn list(&self) -> Vec<String> {
-        self.list.clone()
-    }
+    pub software_version: String, // app version the playlist was created under
+    pub name: String,
+    pub list: Vec<String>
 }
 
 impl SaveUtils<PlaylistData> for PlaylistData {
@@ -46,7 +32,7 @@ impl SaveUtils<PlaylistData> for PlaylistData {
         serde_json::from_str(&content).map_err(|_| LoadError::Format)
     }
     
-    async fn save(&self) -> Result<(), SaveError> {
+    async fn save(self) -> Result<(), SaveError> {
         let json = serde_json::to_string(&self)
             .map_err(|_| SaveError::Format)?;
 

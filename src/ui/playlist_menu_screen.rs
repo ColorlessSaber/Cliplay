@@ -36,13 +36,18 @@ use crate::ui::styling::{
 };
 use crate::utils::{
     app_state::AppState,
-    save_utils::app_directory_path,
+    save_utils::{
+        app_directory_path,
+        SaveError,
+    },
     functions::{
         currently_saved_playlists,
-    }
+    },
+    playlist_data_struct::PlaylistData,
 };
 use rfd::AsyncFileDialog;
 use std::path::Path;
+use crate::utils::save_utils::SaveUtils;
 
 #[derive(Debug, Clone)]
 pub enum PlaylistMenuMessages {
@@ -54,6 +59,7 @@ pub enum PlaylistMenuMessages {
     AddVideoToPlaylist(Option<String>),
     RemoveVideo(usize),
     Save,
+    PlaylistSaved(Result<(), SaveError>),
     Cancel,
     PlaylistNameEdited(String),
 }
@@ -139,16 +145,31 @@ impl PlaylistMenuScreen {
             }
             PlaylistMenuMessages::RemoveVideo(video_index) => {
                 self.temp_playlist_list.remove(video_index);
-                
+
                 Task::none()
             }
             PlaylistMenuMessages::Save => {
                 println!("Saving playlist");
-
-                Task::none()
+                Task::perform(
+                    PlaylistData{
+                        software_version: "0.1".to_string(),
+                        name: self.temp_playlist_name.clone(),
+                        list: self.temp_playlist_list.clone(),
+                    }.save(),
+                    PlaylistMenuMessages::PlaylistSaved,
+                )
             }
             PlaylistMenuMessages::Cancel => {
                 self.playlist_menu_state = PlaylistMenuState::PlaylistList;
+                self.temp_playlist_name.clear();
+                self.temp_playlist_list.clear();
+                
+                Task::none()
+            }
+            PlaylistMenuMessages::PlaylistSaved(_result) => {
+                self.playlist_menu_state = PlaylistMenuState::PlaylistList;
+                self.temp_playlist_name.clear();
+                self.temp_playlist_list.clear();
 
                 Task::none()
             }

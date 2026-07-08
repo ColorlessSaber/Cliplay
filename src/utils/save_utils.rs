@@ -41,7 +41,7 @@ pub trait SaveUtils<T> {
 
     async fn load(&self) -> Result<T, LoadError>;
 
-    async fn save(&self) -> Result<(), SaveError>;
+    async fn save(self) -> Result<(), SaveError>;
 }
 
 #[cfg(test)]

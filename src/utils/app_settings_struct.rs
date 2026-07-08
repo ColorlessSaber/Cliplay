@@ -37,7 +37,7 @@ impl SaveUtils<AppSettings> for AppSettings {
         serde_json::from_str(&content).map_err(|_| LoadError::Format)
     }
 
-    async fn save(&self) -> Result<(), SaveError> {
+    async fn save(self) -> Result<(), SaveError> {
         let json = serde_json::to_string(&self)
             .map_err(|_| SaveError::Format)?;
 
