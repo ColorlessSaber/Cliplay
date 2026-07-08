@@ -16,8 +16,10 @@ use iced::{
         scrollable,
         keyed_column,
         column,
+        text_input,
     },
 };
+use rfd::AsyncFileDialog;
 use crate::ui::styling::{
     active_large_button_style,
     container_styles::{
@@ -47,26 +49,32 @@ pub enum PlaylistMenuMessages {
     NewPlaylist,
     EditPlaylist,
     DeletePlaylist,
-    AddVideo,
+    SelectVideo,
+    AddVideoToPlaylist(Option<String>),
     RemoveVideo,
     Save,
     Cancel,
+    PlaylistNameEdited(String),
 }
 
 #[derive(Debug, Clone)]
 enum PlaylistMenuState {
     PlaylistList,
-    NewPlaylist,
+    PlaylistEditor,
 }
 
 pub struct PlaylistMenuScreen {
     playlist_menu_state: PlaylistMenuState,
+    temp_playlist_list: Vec<String>,
+    temp_playlist_name: String,
 }
 
 impl PlaylistMenuScreen {
     pub fn new() -> Self {
         Self {
             playlist_menu_state: PlaylistMenuState::PlaylistList,
+            temp_playlist_list: Vec::new(),
+            temp_playlist_name: String::new(),
         }
     }
 
@@ -91,7 +99,9 @@ impl PlaylistMenuScreen {
                 Task::none()
             }
             PlaylistMenuMessages::NewPlaylist => {
-                self.playlist_menu_state = PlaylistMenuState::NewPlaylist;
+                self.playlist_menu_state = PlaylistMenuState::PlaylistEditor;
+                self.temp_playlist_name.clear();
+                self.temp_playlist_list.clear();
 
                 Task::none()
             }
@@ -105,8 +115,24 @@ impl PlaylistMenuScreen {
 
                 Task::none()
             }
-            PlaylistMenuMessages::AddVideo => {
+            PlaylistMenuMessages::SelectVideo => {
                 println!("Adding video to playlist");
+
+                Task::perform(
+                    async {
+                        AsyncFileDialog::new()
+                            .add_filter("video", &["mp4", "mkv", "m4v"])
+                            .pick_file()
+                            .await
+                            .map(|handle| handle.path().to_string_lossy().into_owned())
+                    },
+                    PlaylistMenuMessages::AddVideoToPlaylist,
+                )
+            }
+            PlaylistMenuMessages::AddVideoToPlaylist(video_path) => {
+                if let Some(video_path) = video_path {
+                    self.temp_playlist_list.push(video_path);
+                }
 
                 Task::none()
             }
@@ -122,6 +148,11 @@ impl PlaylistMenuScreen {
             }
             PlaylistMenuMessages::Cancel => {
                 self.playlist_menu_state = PlaylistMenuState::PlaylistList;
+
+                Task::none()
+            }
+            PlaylistMenuMessages::PlaylistNameEdited(playlist_name) => {
+                self.temp_playlist_name = playlist_name;
 
                 Task::none()
             }
@@ -180,30 +211,61 @@ impl PlaylistMenuScreen {
                     }
                 }
             }
-            PlaylistMenuState::NewPlaylist => {
+            PlaylistMenuState::PlaylistEditor => {
+
+                let video_list = if self.temp_playlist_list.is_empty() {
+                    Column::new()
+                        .spacing(10)
+                        .width(Length::Fill)
+                        .push(Text::new("Add videos to the playlist!"))
+                } else {
+                    let list_of_videos = keyed_column(
+                        (0..=self.temp_playlist_list.len()-1).map(|i|{
+                            (i, video_entry_layout(self.temp_playlist_list.get(i).unwrap()))
+                        }));
+
+                    Column::new()
+                        .spacing(10)
+                        .width(Length::Fill)
+                        .push(scrollable(list_of_videos).spacing(20))
+                };
+
                 Container::new(
-                    Row::new()
+                    Column::new()
                         .spacing(10)
                         .width(Length::Fill)
                         .push(
-                            Button::new(Image::new(SELECT_VIDEO_FILE_ICON).width(64).height(64))
-                                .on_press(PlaylistMenuMessages::AddVideo)
-                                .style(active_large_button_style)
+                            Row::new()
+                                .spacing(10)
+                                .push(
+                                    text_input("playlist name...", &self.temp_playlist_name)
+                                        .on_input(PlaylistMenuMessages::PlaylistNameEdited)
+                                        .padding(10)
+                                )
+                                .width(Length::Fill)
+                                .push(
+                                    Button::new(Image::new(SELECT_VIDEO_FILE_ICON).width(64).height(64))
+                                        .on_press(PlaylistMenuMessages::SelectVideo)
+                                        .style(active_large_button_style)
+                                )
+                                .push(
+                                    Button::new(Image::new(REMOVE_VIDEO_FILE_ICON).width(64).height(64))
+                                        .on_press(PlaylistMenuMessages::RemoveVideo)
+                                        .style(active_large_button_style)
+                                )
+                                .push(
+                                    Button::new(Image::new(SAVE_ICON).width(64).height(64))
+                                        .on_press(PlaylistMenuMessages::Save)
+                                        .style(active_large_button_style)
+                                )
+                                .push(
+                                    Button::new(Text::new("Cancel"))
+                                        .on_press(PlaylistMenuMessages::Cancel)
+                                        .style(active_large_button_style)
+                                )
                         )
                         .push(
-                            Button::new(Image::new(REMOVE_VIDEO_FILE_ICON).width(64).height(64))
-                                .on_press(PlaylistMenuMessages::RemoveVideo)
-                                .style(active_large_button_style)
-                        )
-                        .push(
-                            Button::new(Image::new(SAVE_ICON).width(64).height(64))
-                                .on_press(PlaylistMenuMessages::Save)
-                                .style(active_large_button_style)
-                        )
-                        .push(
-                            Button::new(Text::new("Cancel"))
-                                .on_press(PlaylistMenuMessages::Cancel)
-                                .style(active_large_button_style)
+                            video_list
                         )
                 )
                     .padding(10)
@@ -223,7 +285,7 @@ fn playlist_entry_layout<'a>(playlist_name: &String) -> Element<'a, PlaylistMenu
             .spacing(10)
             .align_y(Alignment::Center)
             .push(
-                Text::new(entry_name).size(16) // TODO add a border around text
+                Text::new(entry_name).size(16)
             )
             .push(Space::new().width(Length::Fill))
             .push(
@@ -238,6 +300,29 @@ fn playlist_entry_layout<'a>(playlist_name: &String) -> Element<'a, PlaylistMenu
             )
             .push(
                 Button::new(Image::new(DELETE_PLAYLIST_ICON).width(32).height(32))
+                    .on_press(PlaylistMenuMessages::DeletePlaylist)
+                    .style(active_large_button_style)
+            )
+    )
+        .padding(10)
+        .width(Length::Fill)
+        .style(playlist_entry_style)
+        .into()
+}
+
+fn video_entry_layout<'a>(video_name: &String) -> Element<'a, PlaylistMenuMessages> {
+    let entry_name = format!("{}", video_name);
+
+    Container::new(
+        Row::new()
+            .spacing(10)
+            .align_y(Alignment::Center)
+            .push(
+                Text::new(entry_name).size(16)
+            )
+            .push(Space::new().width(Length::Fill))
+            .push(
+                Button::new(Image::new(REMOVE_VIDEO_FILE_ICON).width(32).height(32))
                     .on_press(PlaylistMenuMessages::DeletePlaylist)
                     .style(active_large_button_style)
             )
