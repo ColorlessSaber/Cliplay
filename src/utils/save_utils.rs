@@ -3,7 +3,7 @@ Holds the enums and "utilities" for saving information.
  */
 
 // The static folder name(s) and file name(s) help keep things consistent
-pub static PLAYLIST_FOLDER: &str = "playlists/";
+pub static PLAYLIST_FOLDER: &str = "playlists";
 pub static APP_SETTINGS_FILE_NAME: &str = "settings.json";
 
 #[derive(Debug, Clone)]

@@ -21,7 +21,8 @@ impl SaveUtils<PlaylistData> for PlaylistData {
     fn path(&self) -> std::path::PathBuf {
         let path = app_directory_path();
 
-        path.join(format!("{}{}{}", PLAYLIST_FOLDER, self.name, ".json"))
+        path.join(PLAYLIST_FOLDER)
+            .join(format!("{:}.json", self.name))
     }
     
     async fn load(&self) -> Result<PlaylistData, LoadError> {

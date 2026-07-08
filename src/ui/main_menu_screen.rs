@@ -37,8 +37,9 @@ use crate::utils::{
 #[derive(Debug, Clone)]
 pub enum MainMenuMessages {
     SelectVideo,
+    TogglePlaylistMenu,
     PlaylistsMenu(PlaylistMenuMessages),
-    SettingsMenu,
+    ToggleSettingsMenu,
     VideoFileSelected(Option<String>),
 }
 
@@ -93,14 +94,17 @@ impl MainMenuScreen {
                 }
                 Task::none()
             }
-            MainMenuMessages::PlaylistsMenu(message) => {
+            MainMenuMessages::TogglePlaylistMenu => {
                 self.currently_selected_main_menu_btn = MenuSelectedState::PlaylistsMenu;
 
+                Task::none()
+            }
+            MainMenuMessages::PlaylistsMenu(message) => {
                 self.playlist_menu
                     .update(message, state)
                     .map(|message| MainMenuMessages::PlaylistsMenu(message))
             }
-            MainMenuMessages::SettingsMenu => {
+            MainMenuMessages::ToggleSettingsMenu => {
                 self.currently_selected_main_menu_btn = MenuSelectedState::SettingsMenu;
 
                 Task::none()
@@ -122,12 +126,12 @@ impl MainMenuScreen {
                         )
                         .push(
                             Button::new(Image::new(PLAYLISTS_ICON).width(64).height(64))
-                                .on_press(MainMenuMessages::PlaylistsMenu(PlaylistMenuMessages::PlayPlaylist))
+                                .on_press(MainMenuMessages::TogglePlaylistMenu)
                                 .style(active_large_button_style)
                         )
                         .push(
                             Button::new(Text::new("Settings").width(64).height(64))
-                                .on_press(MainMenuMessages::SettingsMenu)
+                                .on_press(MainMenuMessages::ToggleSettingsMenu)
                                 .style(active_large_button_style)
                         )
                         .push(Space::new().height(Length::Fill))

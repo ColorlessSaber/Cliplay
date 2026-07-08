@@ -38,7 +38,9 @@ use crate::utils::{
     app_state::AppState,
     save_utils::{
         app_directory_path,
+        PLAYLIST_FOLDER,
         SaveError,
+        LoadError,
     },
     functions::{
         currently_saved_playlists,
@@ -51,7 +53,8 @@ use crate::utils::save_utils::SaveUtils;
 
 #[derive(Debug, Clone)]
 pub enum PlaylistMenuMessages {
-    PlayPlaylist,
+    LoadPlaylist(String),
+    PlayPlaylist(Result<PlaylistData, LoadError>),
     NewPlaylist,
     EditPlaylist,
     DeletePlaylist,
@@ -87,7 +90,7 @@ impl PlaylistMenuScreen {
 
     pub fn update(&mut self, message: PlaylistMenuMessages, state: &mut AppState) -> Task<PlaylistMenuMessages> {
         match message {
-            PlaylistMenuMessages::PlayPlaylist => {
+            PlaylistMenuMessages::LoadPlaylist(playlist_name) => {
                 /* TODO update with loading existing/new playlist
                 state.playlist_manager.load_playlist();
                 let video_file = state.playlist_manager.pull_first_file_from_playlist();
@@ -101,7 +104,12 @@ impl PlaylistMenuScreen {
 
                 state.btn_struct.main_menu_button.toggle_state(); // to switch to video view
                  */
-                println!("Playing playlist");
+                println!("Loading playlist '{}'", playlist_name);
+
+                Task::none()
+            }
+            PlaylistMenuMessages::PlayPlaylist(playlist_data) => {
+                println!("Playlist data: {:?}", playlist_data);
 
                 Task::none()
             }
@@ -313,7 +321,7 @@ fn playlist_entry_layout<'a>(playlist_name: &String) -> Element<'a, PlaylistMenu
             .push(Space::new().width(Length::Fill))
             .push(
                 Button::new(Image::new(PLAY_PLAYLIST_ICON).width(32).height(32))
-                    .on_press(PlaylistMenuMessages::PlayPlaylist)
+                    .on_press(PlaylistMenuMessages::LoadPlaylist(playlist_name.clone()))
                     .style(active_large_button_style)
             )
             .push(
