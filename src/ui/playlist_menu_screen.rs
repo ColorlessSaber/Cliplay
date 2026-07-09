@@ -7,8 +7,10 @@ use iced::{
         Button,
         button,
         Text,
+        text,
         Column,
         Row,
+        row,
         Image,
         image,
         Space,
@@ -245,6 +247,7 @@ impl PlaylistMenuScreen {
                             starting_playlist_column.push(scrollable(list_of_playlists).spacing(20))
                         };
 
+                        // The final container showing the playlists, if any
                         Container::new(
                             final_playlist_column
                         )
@@ -340,29 +343,20 @@ fn playlist_entry_layout<'a>(
     playlist_name: &String
 ) -> Element<'a, PlaylistMenuMessages> {
 
+    let default_btn = |image, message| {
+        button(image).on_press(message).style(active_large_button_style)
+    };
+
     Container::new(
-        Row::new()
+        row![
+            text!("{}", playlist_name.clone()).size(16),
+            Space::new().width(Length::Fill),
+            default_btn(Image::new(PLAY_PLAYLIST_ICON).width(32).height(32), PlaylistMenuMessages::LoadPlaylist(playlist_name.clone(), AfterLoadingPlaylistProcess::Play)),
+            default_btn(Image::new(EDIT_PLAYLIST_ICON).width(32).height(32), PlaylistMenuMessages::LoadPlaylist(playlist_name.clone(), AfterLoadingPlaylistProcess::Edit)),
+            default_btn(Image::new(DELETE_PLAYLIST_ICON).width(32).height(32), PlaylistMenuMessages::DeletePlaylist(playlist_name.clone()))
+        ]
             .spacing(10)
             .align_y(Alignment::Center)
-            .push(
-                Text::new(playlist_name.clone()).size(16)
-            )
-            .push(Space::new().width(Length::Fill))
-            .push(
-                Button::new(Image::new(PLAY_PLAYLIST_ICON).width(32).height(32))
-                    .on_press(PlaylistMenuMessages::LoadPlaylist(playlist_name.clone(), AfterLoadingPlaylistProcess::Play))
-                    .style(active_large_button_style)
-            )
-            .push(
-                Button::new(Image::new(EDIT_PLAYLIST_ICON).width(32).height(32))
-                    .on_press(PlaylistMenuMessages::LoadPlaylist(playlist_name.clone(), AfterLoadingPlaylistProcess::Edit))
-                    .style(active_large_button_style)
-            )
-            .push(
-                Button::new(Image::new(DELETE_PLAYLIST_ICON).width(32).height(32))
-                    .on_press(PlaylistMenuMessages::DeletePlaylist(playlist_name.clone()))
-                    .style(active_large_button_style)
-            )
     )
         .padding(10)
         .width(Length::Fill)
