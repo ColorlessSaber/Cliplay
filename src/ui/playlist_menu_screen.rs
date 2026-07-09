@@ -40,7 +40,7 @@ use crate::utils::{
     io_utils::{
         app_directory_path,
         currently_saved_playlists,
-        PLAYLIST_FOLDER,
+        delete_selected_playlist,
         SaveError,
         LoadError,
     },
@@ -55,7 +55,7 @@ pub enum PlaylistMenuMessages {
     PlayPlaylist(Result<PlaylistData, LoadError>),
     NewPlaylist,
     EditPlaylist,
-    DeletePlaylist,
+    DeletePlaylist(String),
     SelectVideo,
     AddVideoToPlaylist(Option<String>),
     RemoveVideo(usize),
@@ -97,11 +97,10 @@ impl PlaylistMenuScreen {
             PlaylistMenuMessages::PlayPlaylist(playlist_data) => {
                 if let Ok(playlist_data) = playlist_data {
                     // TODO see about allowing user to see videos in playlist on video player view side
-                    state.playlist_manager.load_playlist(playlist_data.list);
+                    state.playlist_manager.load_playlist(playlist_data.list, playlist_data.name);
 
-                    // TODO write code to handle changes of playlist version and show the playlist name
+                    // TODO write code to handle changes of playlist version
                     println!("App version playlist was made under: {}", playlist_data.software_version);
-                    println!("Playlist name: {}", playlist_data.name);
 
                     let video_file = state.playlist_manager.pull_first_file_from_playlist();
                     match video_file {
@@ -130,8 +129,17 @@ impl PlaylistMenuScreen {
 
                 Task::none()
             }
-            PlaylistMenuMessages::DeletePlaylist => {
-                println!("Deleting playlist");
+            PlaylistMenuMessages::DeletePlaylist(playlist_name) => {
+                let result = delete_selected_playlist(app_directory_path(), playlist_name);
+
+                match result {
+                    Ok(_) => {
+                        println!("Playlist deleted successfully");
+                    }
+                    Err(e) => {
+                        println!("Failed to delete playlist: {:?}", e);
+                    }
+                }
 
                 Task::none()
             }
@@ -336,7 +344,7 @@ fn playlist_entry_layout<'a>(playlist_name: &String) -> Element<'a, PlaylistMenu
             )
             .push(
                 Button::new(Image::new(DELETE_PLAYLIST_ICON).width(32).height(32))
-                    .on_press(PlaylistMenuMessages::DeletePlaylist)
+                    .on_press(PlaylistMenuMessages::DeletePlaylist(playlist_name.clone()))
                     .style(active_large_button_style)
             )
     )
@@ -347,14 +355,13 @@ fn playlist_entry_layout<'a>(playlist_name: &String) -> Element<'a, PlaylistMenu
 }
 
 fn video_entry_layout<'a>(video_name: String, index: usize) -> Element<'a, PlaylistMenuMessages> {
-    let entry_name = format!("{}", video_name);
 
     Container::new(
         Row::new()
             .spacing(10)
             .align_y(Alignment::Center)
             .push(
-                Text::new(entry_name).size(16)
+                Text::new(video_name).size(16)
             )
             .push(Space::new().width(Length::Fill))
             .push(

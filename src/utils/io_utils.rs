@@ -26,6 +26,10 @@ pub enum PlaylistFolderErrors {
     FileNotFound,
 }
 
+#[derive(Debug)]
+pub enum IOErrors {
+    FailedToDeletePlaylist,
+}
 
 // Returns the directory path of where the application directory is
 pub fn app_directory_path() -> PathBuf {
@@ -71,12 +75,23 @@ pub fn currently_saved_playlists(directory_path: PathBuf) -> Result<Vec<String>,
     Ok(currently_saved_playlists)
 }
 
+pub fn delete_selected_playlist(directory_path: PathBuf, playlist_name: String) -> Result<(), IOErrors> {
+    let playlist_path = directory_path
+        .join(PLAYLIST_FOLDER)
+        .join(format!("{:}.json", playlist_name));
+    println!("path: {:?}", playlist_path);
+
+    std::fs::remove_file(playlist_path).map_err(|_| IOErrors::FailedToDeletePlaylist)?;
+
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use tempfile::tempdir;
     use std::env;
-    
+
     // tests for app_directory_path function
     #[test]
     fn test_app_directory_does_not_exist() {
@@ -160,5 +175,25 @@ mod tests {
         let list_of_playlists = currently_saved_playlists(test_path.join(".local/share/cliplay"));
         assert!(list_of_playlists.is_ok(), "the playlist folder should have files in it");
         assert_eq!(list_of_playlists.unwrap().len(), 10, "there should be 10 files in folder");
+    }
+
+    // tests for delete_selected_playlist function
+    #[test]
+    fn test_delete_selected_playlist() {
+        // create mock directory to be used for testing
+        let temp_dir = tempdir().expect("Could not create temp dir");
+        let test_path = temp_dir.path().join("test");
+        let mock_app_dir_path = test_path.clone().join(".local/share/cliplay").join(PLAYLIST_FOLDER);
+        std::fs::create_dir_all(&mock_app_dir_path).expect("Could not create mock app dir");
+        println!("{:?}", mock_app_dir_path);
+
+        let file = &mock_app_dir_path.join("playlist_test.json");
+        std::fs::File::create(file).unwrap();
+
+        let result = delete_selected_playlist(test_path.join(".local/share/cliplay"), "playlist_test".to_string());
+        assert!(result.is_ok(), "Could not delete playlist");
+
+        assert!(!test_path.join("playlist_test.json").exists(), "playlist test file should have been deleted");
+
     }
 }

@@ -61,8 +61,9 @@ impl PlaylistManager {
         file
     }
 
-    pub fn load_playlist(&mut self, list: Vec<String>) {
+    pub fn load_playlist(&mut self, list: Vec<String>, playlist_name: String) {
         self.playlist = list;
+        self.playlist_name = playlist_name;
         self.index = 0;
     }
 
@@ -174,7 +175,7 @@ mod tests {
             index: 1,
         };
         let video_list = vec!["test/video_0.mp4".to_string(), "test/video_1.mp4".to_string()];
-        playlist_manager.load_playlist(video_list);
+        playlist_manager.load_playlist(video_list, "test".to_string());
 
         assert_eq!(playlist_manager.playlist, vec!["test/video_0.mp4".to_string(), "test/video_1.mp4".to_string()], "The playlist should have matched");
         assert_eq!(playlist_manager.index, 0, "the index should have reset");

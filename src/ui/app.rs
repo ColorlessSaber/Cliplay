@@ -66,7 +66,7 @@ pub enum Message {
 }
 
 pub struct App {
-    position: f64, // TODO might have to put this into the AppState to allow changes to it
+    position: f64,
     dragging: bool,
     state: AppState,
     main_menu_screen: MainMenuScreen,
