@@ -24,8 +24,8 @@ impl PlaylistData {
             .join(format!("{:}.json", file_name))
     }
     
-    pub async fn load(playlist_name: &String) -> Result<PlaylistData, LoadError> {
-        let content = tokio::fs::read_to_string(Self::path(playlist_name))
+    pub async fn load(playlist_name: String) -> Result<PlaylistData, LoadError> {
+        let content = tokio::fs::read_to_string(Self::path(&playlist_name))
             .await
             .map_err(|_| LoadError::File)?;
 

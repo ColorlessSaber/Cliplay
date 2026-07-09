@@ -36,6 +36,7 @@ use crate::ui::styling::{
 };
 use crate::utils::{
     app_state::AppState,
+    functions::load_video_file,
     io_utils::{
         app_directory_path,
         currently_saved_playlists,
@@ -88,25 +89,32 @@ impl PlaylistMenuScreen {
     pub fn update(&mut self, message: PlaylistMenuMessages, state: &mut AppState) -> Task<PlaylistMenuMessages> {
         match message {
             PlaylistMenuMessages::LoadPlaylist(playlist_name) => {
-                /* TODO update with loading existing/new playlist
-                state.playlist_manager.load_playlist();
-                let video_file = state.playlist_manager.pull_first_file_from_playlist();
-
-                match video_file {
-                    Some(video_file) => {
-                        state.video = Some(load_video_file(&video_file));
-                    }
-                    None => {}
-                }
-
-                state.btn_struct.main_menu_button.toggle_state(); // to switch to video view
-                 */
-                println!("Loading playlist '{}'", playlist_name);
-
-                Task::none()
+                Task::perform(
+                    PlaylistData::load(playlist_name),
+                    PlaylistMenuMessages::PlayPlaylist,
+                )
             }
             PlaylistMenuMessages::PlayPlaylist(playlist_data) => {
-                println!("Playlist data: {:?}", playlist_data);
+                if let Ok(playlist_data) = playlist_data {
+                    // TODO see about allowing user to see videos in playlist on video player view side
+                    state.playlist_manager.load_playlist(playlist_data.list);
+
+                    // TODO write code to handle changes of playlist version and show the playlist name
+                    println!("App version playlist was made under: {}", playlist_data.software_version);
+                    println!("Playlist name: {}", playlist_data.name);
+
+                    let video_file = state.playlist_manager.pull_first_file_from_playlist();
+                    match video_file {
+                        Some(video_file) => {
+                            state.video = Some(load_video_file(video_file));
+                        }
+                        None => {}
+                    }
+
+                    state.btn_struct.main_menu_button.toggle_state(); // switch to video view
+                } else {
+                    println!("Failed to load playlist data"); // TODO add an error handling code later
+                }
 
                 Task::none()
             }
