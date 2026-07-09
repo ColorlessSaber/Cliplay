@@ -3,7 +3,7 @@ The struct that holds user settings for the application.
  */
 
 use serde::{Serialize, Deserialize };
-use crate::utils::save_utils::{
+use crate::utils::io_utils::{
     SaveUtils,
     app_directory_path,
     LoadError,

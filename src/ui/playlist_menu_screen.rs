@@ -36,20 +36,18 @@ use crate::ui::styling::{
 };
 use crate::utils::{
     app_state::AppState,
-    save_utils::{
+    io_utils::{
         app_directory_path,
+        currently_saved_playlists,
         PLAYLIST_FOLDER,
         SaveError,
         LoadError,
-    },
-    functions::{
-        currently_saved_playlists,
     },
     playlist_data_struct::PlaylistData,
 };
 use rfd::AsyncFileDialog;
 use std::path::Path;
-use crate::utils::save_utils::SaveUtils;
+use crate::utils::io_utils::SaveUtils;
 
 #[derive(Debug, Clone)]
 pub enum PlaylistMenuMessages {

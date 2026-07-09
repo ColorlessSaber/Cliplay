@@ -26,10 +26,12 @@ use crate::ui::{
 use crate::utils::{
     functions::{
         load_video_file,
-        create_application_directory,
     },
     app_state::AppState,
-    save_utils::app_directory_path,
+    io_utils::{
+        app_directory_path,
+        create_application_directory
+    },
 };
 use iced::{
     keyboard,

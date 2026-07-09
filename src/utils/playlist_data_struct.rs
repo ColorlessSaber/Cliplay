@@ -2,7 +2,7 @@
 The struct that holds information about the playlist
  */
 use serde::{ Serialize, Deserialize };
-use crate::utils::save_utils::{
+use crate::utils::io_utils::{
     SaveUtils,
     app_directory_path,
     LoadError,
