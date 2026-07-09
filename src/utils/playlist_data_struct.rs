@@ -3,7 +3,6 @@ The struct that holds information about the playlist
  */
 use serde::{ Serialize, Deserialize };
 use crate::utils::io_utils::{
-    SaveUtils,
     app_directory_path,
     LoadError,
     SaveError,
@@ -17,27 +16,27 @@ pub struct PlaylistData {
     pub list: Vec<String>
 }
 
-impl SaveUtils<PlaylistData> for PlaylistData {
-    fn path(&self) -> std::path::PathBuf {
+impl PlaylistData {
+    pub fn path(file_name: &String) -> std::path::PathBuf {
         let path = app_directory_path();
 
         path.join(PLAYLIST_FOLDER)
-            .join(format!("{:}.json", self.name))
+            .join(format!("{:}.json", file_name))
     }
     
-    async fn load(&self) -> Result<PlaylistData, LoadError> {
-        let content = tokio::fs::read_to_string(Self::path(&self))
+    pub async fn load(playlist_name: &String) -> Result<PlaylistData, LoadError> {
+        let content = tokio::fs::read_to_string(Self::path(playlist_name))
             .await
             .map_err(|_| LoadError::File)?;
 
         serde_json::from_str(&content).map_err(|_| LoadError::Format)
     }
     
-    async fn save(self) -> Result<(), SaveError> {
+    pub async fn save(self) -> Result<(), SaveError> {
         let json = serde_json::to_string(&self)
             .map_err(|_| SaveError::Format)?;
 
-        let path = Self::path(&self);
+        let path = Self::path(&self.name);
 
         {
             tokio::fs::write(path, json.as_bytes())

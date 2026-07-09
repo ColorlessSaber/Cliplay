@@ -71,15 +71,6 @@ pub fn currently_saved_playlists(directory_path: PathBuf) -> Result<Vec<String>,
     Ok(currently_saved_playlists)
 }
 
-// The boilerplate methods for CRUD actions
-pub trait SaveUtils<T> {
-    fn path(&self) -> std::path::PathBuf;
-
-    async fn load(&self) -> Result<T, LoadError>;
-
-    async fn save(self) -> Result<(), SaveError>;
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
