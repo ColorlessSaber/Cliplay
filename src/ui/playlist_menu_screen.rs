@@ -51,10 +51,10 @@ use std::path::Path;
 
 #[derive(Debug, Clone)]
 pub enum PlaylistMenuMessages {
-    LoadPlaylist(String),
+    LoadPlaylist(String, AfterLoadingPlaylistProcess),
     PlayPlaylist(Result<PlaylistData, LoadError>),
     NewPlaylist,
-    EditPlaylist,
+    EditPlaylist(Result<PlaylistData, LoadError>),
     DeletePlaylist(String),
     SelectVideo,
     AddVideoToPlaylist(Option<String>),
@@ -69,6 +69,13 @@ pub enum PlaylistMenuMessages {
 enum PlaylistMenuState {
     PlaylistList,
     PlaylistEditor,
+}
+
+// handle the different processes after loading playlist
+#[derive(Debug, Clone)]
+pub enum AfterLoadingPlaylistProcess {
+    Play,
+    Edit,
 }
 
 pub struct PlaylistMenuScreen {
@@ -88,10 +95,13 @@ impl PlaylistMenuScreen {
 
     pub fn update(&mut self, message: PlaylistMenuMessages, state: &mut AppState) -> Task<PlaylistMenuMessages> {
         match message {
-            PlaylistMenuMessages::LoadPlaylist(playlist_name) => {
+            PlaylistMenuMessages::LoadPlaylist(playlist_name, after_process) => {
                 Task::perform(
                     PlaylistData::load(playlist_name),
-                    PlaylistMenuMessages::PlayPlaylist,
+                    match after_process {
+                        AfterLoadingPlaylistProcess::Play => PlaylistMenuMessages::PlayPlaylist,
+                        AfterLoadingPlaylistProcess::Edit => PlaylistMenuMessages::EditPlaylist,
+                    },
                 )
             }
             PlaylistMenuMessages::PlayPlaylist(playlist_data) => {
@@ -124,8 +134,12 @@ impl PlaylistMenuScreen {
 
                 Task::none()
             }
-            PlaylistMenuMessages::EditPlaylist => {
-                println!("Editing playlist");
+            PlaylistMenuMessages::EditPlaylist(playlist_data) => {
+                if let Ok(playlist_data) = playlist_data {
+                    self.temp_playlist_name = playlist_data.name;
+                    self.temp_playlist_list = playlist_data.list;
+                    self.playlist_menu_state = PlaylistMenuState::PlaylistEditor;
+                }
 
                 Task::none()
             }
@@ -180,18 +194,18 @@ impl PlaylistMenuScreen {
                     PlaylistMenuMessages::PlaylistSaved,
                 )
             }
-            PlaylistMenuMessages::Cancel => {
-                self.playlist_menu_state = PlaylistMenuState::PlaylistList;
-                self.temp_playlist_name.clear();
-                self.temp_playlist_list.clear();
-                
-                Task::none()
-            }
             PlaylistMenuMessages::PlaylistSaved(_result) => {
                 self.playlist_menu_state = PlaylistMenuState::PlaylistList;
                 self.temp_playlist_name.clear();
                 self.temp_playlist_list.clear();
 
+                Task::none()
+            }
+            PlaylistMenuMessages::Cancel => {
+                self.playlist_menu_state = PlaylistMenuState::PlaylistList;
+                self.temp_playlist_name.clear();
+                self.temp_playlist_list.clear();
+                
                 Task::none()
             }
             PlaylistMenuMessages::PlaylistNameEdited(playlist_name) => {
@@ -201,6 +215,7 @@ impl PlaylistMenuScreen {
             }
         }
     }
+
     pub fn view(&self) -> Element<'_, PlaylistMenuMessages> {
         match self.playlist_menu_state {
             PlaylistMenuState::PlaylistList => {
@@ -321,25 +336,26 @@ impl PlaylistMenuScreen {
     }
 }
 
-fn playlist_entry_layout<'a>(playlist_name: &String) -> Element<'a, PlaylistMenuMessages> {
-    let entry_name = format!("{}", playlist_name);
+fn playlist_entry_layout<'a>(
+    playlist_name: &String
+) -> Element<'a, PlaylistMenuMessages> {
 
     Container::new(
         Row::new()
             .spacing(10)
             .align_y(Alignment::Center)
             .push(
-                Text::new(entry_name).size(16)
+                Text::new(playlist_name.clone()).size(16)
             )
             .push(Space::new().width(Length::Fill))
             .push(
                 Button::new(Image::new(PLAY_PLAYLIST_ICON).width(32).height(32))
-                    .on_press(PlaylistMenuMessages::LoadPlaylist(playlist_name.clone()))
+                    .on_press(PlaylistMenuMessages::LoadPlaylist(playlist_name.clone(), AfterLoadingPlaylistProcess::Play))
                     .style(active_large_button_style)
             )
             .push(
                 Button::new(Image::new(EDIT_PLAYLIST_ICON).width(32).height(32))
-                    .on_press(PlaylistMenuMessages::EditPlaylist)
+                    .on_press(PlaylistMenuMessages::LoadPlaylist(playlist_name.clone(), AfterLoadingPlaylistProcess::Edit))
                     .style(active_large_button_style)
             )
             .push(
@@ -354,7 +370,10 @@ fn playlist_entry_layout<'a>(playlist_name: &String) -> Element<'a, PlaylistMenu
         .into()
 }
 
-fn video_entry_layout<'a>(video_name: String, index: usize) -> Element<'a, PlaylistMenuMessages> {
+fn video_entry_layout<'a>(
+    video_name: String,
+    index: usize
+) -> Element<'a, PlaylistMenuMessages> {
 
     Container::new(
         Row::new()
