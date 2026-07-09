@@ -84,6 +84,7 @@ pub struct PlaylistMenuScreen {
     playlist_menu_state: PlaylistMenuState,
     temp_playlist_list: Vec<String>,
     temp_playlist_name: String,
+    enable_editer_mode: bool,
 }
 
 impl PlaylistMenuScreen {
@@ -92,6 +93,7 @@ impl PlaylistMenuScreen {
             playlist_menu_state: PlaylistMenuState::PlaylistList,
             temp_playlist_list: Vec::new(),
             temp_playlist_name: String::new(),
+            enable_editer_mode: false,
         }
     }
 
@@ -133,6 +135,7 @@ impl PlaylistMenuScreen {
                 self.playlist_menu_state = PlaylistMenuState::PlaylistEditor;
                 self.temp_playlist_name.clear();
                 self.temp_playlist_list.clear();
+                self.enable_editer_mode = false;
 
                 Task::none()
             }
@@ -140,6 +143,7 @@ impl PlaylistMenuScreen {
                 if let Ok(playlist_data) = playlist_data {
                     self.temp_playlist_name = playlist_data.name;
                     self.temp_playlist_list = playlist_data.list;
+                    self.enable_editer_mode = true;
                     self.playlist_menu_state = PlaylistMenuState::PlaylistEditor;
                 }
 
@@ -305,9 +309,17 @@ impl PlaylistMenuScreen {
                             Row::new()
                                 .spacing(10)
                                 .push(
-                                    text_input("playlist name...", &self.temp_playlist_name)
-                                        .on_input(PlaylistMenuMessages::PlaylistNameEdited)
-                                        .padding(10)
+                                    match self.enable_editer_mode {
+                                        true => { // show playlist name but disable the ability to change it
+                                            text_input("", &self.temp_playlist_name)
+                                                .padding(10)
+                                        }
+                                        false => {
+                                            text_input("playlist name...", &self.temp_playlist_name)
+                                                .on_input(PlaylistMenuMessages::PlaylistNameEdited)
+                                                .padding(10)
+                                        }
+                                    }
                                 )
                                 .width(Length::Fill)
                                 .push(
