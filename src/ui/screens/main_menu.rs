@@ -13,7 +13,7 @@ use iced::{
     },
 };
 use rfd::AsyncFileDialog;
-use crate::ui::playlist_menu_screen::{
+use crate::ui::screens::playlist_menu::{
     PlaylistMenuScreen,
     PlaylistMenuMessages,
 };
@@ -82,7 +82,7 @@ impl MainMenuScreen {
                 if let Some(path) = path {
                     state.playlist_manager.play_single_video_file(path);
                     let video_file = state.playlist_manager.pull_first_file_from_playlist();
-                    
+
                     match video_file {
                         Some(video_file) => {
                             state.video = Some(load_video_file(video_file));

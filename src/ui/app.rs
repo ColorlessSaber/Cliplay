@@ -18,7 +18,7 @@ use crate::ui::{
         shuffle_button::ShuffleBtnStates,
         main_menu_button::MainMenuBtnStates,
     },
-    main_menu_screen::{
+    screens::main_menu::{
         MainMenuScreen,
         MainMenuMessages,
     }
@@ -457,7 +457,7 @@ fn control_bar<'a>(
                                 )
                                 .push(
                                     Button::new(
-                                        match is_video_currently_paused { // will remove unwrap when ready
+                                        match is_video_currently_paused {
                                             true => Image::new(PLAY_ICON).width(32).height(32),
                                             false => Image::new(PAUSE_ICON).width(32).height(32)
                                         }
@@ -481,7 +481,7 @@ fn control_bar<'a>(
                                         .style(player_control_button_style)
                                 )
                         )
-                    ) // TODO add a button to open Start/Stop position menu
+                    )
                     .push(Space::new().width(Length::Fill))
                     .push(
                         // volume controls
