@@ -18,8 +18,9 @@ pub static SHUFFLE_ICON: &str = "icons/shuffle.png";
 pub static VOLUME_ICON: &str = "icons/volume.png";
 
 // Main Menu Icons
-pub static PLAYLISTS_ICON: &str = "icons/playlists_icon.png";
 pub static SELECT_VID_FROM_COMPUTER_ICON: &str = "icons/select_single_vid.png";
+pub static PLAYLISTS_ICON: &str = "icons/playlists_icon.png";
+pub static SETTINGS_ICON: &str = "icons/settings_icon.png";
 
 //  Playlist Menu Icons
 pub static NEW_PLAYLIST_ICON: &str = "icons/new_playlist_icon.png";

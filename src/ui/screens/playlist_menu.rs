@@ -308,6 +308,7 @@ impl PlaylistMenuScreen {
                         .push(
                             Row::new()
                                 .spacing(10)
+                                .width(Length::Fill)
                                 .push(
                                     match self.enable_editor_mode {
                                         true => { // show playlist name but disable the ability to change it
@@ -321,7 +322,6 @@ impl PlaylistMenuScreen {
                                         }
                                     }
                                 )
-                                .width(Length::Fill)
                                 .push(
                                     Button::new(Image::new(SELECT_VIDEO_FILE_ICON).width(64).height(64))
                                         .on_press(PlaylistMenuMessages::SelectVideo)

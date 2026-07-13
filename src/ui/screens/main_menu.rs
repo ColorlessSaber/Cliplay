@@ -13,9 +13,15 @@ use iced::{
     },
 };
 use rfd::AsyncFileDialog;
-use crate::ui::screens::playlist_menu::{
-    PlaylistMenuScreen,
-    PlaylistMenuMessages,
+use crate::ui::screens::{
+    playlist_menu::{
+        PlaylistMenuScreen,
+        PlaylistMenuMessages,
+    },
+    settings_menu::{
+        SettingsMenu,
+        SettingsMenuMessage,
+    }
 };
 use crate::ui::styling::{
     active_large_button_style,
@@ -25,6 +31,7 @@ use crate::ui::styling::{
     icons::{
         SELECT_VID_FROM_COMPUTER_ICON,
         PLAYLISTS_ICON,
+        SETTINGS_ICON,
     }
 };
 use crate::utils::{
@@ -39,6 +46,7 @@ pub enum MainMenuMessages {
     SelectVideo,
     TogglePlaylistMenu,
     PlaylistsMenu(PlaylistMenuMessages),
+    SettingsMenu(SettingsMenuMessage),
     ToggleSettingsMenu,
     VideoFileSelected(Option<String>),
 }
@@ -53,6 +61,7 @@ enum MenuSelectedState {
 pub struct MainMenuScreen {
     currently_selected_main_menu_btn: MenuSelectedState,
     playlist_menu: PlaylistMenuScreen,
+    settings_menu: SettingsMenu,
 }
 
 impl MainMenuScreen {
@@ -61,6 +70,7 @@ impl MainMenuScreen {
         Self {
             currently_selected_main_menu_btn: MenuSelectedState::PlaylistsMenu,
             playlist_menu: PlaylistMenuScreen::new(),
+            settings_menu: SettingsMenu::new(),
         }
     }
 
@@ -109,6 +119,11 @@ impl MainMenuScreen {
 
                 Task::none()
             }
+            MainMenuMessages::SettingsMenu(message) => {
+                self.settings_menu
+                    .update(message, state)
+                    .map(|message| MainMenuMessages::SettingsMenu(message))
+            }
         }
     }
 
@@ -130,7 +145,7 @@ impl MainMenuScreen {
                                 .style(active_large_button_style)
                         )
                         .push(
-                            Button::new(Text::new("Settings").width(64).height(64))
+                            Button::new(Image::new(SETTINGS_ICON).width(64).height(64))
                                 .on_press(MainMenuMessages::ToggleSettingsMenu)
                                 .style(active_large_button_style)
                         )
@@ -142,7 +157,7 @@ impl MainMenuScreen {
             .push(
                 // The changeable view based on currently selected menu button
                 match self.currently_selected_main_menu_btn {
-                    MenuSelectedState::SettingsMenu => Container::new(Text::new("Settings Menu")), // TODO create a fleshed out settings menu
+                    MenuSelectedState::SettingsMenu => Container::new(self.settings_menu.view().map(MainMenuMessages::SettingsMenu)),
                     MenuSelectedState::PlaylistsMenu => Container::new(self.playlist_menu.view().map(MainMenuMessages::PlaylistsMenu)),
                 }
             ).into()
