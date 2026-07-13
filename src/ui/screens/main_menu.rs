@@ -3,9 +3,8 @@ use iced::{
     Length,
     Task,
     widget::{
-        Button,
-        Text,
-        Column,
+        button,
+        column,
         Row,
         Image,
         Space,
@@ -128,28 +127,21 @@ impl MainMenuScreen {
     }
 
     pub fn view(&self) -> Element<'_, MainMenuMessages> {
+
+        let default_btn = |image, message| {
+            button(image).on_press(message).style(active_large_button_style)
+        };
+
         Row::new()
             .push(
                 // the main menu buttons: video select, playlist, and settings
                 Container::new(
-                    Column::new()
-                        .spacing(10)
-                        .push(
-                            Button::new(Image::new(SELECT_VID_FROM_COMPUTER_ICON).width(64).height(64))
-                                .on_press(MainMenuMessages::SelectVideo)
-                                .style(active_large_button_style)
-                        )
-                        .push(
-                            Button::new(Image::new(PLAYLISTS_ICON).width(64).height(64))
-                                .on_press(MainMenuMessages::TogglePlaylistMenu)
-                                .style(active_large_button_style)
-                        )
-                        .push(
-                            Button::new(Image::new(SETTINGS_ICON).width(64).height(64))
-                                .on_press(MainMenuMessages::ToggleSettingsMenu)
-                                .style(active_large_button_style)
-                        )
-                        .push(Space::new().height(Length::Fill))
+                    column![
+                        default_btn(Image::new(SELECT_VID_FROM_COMPUTER_ICON).width(64).height(64), MainMenuMessages::SelectVideo),
+                        default_btn(Image::new(PLAYLISTS_ICON).width(64).height(64), MainMenuMessages::TogglePlaylistMenu),
+                        default_btn(Image::new(SETTINGS_ICON).width(64).height(64), MainMenuMessages::ToggleSettingsMenu),
+                        Space::new().height(Length::Fill)
+                    ].spacing(10)
                 )
                     .padding(10)
                     .style(main_section_style)
