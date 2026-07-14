@@ -127,7 +127,9 @@ impl App {
 
     // Iced methods; IE, methods used by the Iced crate
     pub fn new() -> Self {
-        // TODO Come back move this into a "loading" stage for the application to check/create directory
+        // Start of "loading" stage logic
+        // IE, creating the application directory, loading settings file, etc. before
+        // launching the application.
         create_application_directory(app_directory_path());
 
         let settings_path = AppSettings::path();
@@ -141,6 +143,7 @@ impl App {
                 skip_backward_value: 10,
             }
         };
+        // End of "loading" stage logic
 
         Self {
             position: 0.0,

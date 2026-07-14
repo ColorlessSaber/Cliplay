@@ -67,9 +67,8 @@ impl SettingsMenu {
         }
     }
 
-    pub fn view(&self, settings_data: &AppSettings) -> Element<'_, SettingsMenuMessage> {
-        println!("{:?}", settings_data);
-        
+    pub fn view(&self, state: &AppState) -> Element<'_, SettingsMenuMessage> {
+
         Container::new(
             Column::new()
                 .spacing(10)

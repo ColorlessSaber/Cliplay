@@ -149,7 +149,7 @@ impl MainMenuScreen {
             .push(
                 // The changeable view based on currently selected menu button
                 match self.currently_selected_main_menu_btn {
-                    MenuSelectedState::SettingsMenu => Container::new(self.settings_menu.view(&state.settings).map(MainMenuMessages::SettingsMenu)),
+                    MenuSelectedState::SettingsMenu => Container::new(self.settings_menu.view(state).map(MainMenuMessages::SettingsMenu)),
                     MenuSelectedState::PlaylistsMenu => Container::new(self.playlist_menu.view().map(MainMenuMessages::PlaylistsMenu)),
                 }
             ).into()
