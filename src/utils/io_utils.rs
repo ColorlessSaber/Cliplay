@@ -21,14 +21,10 @@ pub enum SaveError {
 }
 
 #[derive(Debug)]
-pub enum PlaylistFolderErrors {
+pub enum PlaylistError {
     DirNotFound,
     FileNotFound,
-}
-
-#[derive(Debug)]
-pub enum IOErrors {
-    FailedToDeletePlaylist,
+    FailedToDelete,
 }
 
 // Returns the directory path of where the application directory is
@@ -57,13 +53,13 @@ pub fn create_application_directory(directory_path: PathBuf) {
 
 // scans the playlist folder in application directory and return the names of the playlists
 // found
-pub fn currently_saved_playlists(directory_path: PathBuf) -> Result<Vec<String>, PlaylistFolderErrors> {
+pub fn currently_saved_playlists(directory_path: PathBuf) -> Result<Vec<String>, PlaylistError> {
     let mut currently_saved_playlists: Vec<String> = vec![];
     let playlist_folder_path = directory_path.join(PLAYLIST_FOLDER);
     //println!("playlist_folder_path: {:?}", playlist_folder_path); // debugging
 
-    for entry in std::fs::read_dir(playlist_folder_path).map_err(|_| PlaylistFolderErrors::DirNotFound)? {
-        let file_path = entry.map_err(|_| PlaylistFolderErrors::FileNotFound)?.path();
+    for entry in std::fs::read_dir(playlist_folder_path).map_err(|_| PlaylistError::DirNotFound)? {
+        let file_path = entry.map_err(|_| PlaylistError::FileNotFound)?.path();
         if file_path.is_file() {
             if file_path.extension() == Some(std::ffi::OsStr::new("json")) {
                 currently_saved_playlists.push(file_path.file_stem().unwrap().to_string_lossy().to_string());
@@ -74,13 +70,13 @@ pub fn currently_saved_playlists(directory_path: PathBuf) -> Result<Vec<String>,
     Ok(currently_saved_playlists)
 }
 
-pub fn delete_selected_playlist(directory_path: PathBuf, playlist_name: String) -> Result<(), IOErrors> {
+pub fn delete_selected_playlist(directory_path: PathBuf, playlist_name: String) -> Result<(), PlaylistError> {
     let playlist_path = directory_path
         .join(PLAYLIST_FOLDER)
         .join(format!("{:}.json", playlist_name));
     println!("path: {:?}", playlist_path);
 
-    std::fs::remove_file(playlist_path).map_err(|_| IOErrors::FailedToDeletePlaylist)?;
+    std::fs::remove_file(playlist_path).map_err(|_| PlaylistError::FailedToDelete)?;
 
     Ok(())
 }
