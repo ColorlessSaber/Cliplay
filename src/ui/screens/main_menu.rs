@@ -126,7 +126,7 @@ impl MainMenuScreen {
         }
     }
 
-    pub fn view(&self) -> Element<'_, MainMenuMessages> {
+    pub fn view(&self, state: &AppState) -> Element<'_, MainMenuMessages> {
 
         let default_btn = |image, message| {
             button(image).on_press(message).style(active_large_button_style)
@@ -149,7 +149,7 @@ impl MainMenuScreen {
             .push(
                 // The changeable view based on currently selected menu button
                 match self.currently_selected_main_menu_btn {
-                    MenuSelectedState::SettingsMenu => Container::new(self.settings_menu.view().map(MainMenuMessages::SettingsMenu)),
+                    MenuSelectedState::SettingsMenu => Container::new(self.settings_menu.view(&state.settings).map(MainMenuMessages::SettingsMenu)),
                     MenuSelectedState::PlaylistsMenu => Container::new(self.playlist_menu.view().map(MainMenuMessages::PlaylistsMenu)),
                 }
             ).into()

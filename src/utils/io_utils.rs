@@ -53,7 +53,6 @@ pub fn app_directory_path() -> PathBuf {
 pub fn create_application_directory(directory_path: PathBuf) {
     std::fs::create_dir_all(directory_path.clone()).unwrap(); // main directory
     std::fs::create_dir_all(directory_path.clone().join(PLAYLIST_FOLDER)).unwrap(); // playlist folder
-    std::fs::File::create(directory_path.join(APP_SETTINGS_FILE_NAME)).unwrap(); // app settings file
 }
 
 // scans the playlist folder in application directory and return the names of the playlists
@@ -133,10 +132,6 @@ mod tests {
         // test to see that application directory has been created
         let mock_app_dir_path = temp_dir.path().join(".local/share/cliplay");
         assert!(mock_app_dir_path.exists(), "Could not create mock app dir");
-
-        // test to see if app settings JSON file exists
-        let mock_app_settings_file_path = temp_dir.path().join(".local/share/cliplay").join(APP_SETTINGS_FILE_NAME);
-        assert!(mock_app_settings_file_path.exists(), "settings file should have been created");
 
         // test to see if playlist folder exists
         let mock_playlist_folder_path = temp_dir.path().join(".local/share/cliplay").join(PLAYLIST_FOLDER);

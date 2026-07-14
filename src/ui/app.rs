@@ -30,8 +30,9 @@ use crate::utils::{
     app_state::AppState,
     io_utils::{
         app_directory_path,
-        create_application_directory
+        create_application_directory,
     },
+    app_settings_struct::AppSettings,
 };
 use iced::{
     keyboard,
@@ -44,7 +45,7 @@ use iced::{
 };
 use iced_video_player::{VideoPlayer};
 use std::time::Duration;
-
+use crate::utils::playlist_manager::PlaylistManager;
 
 #[derive(Clone, Debug)]
 pub enum Message {
@@ -126,11 +127,30 @@ impl App {
 
     // Iced methods; IE, methods used by the Iced crate
     pub fn new() -> Self {
-        create_application_directory(app_directory_path()); // TODO eventually have a "loading" stage for the application where this will reside
+        // TODO Come back move this into a "loading" stage for the application to check/create directory
+        create_application_directory(app_directory_path());
+
+        let settings_path = AppSettings::path();
+
+        let settings_data = if std::fs::metadata(&settings_path).is_ok() {
+            AppSettings::load().ok().unwrap()
+        } else {
+            AppSettings{
+                version: "0.1".to_string(),
+                skip_forward_value: 10,
+                skip_backward_value: 10,
+            }
+        };
+
         Self {
             position: 0.0,
             dragging: false,
-            state: AppState::default(),
+            state: AppState{
+                video: None,
+                btn_struct: ButtonStruct::default(),
+                playlist_manager: PlaylistManager::new(),
+                settings: settings_data,
+            },
             main_menu_screen: MainMenuScreen::new(),
         }
     }
@@ -299,7 +319,7 @@ impl App {
                     }
                     MainMenuBtnStates::MainMenuOpen => {
                         Container::new(
-                            self.main_menu_screen.view().map(Message::MainMenu)
+                            self.main_menu_screen.view(&self.state).map(Message::MainMenu)
                         )
                     }
                 }

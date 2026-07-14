@@ -11,7 +11,9 @@ use crate::utils::io_utils::{
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppSettings {
-    version: String, // version of the software
+    pub version: String, // version of the software
+    pub skip_forward_value: usize,
+    pub skip_backward_value: usize,
 }
 
 impl AppSettings {
@@ -27,25 +29,16 @@ impl AppSettings {
         path.join(APP_SETTINGS_FILE_NAME)
     }
 
-    pub async fn load() -> Result<AppSettings, LoadError> {
-        let content = tokio::fs::read_to_string(Self::path())
-            .await
-            .map_err(|_| LoadError::File)?;
+    pub fn load() -> Result<AppSettings, LoadError> {
+        let content = std::fs::read_to_string(Self::path()).map_err(|_| LoadError::File)?;
 
         serde_json::from_str(&content).map_err(|_| LoadError::Format)
     }
 
-    pub async fn save(self) -> Result<(), SaveError> {
-        let json = serde_json::to_string(&self)
-            .map_err(|_| SaveError::Format)?;
-
+    pub fn save(self) -> Result<(), SaveError> {
+        let json = serde_json::to_string(&self).map_err(|_| SaveError::Format)?;
         let path = Self::path();
-
-        {
-            tokio::fs::write(path, json.as_bytes())
-                .await
-                .map_err(|_| SaveError::Write)?;
-        }
+        std::fs::write(path, json.as_bytes()).map_err(|_| SaveError::Write)?;
 
         Ok(())
     }

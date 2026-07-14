@@ -13,6 +13,11 @@ use iced::{
 use iced::widget::Row;
 use crate::utils::{
     app_state::AppState,
+    io_utils::{
+        LoadError,
+        SaveError,
+    },
+    app_settings_struct::AppSettings
 };
 use crate::ui::{
     styling::{
@@ -62,7 +67,9 @@ impl SettingsMenu {
         }
     }
 
-    pub fn view(&self) -> Element<'_, SettingsMenuMessage> {
+    pub fn view(&self, settings_data: &AppSettings) -> Element<'_, SettingsMenuMessage> {
+        println!("{:?}", settings_data);
+        
         Container::new(
             Column::new()
                 .spacing(10)
