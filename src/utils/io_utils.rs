@@ -2,6 +2,7 @@
 Functions, enums, etc. that are used to handle/do IO actions
  */
 use std::path::PathBuf;
+use crate::utils::app_settings_struct::AppSettings;
 
 // The static folder name(s) and file name(s) help keep things consistent
 pub static PLAYLIST_FOLDER: &str = "playlists";
@@ -45,10 +46,14 @@ pub fn app_directory_path() -> PathBuf {
     path
 }
 
-// creates the application directory along with: the settings file and playlist folder
+// creates the application directory along with the necessary files
 pub fn create_application_directory(directory_path: PathBuf) {
     std::fs::create_dir_all(directory_path.clone()).unwrap(); // main directory
     std::fs::create_dir_all(directory_path.clone().join(PLAYLIST_FOLDER)).unwrap(); // playlist folder
+
+    if std::fs::metadata(directory_path.join(APP_SETTINGS_FILE_NAME)).is_err() {
+        let _ = AppSettings::default().save();
+    }
 }
 
 // scans the playlist folder in application directory and return the names of the playlists
@@ -74,7 +79,6 @@ pub fn delete_selected_playlist(directory_path: PathBuf, playlist_name: String) 
     let playlist_path = directory_path
         .join(PLAYLIST_FOLDER)
         .join(format!("{:}.json", playlist_name));
-    println!("path: {:?}", playlist_path);
 
     std::fs::remove_file(playlist_path).map_err(|_| PlaylistError::FailedToDelete)?;
 

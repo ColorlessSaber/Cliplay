@@ -134,18 +134,8 @@ impl App {
         // IE, creating the application directory, loading settings file, etc. before
         // launching the application.
         create_application_directory(app_directory_path());
-
-        let settings_path = AppSettings::path();
-
-        let settings_data = if std::fs::metadata(&settings_path).is_ok() {
-            AppSettings::load().ok().unwrap()
-        } else {
-            AppSettings{
-                version: "0.1".to_string(),
-                skip_forward_value: 10,
-                skip_backward_value: 10,
-            }
-        };
+        
+        let settings_data = AppSettings::load().ok().unwrap();
         // End of "loading" stage logic
 
         Self {

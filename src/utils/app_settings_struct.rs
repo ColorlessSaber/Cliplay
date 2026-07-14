@@ -43,3 +43,13 @@ impl AppSettings {
         Ok(())
     }
 }
+
+impl Default for AppSettings {
+    fn default() -> Self { // Just for the record, this is the default save file
+        Self {
+            version: "0.1".to_string(),
+            skip_forward_value: 10,
+            skip_backward_value: 10,
+        }
+    }
+}
