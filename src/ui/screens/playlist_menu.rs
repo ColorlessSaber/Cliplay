@@ -27,14 +27,7 @@ use crate::ui::styling::{
         main_section_style,
         playlist_entry_style,
     },
-    icons::{
-        DELETE_PLAYLIST_ICON,
-        EDIT_PLAYLIST_ICON,
-        NEW_PLAYLIST_ICON,
-        PLAY_PLAYLIST_ICON,
-        REMOVE_VIDEO_FILE_ICON,
-        SAVE_ICON,
-        SELECT_VIDEO_FILE_ICON},
+    icons::playlist_menu_icons,
 };
 use crate::utils::{
     app_state::AppState,
@@ -232,7 +225,7 @@ impl PlaylistMenuScreen {
                         // to reduce duplicate code, created a starting playlist column and then depending
                         // on the number of playlists found, generate the playlist column and then
                         // pass it out to be inserted into an Iced container.
-                        let new_playlist_btn: Button<PlaylistMenuMessages> = button(image(NEW_PLAYLIST_ICON).width(64).height(64))
+                        let new_playlist_btn: Button<PlaylistMenuMessages> = button(image(playlist_menu_icons::NEW_PLAYLIST_ICON).width(64).height(64))
                             .on_press(PlaylistMenuMessages::NewPlaylist)
                             .style(active_large_button_style);
 
@@ -323,12 +316,12 @@ impl PlaylistMenuScreen {
                                     }
                                 )
                                 .push(
-                                    Button::new(Image::new(SELECT_VIDEO_FILE_ICON).width(64).height(64))
+                                    Button::new(Image::new(playlist_menu_icons::editor::SELECT_VIDEO_FILE_ICON).width(64).height(64))
                                         .on_press(PlaylistMenuMessages::SelectVideo)
                                         .style(active_large_button_style)
                                 )
                                 .push(
-                                    Button::new(Image::new(SAVE_ICON).width(64).height(64))
+                                    Button::new(Image::new(playlist_menu_icons::editor::SAVE_ICON).width(64).height(64))
                                         .on_press(PlaylistMenuMessages::Save)
                                         .style(active_large_button_style)
                                 )
@@ -363,9 +356,9 @@ fn playlist_entry_layout<'a>(
         row![
             text!("{}", playlist_name.clone()).size(16),
             Space::new().width(Length::Fill),
-            default_btn(Image::new(PLAY_PLAYLIST_ICON).width(32).height(32), PlaylistMenuMessages::LoadPlaylist(playlist_name.clone(), AfterLoadingPlaylistProcess::Play)),
-            default_btn(Image::new(EDIT_PLAYLIST_ICON).width(32).height(32), PlaylistMenuMessages::LoadPlaylist(playlist_name.clone(), AfterLoadingPlaylistProcess::Edit)),
-            default_btn(Image::new(DELETE_PLAYLIST_ICON).width(32).height(32), PlaylistMenuMessages::DeletePlaylist(playlist_name.clone()))
+            default_btn(Image::new(playlist_menu_icons::entry::PLAY_PLAYLIST_ICON).width(32).height(32), PlaylistMenuMessages::LoadPlaylist(playlist_name.clone(), AfterLoadingPlaylistProcess::Play)),
+            default_btn(Image::new(playlist_menu_icons::entry::EDIT_PLAYLIST_ICON).width(32).height(32), PlaylistMenuMessages::LoadPlaylist(playlist_name.clone(), AfterLoadingPlaylistProcess::Edit)),
+            default_btn(Image::new(playlist_menu_icons::entry::DELETE_PLAYLIST_ICON).width(32).height(32), PlaylistMenuMessages::DeletePlaylist(playlist_name.clone()))
         ]
             .spacing(10)
             .align_y(Alignment::Center)
@@ -390,7 +383,7 @@ fn video_entry_layout<'a>(
             )
             .push(Space::new().width(Length::Fill))
             .push(
-                Button::new(Image::new(REMOVE_VIDEO_FILE_ICON).width(32).height(32))
+                Button::new(Image::new(playlist_menu_icons::editor::REMOVE_VIDEO_FILE_ICON).width(32).height(32))
                     .on_press(PlaylistMenuMessages::RemoveVideo(index))
                     .style(active_large_button_style)
             )

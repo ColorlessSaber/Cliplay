@@ -1,21 +1,18 @@
-use crate::ui::buttons::loop_button::LoopButton;
-use crate::ui::buttons::shuffle_button::ShuffleButton;
-use crate::ui::buttons::main_menu_button::MainMenuButton;
-
-// holds information about each button that have dynamic information
+// holds information about each button that have dynamic information; IE, can have
+// different states.
 #[derive(Copy, Clone)]
 pub struct ButtonStruct {
-    pub loop_button: LoopButton,
-    pub shuffle_button: ShuffleButton,
-    pub main_menu_button: MainMenuButton,
+    pub loop_button: loop_button::LoopButton,
+    pub shuffle_button: shuffle_button::ShuffleButton,
+    pub main_menu_button: main_menu_button::MainMenuButton,
 }
 
 impl Default for ButtonStruct {
     fn default() -> Self {
         Self {
-            loop_button: LoopButton::default(),
-            shuffle_button: ShuffleButton::default(),
-            main_menu_button: MainMenuButton::default(),
+            loop_button: loop_button::LoopButton::default(),
+            shuffle_button: shuffle_button::ShuffleButton::default(),
+            main_menu_button: main_menu_button::MainMenuButton::default(),
         }
     }
 }

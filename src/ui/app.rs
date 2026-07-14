@@ -1,5 +1,8 @@
 use crate::ui::{
-    styling::icons::*,
+    styling::icons::{
+        logo_icons::CLIPLAY_LOGO_GREY_ICON,
+        video_player_icons::*
+    },
     styling::container_styles::{
         splash_screen_style,
         control_bar_style,
@@ -12,7 +15,7 @@ use crate::ui::{
         volume_slider_style,
         StyleState
     },
-    buttons::{
+    button_struct::{
         ButtonStruct,
         loop_button::LoopBtnStates,
         shuffle_button::ShuffleBtnStates,
@@ -33,6 +36,7 @@ use crate::utils::{
         create_application_directory,
     },
     app_settings_struct::AppSettings,
+    playlist_manager::PlaylistManager,
 };
 use iced::{
     keyboard,
@@ -45,7 +49,6 @@ use iced::{
 };
 use iced_video_player::{VideoPlayer};
 use std::time::Duration;
-use crate::utils::playlist_manager::PlaylistManager;
 
 #[derive(Clone, Debug)]
 pub enum Message {

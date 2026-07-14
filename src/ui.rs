@@ -1,4 +1,4 @@
 mod styling;
-pub mod buttons;
+pub mod button_struct;
 pub mod app;
 mod screens;

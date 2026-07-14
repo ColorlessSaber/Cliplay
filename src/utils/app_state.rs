@@ -1,4 +1,4 @@
-use crate::ui::{buttons::ButtonStruct};
+use crate::ui::{button_struct::ButtonStruct};
 use crate::utils::{
     playlist_manager::PlaylistManager,
     app_settings_struct::AppSettings,

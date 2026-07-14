@@ -27,11 +27,7 @@ use crate::ui::styling::{
     container_styles::{
         main_section_style,
     },
-    icons::{
-        SELECT_VID_FROM_COMPUTER_ICON,
-        PLAYLISTS_ICON,
-        SETTINGS_ICON,
-    }
+    icons::main_menu_icons::*,
 };
 use crate::utils::{
     app_state::AppState,
