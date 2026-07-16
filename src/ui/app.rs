@@ -35,7 +35,10 @@ use crate::utils::{
         app_directory_path::app_directory_path,
         create_application_directory,
     },
-    io_utils::app_settings_data_struct::AppSettings,
+    io_utils::app_settings_data_struct::{
+        AppSettings,
+        PlayerSettings
+    },
     playlist_manager::PlaylistManager,
 };
 use iced::{
@@ -328,7 +331,8 @@ impl App {
                         video.duration().as_secs(),
                         video.volume(),
                         video.paused(),
-                        self.state.btn_struct,
+                        &self.state.btn_struct,
+                        &self.state.settings.player_settings
                     )
                 } else {
                     control_bar(
@@ -337,7 +341,8 @@ impl App {
                         0,
                         1.0,
                         true,
-                        self.state.btn_struct,
+                        &self.state.btn_struct,
+                        &self.state.settings.player_settings
                     )
                 }
             )
@@ -370,7 +375,8 @@ fn control_bar<'a>(
     video_duration: u64,
     current_video_volume: f64,
     is_video_currently_paused: bool,
-    btn_struct: DynamicButtons,
+    btn_struct: &DynamicButtons,
+    player_settings: &PlayerSettings,
 ) -> Element<'a, Message> {
     Container::new(
         Column::new()
@@ -468,7 +474,7 @@ fn control_bar<'a>(
                                 )
                                 .push(
                                     Button::new(Image::new(BACKWARD_ICON).width(32).height(32))
-                                        .on_press(Message::Backward(10.0))
+                                        .on_press(Message::Backward(player_settings.skip_backward_value as f64))
                                         .style(player_control_button_style)
                                 )
                                 .push(
@@ -488,7 +494,7 @@ fn control_bar<'a>(
                                 )
                                 .push(
                                     Button::new(Image::new(FORWARD_ICON).width(32).height(32))
-                                        .on_press(Message::Forward(10.0))
+                                        .on_press(Message::Forward(player_settings.skip_forward_value as f64))
                                         .style(player_control_button_style)
                                 )
                                 .push(
