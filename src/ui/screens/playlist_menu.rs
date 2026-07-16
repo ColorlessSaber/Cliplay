@@ -22,7 +22,7 @@ use iced::{
     },
 };
 use crate::ui::styling::{
-    active_large_button_style,
+    button_styles::active_large_button_style,
     container_styles::{
         main_section_style,
         playlist_entry_style,
@@ -31,15 +31,17 @@ use crate::ui::styling::{
 };
 use crate::utils::{
     app_state::AppState,
-    functions::load_video_file,
+    load_video_file::load_video_file,
     io_utils::{
-        app_directory_path,
-        currently_saved_playlists,
-        delete_selected_playlist,
+        app_directory_path::app_directory_path,
         SaveError,
         LoadError,
     },
-    playlist_data_struct::PlaylistData,
+    io_utils::playlist_crud_cmds::{
+        PlaylistData,
+        scan_playlist_folder,
+        delete_selected_playlist
+    },
 };
 use rfd::AsyncFileDialog;
 use std::path::Path;
@@ -218,7 +220,7 @@ impl PlaylistMenuScreen {
     pub fn view(&self) -> Element<'_, PlaylistMenuMessages> {
         match self.playlist_menu_state {
             PlaylistMenuState::PlaylistList => {
-                let playlists_found = currently_saved_playlists(app_directory_path());
+                let playlists_found = scan_playlist_folder(app_directory_path());
 
                 match playlists_found {
                     Ok(playlists) => {

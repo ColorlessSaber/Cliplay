@@ -1,7 +1,7 @@
 use crate::ui::{button_struct::ButtonStruct};
 use crate::utils::{
     playlist_manager::PlaylistManager,
-    app_settings_struct::AppSettings,
+    io_utils::app_settings_data_struct::AppSettings,
 };
 use iced_video_player::Video;
 

@@ -9,10 +9,12 @@ use crate::ui::{
         video_playing_style
     },
     styling::{
-        player_control_button_style,
-        active_large_button_style,
-        inactive_large_button_style,
-        volume_slider_style,
+        button_styles::{
+            player_control_button_style, 
+            active_large_button_style, 
+            inactive_large_button_style, 
+        },
+        slider_styles::volume_slider_style,
         StyleState
     },
     button_struct::{
@@ -27,15 +29,13 @@ use crate::ui::{
     }
 };
 use crate::utils::{
-    functions::{
-        load_video_file,
-    },
+    load_video_file::load_video_file,
     app_state::AppState,
     io_utils::{
-        app_directory_path,
+        app_directory_path::app_directory_path,
         create_application_directory,
     },
-    app_settings_struct::AppSettings,
+    io_utils::app_settings_data_struct::AppSettings,
     playlist_manager::PlaylistManager,
 };
 use iced::{

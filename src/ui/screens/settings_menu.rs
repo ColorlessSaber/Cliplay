@@ -17,7 +17,7 @@ use crate::utils::{
         LoadError,
         SaveError,
     },
-    app_settings_struct::AppSettings
+    io_utils::app_settings_data_struct::AppSettings
 };
 use crate::ui::{
     styling::{

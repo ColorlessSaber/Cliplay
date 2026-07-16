@@ -1,9 +1,9 @@
 /*
-The struct that holds user settings for the application.
+The data struct and methods for the settings.json file
  */
-use serde::{Serialize, Deserialize };
+use serde::{Serialize, Deserialize};
 use crate::utils::io_utils::{
-    app_directory_path,
+    app_directory_path::app_directory_path,
     LoadError,
     SaveError,
     APP_SETTINGS_FILE_NAME
@@ -14,6 +14,16 @@ pub struct AppSettings {
     pub version: String, // version of the software
     pub skip_forward_value: usize,
     pub skip_backward_value: usize,
+}
+
+impl Default for AppSettings {
+    fn default() -> Self { // Just for the record, this is the default save file
+        Self {
+            version: "0.1".to_string(),
+            skip_forward_value: 10,
+            skip_backward_value: 10,
+        }
+    }
 }
 
 impl AppSettings {
@@ -41,15 +51,5 @@ impl AppSettings {
         std::fs::write(path, json.as_bytes()).map_err(|_| SaveError::Write)?;
 
         Ok(())
-    }
-}
-
-impl Default for AppSettings {
-    fn default() -> Self { // Just for the record, this is the default save file
-        Self {
-            version: "0.1".to_string(),
-            skip_forward_value: 10,
-            skip_backward_value: 10,
-        }
     }
 }

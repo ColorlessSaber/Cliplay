@@ -1,6 +1,3 @@
-/*
-Holds miscellaneous functions
- */
 use std::path::PathBuf;
 use iced_video_player::Video;
 

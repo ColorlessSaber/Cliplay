@@ -23,7 +23,7 @@ use crate::ui::screens::{
     }
 };
 use crate::ui::styling::{
-    active_large_button_style,
+    button_styles::active_large_button_style,
     container_styles::{
         main_section_style,
     },
@@ -31,7 +31,7 @@ use crate::ui::styling::{
 };
 use crate::utils::{
     app_state::AppState,
-    functions::{
+    load_video_file::{
         load_video_file,
     }
 };
