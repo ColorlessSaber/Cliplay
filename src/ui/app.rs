@@ -10,18 +10,18 @@ use crate::ui::{
     },
     styling::{
         button_styles::{
-            player_control_button_style, 
-            active_large_button_style, 
-            inactive_large_button_style, 
+            player_control_button_style,
+            active_large_button_style,
+            inactive_large_button_style,
         },
         slider_styles::volume_slider_style,
         StyleState
     },
-    button_struct::{
-        ButtonStruct,
-        loop_button::LoopBtnStates,
-        shuffle_button::ShuffleBtnStates,
-        main_menu_button::MainMenuBtnStates,
+    dynamic_buttons::{
+        DynamicButtons,
+        dynamic_loop_button::DynamicLoopBtnStates,
+        dynamic_shuffle_button::DynamicShuffleBtnStates,
+        dynamic_main_menu_button::DynamicMainMenuBtnStates,
     },
     screens::main_menu::{
         MainMenuScreen,
@@ -143,7 +143,7 @@ impl App {
             dragging: false,
             state: AppState{
                 video: None,
-                btn_struct: ButtonStruct::default(),
+                btn_struct: DynamicButtons::default(),
                 playlist_manager: PlaylistManager::new(),
                 settings: settings_data,
             },
@@ -189,8 +189,8 @@ impl App {
             Message::ToggleShuffle => {
                 self.state.btn_struct.shuffle_button.toggle_state_and_style();
                 match self.state.btn_struct.shuffle_button.current_state() {
-                    ShuffleBtnStates::ShuffleOn => println!("Shuffle on"),
-                    ShuffleBtnStates::ShuffleOff => println!("Shuffle off"),
+                    DynamicShuffleBtnStates::ShuffleOn => println!("Shuffle on"),
+                    DynamicShuffleBtnStates::ShuffleOff => println!("Shuffle off"),
                 }
                 Task::none()
             }
@@ -284,7 +284,7 @@ impl App {
         Column::new()
             .push(
                 match self.state.btn_struct.main_menu_button.current_state() {
-                    MainMenuBtnStates::MainMenuClosed => {
+                    DynamicMainMenuBtnStates::MainMenuClosed => {
                         // TODO future look into. Have the scrub bar update when video is playing and on main menu screen
                         // video view
                         if let Some(video) = self.state.video.as_ref() {
@@ -313,7 +313,7 @@ impl App {
                                 .style(splash_screen_style)
                         }
                     }
-                    MainMenuBtnStates::MainMenuOpen => {
+                    DynamicMainMenuBtnStates::MainMenuOpen => {
                         Container::new(
                             self.main_menu_screen.view(&self.state).map(Message::MainMenu)
                         )
@@ -370,7 +370,7 @@ fn control_bar<'a>(
     video_duration: u64,
     current_video_volume: f64,
     is_video_currently_paused: bool,
-    btn_struct: ButtonStruct,
+    btn_struct: DynamicButtons,
 ) -> Element<'a, Message> {
     Container::new(
         Column::new()
@@ -415,8 +415,8 @@ fn control_bar<'a>(
                         // main menu
                         Button::new(
                             match btn_struct.main_menu_button.current_state() {
-                                MainMenuBtnStates::MainMenuClosed => Image::new(MAIN_MENU_CLOSED_ICON).width(32).height(32),
-                                MainMenuBtnStates::MainMenuOpen => Image::new(MAIN_MENU_OPEN_ICON).width(32).height(32),
+                                DynamicMainMenuBtnStates::MainMenuClosed => Image::new(MAIN_MENU_CLOSED_ICON).width(32).height(32),
+                                DynamicMainMenuBtnStates::MainMenuOpen => Image::new(MAIN_MENU_OPEN_ICON).width(32).height(32),
                             }
                         )
                             .on_press(Message::ToggleMainMenu)
@@ -441,9 +441,9 @@ fn control_bar<'a>(
                                 .push(
                                     Button::new(
                                         match btn_struct.loop_button.current_state() {
-                                            LoopBtnStates::LoopAll => Image::new(LOOP_INFINITE_ICON).width(32).height(32),
-                                            LoopBtnStates::LoopSingle => Image::new(LOOP_ONE_ICON).width(32).height(32),
-                                            LoopBtnStates::LoopOff => Image::new(LOOP_OFF_ICON).width(32).height(32),
+                                            DynamicLoopBtnStates::LoopAll => Image::new(LOOP_INFINITE_ICON).width(32).height(32),
+                                            DynamicLoopBtnStates::LoopSingle => Image::new(LOOP_ONE_ICON).width(32).height(32),
+                                            DynamicLoopBtnStates::LoopOff => Image::new(LOOP_OFF_ICON).width(32).height(32),
                                         }
                                     )
                                         .on_press(Message::ToggleLoop)
