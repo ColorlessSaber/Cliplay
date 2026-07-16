@@ -15,13 +15,13 @@ use crate::ui::{
             inactive_large_button_style,
         },
         slider_styles::volume_slider_style,
-        StyleState
     },
     dynamic_buttons::{
         DynamicButtons,
-        dynamic_loop_button::DynamicLoopBtnStates,
-        dynamic_shuffle_button::DynamicShuffleBtnStates,
-        dynamic_main_menu_button::DynamicMainMenuBtnStates,
+        StyleState,
+        dynamic_loop_button::DynamicLoopBtnState,
+        dynamic_shuffle_button::DynamicShuffleBtnState,
+        dynamic_main_menu_button::DynamicMainMenuBtnState,
     },
     screens::main_menu::{
         MainMenuScreen,
@@ -189,8 +189,8 @@ impl App {
             Message::ToggleShuffle => {
                 self.state.btn_struct.shuffle_button.toggle_state_and_style();
                 match self.state.btn_struct.shuffle_button.current_state() {
-                    DynamicShuffleBtnStates::ShuffleOn => println!("Shuffle on"),
-                    DynamicShuffleBtnStates::ShuffleOff => println!("Shuffle off"),
+                    DynamicShuffleBtnState::ShuffleOn => println!("Shuffle on"),
+                    DynamicShuffleBtnState::ShuffleOff => println!("Shuffle off"),
                 }
                 Task::none()
             }
@@ -284,7 +284,7 @@ impl App {
         Column::new()
             .push(
                 match self.state.btn_struct.main_menu_button.current_state() {
-                    DynamicMainMenuBtnStates::MainMenuClosed => {
+                    DynamicMainMenuBtnState::MainMenuClosed => {
                         // TODO future look into. Have the scrub bar update when video is playing and on main menu screen
                         // video view
                         if let Some(video) = self.state.video.as_ref() {
@@ -313,7 +313,7 @@ impl App {
                                 .style(splash_screen_style)
                         }
                     }
-                    DynamicMainMenuBtnStates::MainMenuOpen => {
+                    DynamicMainMenuBtnState::MainMenuOpen => {
                         Container::new(
                             self.main_menu_screen.view(&self.state).map(Message::MainMenu)
                         )
@@ -415,8 +415,8 @@ fn control_bar<'a>(
                         // main menu
                         Button::new(
                             match btn_struct.main_menu_button.current_state() {
-                                DynamicMainMenuBtnStates::MainMenuClosed => Image::new(MAIN_MENU_CLOSED_ICON).width(32).height(32),
-                                DynamicMainMenuBtnStates::MainMenuOpen => Image::new(MAIN_MENU_OPEN_ICON).width(32).height(32),
+                                DynamicMainMenuBtnState::MainMenuClosed => Image::new(MAIN_MENU_CLOSED_ICON).width(32).height(32),
+                                DynamicMainMenuBtnState::MainMenuOpen => Image::new(MAIN_MENU_OPEN_ICON).width(32).height(32),
                             }
                         )
                             .on_press(Message::ToggleMainMenu)
@@ -441,9 +441,9 @@ fn control_bar<'a>(
                                 .push(
                                     Button::new(
                                         match btn_struct.loop_button.current_state() {
-                                            DynamicLoopBtnStates::LoopAll => Image::new(LOOP_INFINITE_ICON).width(32).height(32),
-                                            DynamicLoopBtnStates::LoopSingle => Image::new(LOOP_ONE_ICON).width(32).height(32),
-                                            DynamicLoopBtnStates::LoopOff => Image::new(LOOP_OFF_ICON).width(32).height(32),
+                                            DynamicLoopBtnState::LoopAll => Image::new(LOOP_INFINITE_ICON).width(32).height(32),
+                                            DynamicLoopBtnState::LoopSingle => Image::new(LOOP_ONE_ICON).width(32).height(32),
+                                            DynamicLoopBtnState::LoopOff => Image::new(LOOP_OFF_ICON).width(32).height(32),
                                         }
                                     )
                                         .on_press(Message::ToggleLoop)

@@ -17,12 +17,19 @@ impl Default for DynamicButtons {
     }
 }
 
+// Help differentiate the state of the widget; IE, active, inactive, etc.
+#[derive(Copy, Clone)]
+pub enum StyleState {
+    ActiveStyle,
+    InactiveStyle,
+}
+
 // Module to hold struct, enum and methods for the loop button
 pub mod dynamic_loop_button {
-    use crate::ui::styling::StyleState;
+    use crate::ui::dynamic_buttons::StyleState;
 
     #[derive(Copy, Clone)]
-    pub enum DynamicLoopBtnStates {
+    pub enum DynamicLoopBtnState {
         LoopAll,
         LoopSingle,
         LoopOff,
@@ -31,20 +38,20 @@ pub mod dynamic_loop_button {
     #[derive(Copy, Clone)]
     pub struct DynamicLoopBtn {
         current_style: StyleState,
-        current_state: DynamicLoopBtnStates,
+        current_state: DynamicLoopBtnState,
     }
 
     impl Default for DynamicLoopBtn {
         fn default() -> Self {
             Self {
                 current_style: StyleState::InactiveStyle,
-                current_state: DynamicLoopBtnStates::LoopOff,
+                current_state: DynamicLoopBtnState::LoopOff,
             }
         }
     }
 
     impl DynamicLoopBtn {
-        pub fn current_state(&self) -> DynamicLoopBtnStates {
+        pub fn current_state(&self) -> DynamicLoopBtnState {
             self.current_state
         }
 
@@ -52,32 +59,32 @@ pub mod dynamic_loop_button {
 
         pub fn toggle_state_and_style(&mut self) {
             match self.current_state {
-                DynamicLoopBtnStates::LoopAll => {
-                    self.current_state = DynamicLoopBtnStates::LoopSingle;
+                DynamicLoopBtnState::LoopAll => {
+                    self.current_state = DynamicLoopBtnState::LoopSingle;
                 }
-                DynamicLoopBtnStates::LoopSingle => {
-                    self.current_state = DynamicLoopBtnStates::LoopOff;
+                DynamicLoopBtnState::LoopSingle => {
+                    self.current_state = DynamicLoopBtnState::LoopOff;
                 }
-                DynamicLoopBtnStates::LoopOff => {
-                    self.current_state = DynamicLoopBtnStates::LoopAll;
+                DynamicLoopBtnState::LoopOff => {
+                    self.current_state = DynamicLoopBtnState::LoopAll;
                 }
             }
             match self.current_state {
-                DynamicLoopBtnStates::LoopAll | DynamicLoopBtnStates::LoopSingle => self.current_style = StyleState::ActiveStyle,
-                DynamicLoopBtnStates::LoopOff => self.current_style = StyleState::InactiveStyle,
+                DynamicLoopBtnState::LoopAll | DynamicLoopBtnState::LoopSingle => self.current_style = StyleState::ActiveStyle,
+                DynamicLoopBtnState::LoopOff => self.current_style = StyleState::InactiveStyle,
             }
         }
 
         pub fn is_state_set_to_loop_all(&self) -> bool {
             match self.current_state {
-                DynamicLoopBtnStates::LoopAll => true,
+                DynamicLoopBtnState::LoopAll => true,
                 _ => false,
             }
         }
 
         pub fn is_state_set_to_loop_single(&self) -> bool {
             match self.current_state {
-                DynamicLoopBtnStates::LoopSingle => true,
+                DynamicLoopBtnState::LoopSingle => true,
                 _ => false,
             }
         }
@@ -87,10 +94,10 @@ pub mod dynamic_loop_button {
 
 // Module to hold struct, enum and methods for the shuffle button
 pub mod dynamic_shuffle_button {
-    use crate::ui::styling::StyleState;
+    use crate::ui::dynamic_buttons::StyleState;
 
     #[derive(Copy, Clone)]
-    pub enum DynamicShuffleBtnStates {
+    pub enum DynamicShuffleBtnState {
         ShuffleOn,
         ShuffleOff,
     }
@@ -98,20 +105,20 @@ pub mod dynamic_shuffle_button {
     #[derive(Copy, Clone)]
     pub struct DynamicShuffleBtn {
         current_style: StyleState,
-        current_state: DynamicShuffleBtnStates,
+        current_state: DynamicShuffleBtnState,
     }
 
     impl Default for DynamicShuffleBtn {
         fn default() -> Self {
             Self {
                 current_style: StyleState::InactiveStyle,
-                current_state: DynamicShuffleBtnStates::ShuffleOff
+                current_state: DynamicShuffleBtnState::ShuffleOff
             }
         }
     }
 
     impl DynamicShuffleBtn {
-        pub fn current_state(&self) -> DynamicShuffleBtnStates {
+        pub fn current_state(&self) -> DynamicShuffleBtnState {
             self.current_state
         }
 
@@ -119,16 +126,16 @@ pub mod dynamic_shuffle_button {
 
         pub fn toggle_state_and_style(&mut self) {
             match self.current_state {
-                DynamicShuffleBtnStates::ShuffleOn => {
-                    self.current_state = DynamicShuffleBtnStates::ShuffleOff;
+                DynamicShuffleBtnState::ShuffleOn => {
+                    self.current_state = DynamicShuffleBtnState::ShuffleOff;
                 }
-                DynamicShuffleBtnStates::ShuffleOff => {
-                    self.current_state = DynamicShuffleBtnStates::ShuffleOn;
+                DynamicShuffleBtnState::ShuffleOff => {
+                    self.current_state = DynamicShuffleBtnState::ShuffleOn;
                 }
             }
             match self.current_state {
-                DynamicShuffleBtnStates::ShuffleOn => self.current_style = StyleState::ActiveStyle,
-                DynamicShuffleBtnStates::ShuffleOff => self.current_style = StyleState::InactiveStyle,
+                DynamicShuffleBtnState::ShuffleOn => self.current_style = StyleState::ActiveStyle,
+                DynamicShuffleBtnState::ShuffleOff => self.current_style = StyleState::InactiveStyle,
             }
         }
     }
@@ -137,34 +144,34 @@ pub mod dynamic_shuffle_button {
 // Module to hold the struct, enum and methods for the menu button
 pub mod dynamic_main_menu_button {
     #[derive(Copy, Clone)]
-    pub enum DynamicMainMenuBtnStates {
+    pub enum DynamicMainMenuBtnState {
         MainMenuClosed,
         MainMenuOpen,
     }
 
     #[derive(Copy, Clone)]
     pub struct DynamicMainMenuBtn {
-        current_state: DynamicMainMenuBtnStates,
+        current_state: DynamicMainMenuBtnState,
     }
 
     impl Default for DynamicMainMenuBtn {
         fn default() -> Self {
             Self {
-                current_state: DynamicMainMenuBtnStates::MainMenuClosed,
+                current_state: DynamicMainMenuBtnState::MainMenuClosed,
             }
         }
     }
 
     impl DynamicMainMenuBtn {
-        pub fn current_state(&self) -> DynamicMainMenuBtnStates {self.current_state}
+        pub fn current_state(&self) -> DynamicMainMenuBtnState {self.current_state}
 
         pub fn toggle_state(&mut self) {
             match self.current_state {
-                DynamicMainMenuBtnStates::MainMenuOpen => {
-                    self.current_state = DynamicMainMenuBtnStates::MainMenuClosed;
+                DynamicMainMenuBtnState::MainMenuOpen => {
+                    self.current_state = DynamicMainMenuBtnState::MainMenuClosed;
                 }
-                DynamicMainMenuBtnStates::MainMenuClosed => {
-                    self.current_state = DynamicMainMenuBtnStates::MainMenuOpen;
+                DynamicMainMenuBtnState::MainMenuClosed => {
+                    self.current_state = DynamicMainMenuBtnState::MainMenuOpen;
                 }
             }
         }
