@@ -105,7 +105,6 @@ impl PlaylistMenuScreen {
             }
             PlaylistMenuMessages::PlayPlaylist(playlist_data) => {
                 if let Ok(playlist_data) = playlist_data {
-                    // TODO see about allowing user to see videos in playlist on video player view side
                     state.playlist_manager.load_playlist(playlist_data.list, playlist_data.name);
 
                     // TODO write code to handle changes of playlist version
