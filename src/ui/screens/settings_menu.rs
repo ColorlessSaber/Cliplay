@@ -31,6 +31,9 @@ use crate::ui::{
     styling::{
         container_styles::{
             main_section_style
+        },
+        labeled_frame::{
+            settings_label_frame
         }
     }
 };
@@ -173,5 +176,6 @@ fn player_settings_layout<'a>(
             ),
     )
         .width(Length::Fill)
+        .style(settings_label_frame)
         .into()
 }
