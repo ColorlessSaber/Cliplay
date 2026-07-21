@@ -114,7 +114,7 @@ impl App {
 
         match video_file {
             Some(video_file) => {
-                self.state.video = Some(load_video_file(&video_file));
+                self.state.video = Some(load_video_file(&video_file).ok().unwrap()); //TODO handle the possible errors
                 self.position = 0.0;
 
                 // Set the new video to single loop if the loop button is set as such

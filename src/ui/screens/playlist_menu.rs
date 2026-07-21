@@ -113,7 +113,7 @@ impl PlaylistMenuScreen {
                     let video_file = state.playlist_manager.pull_first_file_from_playlist();
                     match video_file {
                         Some(video_file) => {
-                            state.video = Some(load_video_file(video_file));
+                            state.video = Some(load_video_file(video_file).ok().unwrap()); //TODO handle the possible errors
                         }
                         None => {}
                     }

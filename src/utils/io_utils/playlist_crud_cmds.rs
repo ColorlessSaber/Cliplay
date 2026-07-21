@@ -106,7 +106,6 @@ mod tests_playlist_crud_cmds {
         std::fs::create_dir_all(&mock_app_dir_path).expect("Could not create mock app dir");
         for i in 1..=10 {
             let file = &mock_app_dir_path.join(format!("playlist_{}.json", i));
-            //println!("file: {:?}", file); // debugging
             std::fs::File::create(file).unwrap();
         }
 
@@ -123,7 +122,6 @@ mod tests_playlist_crud_cmds {
         let test_path = temp_dir.path().join("test");
         let mock_app_dir_path = test_path.clone().join(".local/share/cliplay").join(PLAYLIST_FOLDER);
         std::fs::create_dir_all(&mock_app_dir_path).expect("Could not create mock app dir");
-        println!("{:?}", mock_app_dir_path);
 
         let file = &mock_app_dir_path.join("playlist_test.json");
         std::fs::File::create(file).unwrap();
