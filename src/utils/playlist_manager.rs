@@ -22,13 +22,11 @@ impl PlaylistManager {
     }
 
     pub fn pull_first_file_from_playlist(&mut self) -> Option<&String> {
-        let file = self.playlist.get(0);
-        file
+        self.playlist.get(0)
     }
 
     pub fn pull_current_index_file_from_playlist(&mut self) -> Option<&String> {
-        let file = self.playlist.get(self.index);
-        file
+        self.playlist.get(self.index)
     }
 
     pub fn next_file_in_playlist(&mut self, repeat_all: bool) -> Option<&String> {
@@ -44,8 +42,7 @@ impl PlaylistManager {
             }
         }
 
-        let file = self.playlist.get(self.index);
-        file
+        self.playlist.get(self.index)
     }
 
     pub fn previous_file_in_playlist(&mut self) -> Option<&String> {
@@ -57,8 +54,7 @@ impl PlaylistManager {
             self.index -= 1;
         }
 
-        let file = self.playlist.get(self.index);
-        file
+        self.playlist.get(self.index)
     }
 
     pub fn load_playlist(&mut self, list: Vec<String>, playlist_name: String) {
@@ -67,7 +63,7 @@ impl PlaylistManager {
         self.index = 0;
     }
 
-    pub fn play_single_video_file(&mut self, file_path: String) {
+    pub fn load_single_video_file(&mut self, file_path: String) {
         self.playlist = vec![file_path];
         self.index = 0;
     }
@@ -90,8 +86,7 @@ mod tests {
             playlist: vec!["test/video_0.mp4".to_string(), "test/video_1.mp4".to_string()],
             index: 0,
         };
-
-        assert!(playlist_manager.pull_first_file_from_playlist().is_some(), "should have successfully pulled first file");
+        
         assert_eq!(playlist_manager.pull_first_file_from_playlist().unwrap(), "test/video_0.mp4", "The file pulled should have matched");
     }
 
@@ -184,7 +179,7 @@ mod tests {
     #[test]
     fn test_single_video_file() {
         let mut playlist_manager = PlaylistManager::new();
-        playlist_manager.play_single_video_file("test/video_0.mp4".to_string());
+        playlist_manager.load_single_video_file("test/video_0.mp4".to_string());
 
         assert_eq!(playlist_manager.playlist, vec!["test/video_0.mp4"], "The playlist should have matched");
         assert_eq!(playlist_manager.index, 0, "the index should have reset");

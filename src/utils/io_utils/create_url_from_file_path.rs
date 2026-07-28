@@ -1,11 +1,10 @@
 use std::path::PathBuf;
-use iced_video_player::Video;
 use std::io;
 
 #[derive(Debug)]
 pub enum LoadVideoFileError {
     Io(io::Error),
-    NotAbsolutePath(String),
+    NotAbsolutePath,
 }
 
 impl From<io::Error> for LoadVideoFileError {
@@ -14,8 +13,7 @@ impl From<io::Error> for LoadVideoFileError {
     }
 }
 
-// Creates a new video to play with provided file path
-pub fn load_video_file(file_path: &str) -> Result<Video, LoadVideoFileError> {
+pub fn create_url_from_file_path(file_path: &str) -> Result<url::Url, LoadVideoFileError> {
     //println!("Loading video from {}", file_path); // debugging
     let file_path = PathBuf::from(file!())
         .parent()
@@ -24,10 +22,10 @@ pub fn load_video_file(file_path: &str) -> Result<Video, LoadVideoFileError> {
         .canonicalize()?;
 
     let url = url::Url::from_file_path(file_path).map_err(|_| {
-        LoadVideoFileError::NotAbsolutePath("File path is not an absolute path".to_string())
+        LoadVideoFileError::NotAbsolutePath
     })?;
-
-    Video::new(&url).map_err(|err| LoadVideoFileError::Io(io::Error::new(io::ErrorKind::Other, err)))
+    
+    Ok(url)
 }
 
 #[cfg(test)]
@@ -37,8 +35,7 @@ mod tests {
     #[test]
     fn test_load_video_file_failure_io_error() {
         let non_existent_path = "/non/existent/path";
-        let foo = load_video_file(non_existent_path);
-        println!("{:?}", foo);
+        let foo = create_url_from_file_path(non_existent_path);
 
         let result = match foo {
             Err(LoadVideoFileError::Io(_)) => true,

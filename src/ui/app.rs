@@ -29,10 +29,13 @@ use crate::ui::{
     }
 };
 use crate::utils::{
-    load_video_file::load_video_file,
     app_state::AppState,
     io_utils::{
         app_directory_path::app_directory_path,
+        create_url_from_file_path::{
+            create_url_from_file_path,
+            LoadVideoFileError,
+        },
         create_application_directory,
     },
     io_utils::app_settings_data_struct::{
@@ -50,7 +53,7 @@ use iced::{
     alignment::{Alignment, Horizontal, Vertical},
     widget::{Button, Column, Container, Image, Row, Slider, Text, Space},
 };
-use iced_video_player::{VideoPlayer};
+use iced_video_player::{VideoPlayer, Video};
 use std::time::Duration;
 
 #[derive(Clone, Debug)]
@@ -92,41 +95,74 @@ impl App {
     // Struct methods; IE, methods private to the struct.
     fn load_next_video(&mut self, loading_process: NextVideoLoadingProcess) {
 
-        let video_file = match loading_process {
-            NextVideoLoadingProcess::EndOfVideo => {
-                let loop_entire_playlist = self.state.btn_struct.loop_button.is_state_set_to_loop_all();
-                let video_file = self.state.playlist_manager.next_file_in_playlist(loop_entire_playlist);
-                video_file
-            }
-            NextVideoLoadingProcess::AfterVideoStopped => {
-                let video_file = self.state.playlist_manager.pull_current_index_file_from_playlist();
-                video_file
-            }
-            NextVideoLoadingProcess::SkipForward => {
-                let video_file = self.state.playlist_manager.next_file_in_playlist(true);
-                video_file
-            }
-            NextVideoLoadingProcess::SkipBackward => {
-                let video_file = self.state.playlist_manager.previous_file_in_playlist();
-                video_file
-            }
-        };
-
-        match video_file {
-            Some(video_file) => {
-                self.state.video = Some(load_video_file(&video_file).ok().unwrap()); //TODO handle the possible errors
-                self.position = 0.0;
-
-                // Set the new video to single loop if the loop button is set as such
-                if self.state.btn_struct.loop_button.is_state_set_to_loop_single() {
-                    self.state.video.as_mut().unwrap().set_looping(true);
-                } else {
-                    self.state.video.as_mut().unwrap().set_looping(false);
+        // Check to see if the next video file can be successfully load. If not,
+        // loop through the playlist until a video file is found to load successfully.
+        //
+        // This does mean if only one video file in an n+1 playlist is only playable it will check
+        // all other video files before coming back to the only one that can be played.
+        // This is fine, until otherwise.
+        loop {
+            let video_file = match loading_process {
+                NextVideoLoadingProcess::EndOfVideo => {
+                    let loop_entire_playlist = self.state.btn_struct.loop_button.is_state_set_to_loop_all();
+                    let video_file = self.state.playlist_manager.next_file_in_playlist(loop_entire_playlist);
+                    video_file
                 }
-            }
-            None => {
-                self.state.video = None;
-                self.position = 0.0;
+                NextVideoLoadingProcess::AfterVideoStopped => {
+                    let video_file = self.state.playlist_manager.pull_current_index_file_from_playlist();
+                    video_file
+                }
+                NextVideoLoadingProcess::SkipForward => {
+                    // Passing true into .next_file_in_playlist to loop back to beginning of playlist
+                    // if we reached the end, regardless if loop button is set to "loop all"
+                    let video_file = self.state.playlist_manager.next_file_in_playlist(true);
+                    video_file
+                }
+                NextVideoLoadingProcess::SkipBackward => {
+                    let video_file = self.state.playlist_manager.previous_file_in_playlist();
+                    video_file
+                }
+            };
+
+            match video_file {
+                Some(video_file) => {
+                    let video_url_path = create_url_from_file_path(video_file);
+
+                    if let Ok(video_url_path) = video_url_path {
+                        let loaded_video = Video::new(&video_url_path);
+
+                        if let Ok(loaded_video) = loaded_video {
+                            self.state.video = Some(loaded_video);
+                            break;
+                        } else {
+                            println!("Failed to load video: {:?}, Iced video error: {:?}",
+                                     video_file,
+                                     loaded_video.unwrap_err()
+                            );
+                        }
+
+                    } else {
+                        let foo = video_url_path.unwrap_err();
+
+                        let error_message = match foo {
+                            LoadVideoFileError::NotAbsolutePath => {
+                                "the BufPath failed to generate absolute path.".to_string()
+                            },
+                            LoadVideoFileError::Io(e) => {
+                                format!("{:?}", e)
+                            }
+                        };
+                        println!("failed to create URL path from video file: {:?}, url error: {:?}",
+                                 video_file,
+                                 error_message
+                        );
+                    }
+                }
+                None => {
+                    self.state.video = None;
+                    self.position = 0.0;
+                    break;
+                }
             }
         }
     }
@@ -153,6 +189,7 @@ impl App {
             main_menu_screen: MainMenuScreen::new(),
         }
     }
+
     pub fn title(&self) -> String {
         // The title of the GUI; shows at the top
         "Cliplay - Video Player".to_string()

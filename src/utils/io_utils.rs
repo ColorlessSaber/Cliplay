@@ -4,6 +4,7 @@ Functions, enums, etc. that are used to handle/do IO actions
 pub mod app_settings_data_struct;
 pub mod playlist_crud_cmds;
 pub mod app_directory_path;
+pub mod create_url_from_file_path;
 
 use std::path::PathBuf;
 use app_settings_data_struct::AppSettings;

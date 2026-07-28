@@ -11,6 +11,7 @@ use iced::{
         Container,
     },
 };
+use iced_video_player::Video;
 use rfd::AsyncFileDialog;
 use crate::ui::screens::{
     playlist_menu::{
@@ -31,9 +32,10 @@ use crate::ui::styling::{
 };
 use crate::utils::{
     app_state::AppState,
-    load_video_file::{
-        load_video_file,
-    }
+    io_utils::create_url_from_file_path::{
+        create_url_from_file_path,
+        LoadVideoFileError,
+    },
 };
 
 #[derive(Debug, Clone)]
@@ -85,14 +87,37 @@ impl MainMenuScreen {
             }
             MainMenuMessages::VideoFileSelected(path) => {
                 if let Some(path) = path {
-                    state.playlist_manager.play_single_video_file(path);
+                    state.playlist_manager.load_single_video_file(path);
                     let video_file = state.playlist_manager.pull_first_file_from_playlist();
+                    let video_url_path = create_url_from_file_path(video_file.unwrap());
 
-                    match video_file {
-                        Some(video_file) => {
-                            state.video = Some(load_video_file(video_file).ok().unwrap()); // TODO handle the possible errors
-                        }
-                        None => {}
+                    // TODO pass error to a pop-up window
+                    if let Ok(video_url_path) = video_url_path {
+                        let loaded_video = Video::new(&video_url_path);
+
+                        if let Ok(loaded_video) = loaded_video {
+                            state.video = Some(loaded_video);
+                        } else {
+                            println!("Failed to load video: {:?}, Iced video error: {:?}",
+                                     video_file,
+                                     loaded_video.unwrap_err()
+                            );
+                        };
+                    } else {
+                        let foo = video_url_path.unwrap_err();
+
+                        let error_message = match foo {
+                            LoadVideoFileError::NotAbsolutePath => {
+                                "the BufPath failed to generate absolute path.".to_string()
+                            },
+                            LoadVideoFileError::Io(e) => {
+                                format!("{:?}", e)
+                            }
+                        };
+                        println!("failed to create URL path from video file: {:?}, url error: {:?}",
+                                 video_file,
+                                 error_message
+                        );
                     }
 
                     state.btn_struct.main_menu_button.toggle_state();

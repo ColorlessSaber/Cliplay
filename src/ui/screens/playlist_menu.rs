@@ -31,9 +31,12 @@ use crate::ui::styling::{
 };
 use crate::utils::{
     app_state::AppState,
-    load_video_file::load_video_file,
     io_utils::{
         app_directory_path::app_directory_path,
+        create_url_from_file_path::{
+            create_url_from_file_path,
+            LoadVideoFileError,
+        },
         SaveError,
         LoadError,
     },
@@ -45,6 +48,7 @@ use crate::utils::{
 };
 use rfd::AsyncFileDialog;
 use std::path::Path;
+use iced_video_player::Video;
 
 #[derive(Debug, Clone)]
 pub enum PlaylistMenuMessages {
@@ -110,12 +114,57 @@ impl PlaylistMenuScreen {
                     // TODO write code to handle changes of playlist version
                     println!("App version playlist was made under: {}", playlist_data.software_version);
 
-                    let video_file = state.playlist_manager.pull_first_file_from_playlist();
-                    match video_file {
-                        Some(video_file) => {
-                            state.video = Some(load_video_file(video_file).ok().unwrap()); //TODO handle the possible errors
+                    // Check to see if the first video file will load. If not keep looping through
+                    // the playlist until a video file is successfully loaded
+                    // TODO pass any error(s) to a pop-up window
+                    let mut try_again = false;
+                    loop {
+
+                        let video_file = if !try_again {
+                            state.playlist_manager.pull_first_file_from_playlist()
+                        } else {
+                            // the repeat_all parameter is set to false for if all video file(s)
+                            // are unable to load no point to keep trying
+                            state.playlist_manager.next_file_in_playlist(false)
+                        };
+
+                        if let Some(video_file) = video_file {
+                            let video_url_path = create_url_from_file_path(video_file);
+
+                            if let Ok(video_url_path) = video_url_path {
+                                let loaded_video = Video::new(&video_url_path);
+
+                                if let Ok(loaded_video) = loaded_video {
+                                    state.video = Some(loaded_video);
+                                    break;
+                                } else {
+                                    println!("Failed to load video: {:?}, Iced video error: {:?}", 
+                                             video_file,
+                                             loaded_video.unwrap_err()
+                                    );
+                                    try_again = true;
+                                };
+                            } else {
+                                let foo = video_url_path.unwrap_err();
+
+                                let error_message = match foo {
+                                    LoadVideoFileError::NotAbsolutePath => {
+                                        "the BufPath failed to generate absolute path.".to_string()
+                                    },
+                                    LoadVideoFileError::Io(e) => {
+                                        format!("{:?}", e)
+                                    }
+                                };
+                                println!("failed to create URL path from video file: {:?}, url error: {:?}",
+                                         video_file,
+                                         error_message
+                                );
+                                
+                                try_again = true;
+                            }
+                        } else {
+                            break; // reached end of playlist, meaning all video file(s) in playlist failed to load
                         }
-                        None => {}
                     }
 
                     state.btn_struct.main_menu_button.toggle_state(); // switch to video view
