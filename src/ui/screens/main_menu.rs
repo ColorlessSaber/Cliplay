@@ -1,22 +1,22 @@
 use iced::{
-    Element,
-    Length,
-    Task,
     widget::{
         button,
         column,
-        Row,
-        Image,
-        Space,
         Container,
+        Image,
+        Row,
+        Space,
     },
+    Element,
+    Length,
+    Task,
 };
 use iced_video_player::Video;
 use rfd::AsyncFileDialog;
 use crate::ui::screens::{
     playlist_menu::{
-        PlaylistMenuScreen,
         PlaylistMenuMessages,
+        PlaylistMenuScreen,
     },
     settings_menu::{
         SettingsMenu,
@@ -25,17 +25,15 @@ use crate::ui::screens::{
 };
 use crate::ui::styling::{
     button_styles::active_large_button_style,
-    container_styles::{
-        main_section_style,
-    },
+    container_styles::main_section_style,
     icons::main_menu_icons::*,
 };
 use crate::utils::{
     app_state::AppState,
-    io_utils::create_url_from_file_path::{
+    create_url_from_file_path::{
         create_url_from_file_path,
         LoadVideoFileError,
-    },
+    }
 };
 
 #[derive(Debug, Clone)]

@@ -1,25 +1,25 @@
 use iced::{
+    widget::{
+        button,
+        column,
+        image,
+        keyed_column,
+        row,
+        scrollable,
+        text,
+        text_input,
+        Button,
+        Column,
+        Container,
+        Image,
+        Row,
+        Space,
+        Text,
+    },
+    Alignment,
     Element,
     Length,
     Task,
-    Alignment,
-    widget::{
-        Button,
-        button,
-        Text,
-        text,
-        Column,
-        Row,
-        row,
-        Image,
-        image,
-        Space,
-        Container,
-        scrollable,
-        keyed_column,
-        column,
-        text_input,
-    },
 };
 use crate::ui::styling::{
     button_styles::active_large_button_style,
@@ -32,19 +32,19 @@ use crate::ui::styling::{
 use crate::utils::{
     app_state::AppState,
     io_utils::{
-        app_directory_path::app_directory_path,
-        create_url_from_file_path::{
-            create_url_from_file_path,
-            LoadVideoFileError,
+        playlist_crud_cmds::{
+            delete_selected_playlist,
+            scan_playlist_folder,
+            PlaylistData
         },
-        SaveError,
+        app_directory_path::app_directory_path,
         LoadError,
+        SaveError,
     },
-    io_utils::playlist_crud_cmds::{
-        PlaylistData,
-        scan_playlist_folder,
-        delete_selected_playlist
-    },
+    create_url_from_file_path::{
+        create_url_from_file_path,
+        LoadVideoFileError,
+    }
 };
 use rfd::AsyncFileDialog;
 use std::path::Path;

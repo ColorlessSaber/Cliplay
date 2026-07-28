@@ -1,59 +1,59 @@
 use crate::ui::{
+    dynamic_buttons::{
+        dynamic_loop_button::DynamicLoopBtnState,
+        dynamic_main_menu_button::DynamicMainMenuBtnState,
+        dynamic_shuffle_button::DynamicShuffleBtnState,
+        DynamicButtons,
+        StyleState,
+    },
+    screens::main_menu::{
+        MainMenuMessages,
+        MainMenuScreen,
+    },
+    styling::container_styles::{
+        control_bar_style,
+        splash_screen_style,
+        video_playing_style
+    },
     styling::icons::{
         logo_icons::CLIPLAY_LOGO_GREY_ICON,
         video_player_icons::*
     },
-    styling::container_styles::{
-        splash_screen_style,
-        control_bar_style,
-        video_playing_style
-    },
     styling::{
         button_styles::{
-            player_control_button_style,
             active_large_button_style,
             inactive_large_button_style,
+            player_control_button_style,
         },
         slider_styles::volume_slider_style,
-    },
-    dynamic_buttons::{
-        DynamicButtons,
-        StyleState,
-        dynamic_loop_button::DynamicLoopBtnState,
-        dynamic_shuffle_button::DynamicShuffleBtnState,
-        dynamic_main_menu_button::DynamicMainMenuBtnState,
-    },
-    screens::main_menu::{
-        MainMenuScreen,
-        MainMenuMessages,
     }
 };
 use crate::utils::{
     app_state::AppState,
-    io_utils::{
-        app_directory_path::app_directory_path,
-        create_url_from_file_path::{
-            create_url_from_file_path,
-            LoadVideoFileError,
-        },
-        create_application_directory,
+    create_url_from_file_path::{
+        create_url_from_file_path,
+        LoadVideoFileError,
     },
-    io_utils::app_settings_data_struct::{
-        AppSettings,
-        PlayerSettings
+    io_utils::{
+        app_settings_data_struct::{
+            AppSettings,
+            PlayerSettings
+        },
+        app_directory_path::app_directory_path,
+        create_application_directory,
     },
     playlist_manager::PlaylistManager,
 };
 use iced::{
+    alignment::{Alignment, Horizontal, Vertical},
     keyboard,
+    widget::{Button, Column, Container, Image, Row, Slider, Space, Text},
     Element,
     Length,
     Subscription,
     Task,
-    alignment::{Alignment, Horizontal, Vertical},
-    widget::{Button, Column, Container, Image, Row, Slider, Text, Space},
 };
-use iced_video_player::{VideoPlayer, Video};
+use iced_video_player::{Video, VideoPlayer};
 use std::time::Duration;
 
 #[derive(Clone, Debug)]
