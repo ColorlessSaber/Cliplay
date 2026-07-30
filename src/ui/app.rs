@@ -3,6 +3,7 @@ use crate::ui::{
         dynamic_loop_button::DynamicLoopBtnState,
         dynamic_main_menu_button::DynamicMainMenuBtnState,
         dynamic_shuffle_button::DynamicShuffleBtnState,
+        dynamic_playlist_info_button::DynamicPlaylistInfoBtnState,
         DynamicButtons,
         StyleState,
     },
@@ -47,7 +48,7 @@ use crate::utils::{
 use iced::{
     alignment::{Alignment, Horizontal, Vertical},
     keyboard,
-    widget::{Button, Column, Container, Image, Row, Slider, Space, Text},
+    widget::{Button, Column, Container, Image, Row, Slider, Space, Text, Stack},
     Element,
     Length,
     Subscription,
@@ -73,6 +74,7 @@ pub enum Message {
     NewFrame,
     ToggleMainMenu,
     MainMenu(MainMenuMessages),
+    TogglePlaylistInfo,
 }
 
 pub struct App {
@@ -229,8 +231,8 @@ impl App {
             Message::ToggleShuffle => {
                 self.state.btn_struct.shuffle_button.toggle_state_and_style();
                 match self.state.btn_struct.shuffle_button.current_state() {
-                    DynamicShuffleBtnState::ShuffleOn => println!("Shuffle on"),
-                    DynamicShuffleBtnState::ShuffleOff => println!("Shuffle off"),
+                    DynamicShuffleBtnState::On => println!("Shuffle on"),
+                    DynamicShuffleBtnState::Off => println!("Shuffle off"),
                 }
                 Task::none()
             }
@@ -317,6 +319,10 @@ impl App {
                     .update(message, &mut self.state)
                     .map(|message| Message::MainMenu(message))
             }
+            Message::TogglePlaylistInfo => {
+                self.state.btn_struct.playlist_info_button.toggle_state();
+                Task::none()
+            }
         }
     }
 
@@ -324,36 +330,14 @@ impl App {
         Column::new()
             .push(
                 match self.state.btn_struct.main_menu_button.current_state() {
-                    DynamicMainMenuBtnState::MainMenuClosed => {
-                        // TODO future look into. Have the scrub bar update when video is playing and on main menu screen
-                        // video view
-                        if let Some(video) = self.state.video.as_ref() {
-                            Container::new(
-                                VideoPlayer::new(video)
-                                    .width(Length::Fill)
-                                    .height(Length::Fill)
-                                    .content_fit(iced::ContentFit::Contain)
-                                    .on_end_of_stream(Message::EndOfStream)
-                                    .on_new_frame(Message::NewFrame)
-                            )
-                                .align_x(Alignment::Center)
-                                .align_y(Alignment::Center)
-                                .width(Length::Fill)
-                                .height(Length::Fill)
-                                .style(video_playing_style)
-                        } else {
-                            // Splash screen when no video is playing
-                            Container::new(
-                                Image::new(CLIPLAY_LOGO_GREY_ICON)
-                            )
-                                .align_x(Alignment::Center)
-                                .align_y(Alignment::Center)
-                                .width(Length::Fill)
-                                .height(Length::Fill)
-                                .style(splash_screen_style)
-                        }
+                    DynamicMainMenuBtnState::Closed => {
+                        video_player_area(
+                            &self.state.video,
+                            &self.state.btn_struct,
+                            &self.state.playlist_manager,
+                        )
                     }
-                    DynamicMainMenuBtnState::MainMenuOpen => {
+                    DynamicMainMenuBtnState::Open => {
                         Container::new(
                             self.main_menu_screen.view(&self.state).map(Message::MainMenu)
                         )
@@ -405,6 +389,82 @@ impl App {
     }
 }
 
+// The video player area of the interface
+fn video_player_area<'a, 'b>(
+    video: &'a Option<Video>,
+    btn_struct: &'a DynamicButtons,
+    playlist_manager: &'a PlaylistManager,
+) -> Container<'b, Message> where 'a: 'b {
+    Container::new(
+        Stack::new()
+            .push(
+                if let Some(video) = video.as_ref() {
+                    Container::new(
+                        VideoPlayer::new(video)
+                            .width(Length::Fill)
+                            .height(Length::Fill)
+                            .content_fit(iced::ContentFit::Contain)
+                            .on_end_of_stream(Message::EndOfStream)
+                            .on_new_frame(Message::NewFrame)
+                    )
+                        .align_x(Alignment::Center)
+                        .align_y(Alignment::Center)
+                        .width(Length::Fill)
+                        .height(Length::Fill)
+                        .style(video_playing_style)
+                } else {
+                    // Splash screen when no video is playing
+                    Container::new(
+                        Image::new(CLIPLAY_LOGO_GREY_ICON)
+                    )
+                        .align_x(Alignment::Center)
+                        .align_y(Alignment::Center)
+                        .width(Length::Fill)
+                        .height(Length::Fill)
+                        .style(splash_screen_style)
+                }
+            )
+            .push(
+                // video info layover view
+                if video.is_some() {
+                    match btn_struct.playlist_info_button.current_state() {
+                        DynamicPlaylistInfoBtnState::Closed => {
+                            Column::new()
+                                .push(
+                                    Text::new("")
+                                )
+                        },
+                        DynamicPlaylistInfoBtnState::Open => {
+                            Column::new()
+                                .push(
+                                    Row::new()
+                                        .push(Text::new("Playlist: "))
+                                        .push(Text::new(playlist_manager.playlist_name()))
+                                )
+                                .push(
+                                    Row::new()
+                                        .push(Text::new("Video File: "))
+                                        .push(
+                                            Text::new(
+                                                playlist_manager
+                                                    .extract_file_name()
+                                                    .unwrap_or_else(|| "<unknown>".to_owned())
+                                            )
+                                        )
+                                )
+                                .padding(iced::Padding::new(5.0).right(10.0))
+                        }
+                    }
+                } else {
+                    Column::new()
+                        .push(
+                            Text::new("")
+                        )
+                }
+            )
+    )
+}
+
 // the controls at the bottom of the interface: main menu, scrub bar, etc.
 fn control_bar<'a>(
     scrub_bar_positon: f64,
@@ -412,8 +472,8 @@ fn control_bar<'a>(
     video_duration: u64,
     current_video_volume: f64,
     is_video_currently_paused: bool,
-    btn_struct: &DynamicButtons,
-    player_settings: &PlayerSettings,
+    btn_struct: &'a DynamicButtons,
+    player_settings: &'a PlayerSettings,
 ) -> Element<'a, Message> {
     Container::new(
         Column::new()
@@ -458,11 +518,17 @@ fn control_bar<'a>(
                         // main menu
                         Button::new(
                             match btn_struct.main_menu_button.current_state() {
-                                DynamicMainMenuBtnState::MainMenuClosed => Image::new(MAIN_MENU_CLOSED_ICON).width(32).height(32),
-                                DynamicMainMenuBtnState::MainMenuOpen => Image::new(MAIN_MENU_OPEN_ICON).width(32).height(32),
+                                DynamicMainMenuBtnState::Closed => Image::new(MAIN_MENU_CLOSED_ICON).width(32).height(32),
+                                DynamicMainMenuBtnState::Open => Image::new(MAIN_MENU_OPEN_ICON).width(32).height(32),
                             }
                         )
                             .on_press(Message::ToggleMainMenu)
+                            .style(active_large_button_style)
+                    )
+                    .push(
+                        // Current playlist playing info
+                        Button::new("Vid Info") // TODO icon needed. Video with "info" icon
+                            .on_press(Message::TogglePlaylistInfo)
                             .style(active_large_button_style)
                     )
                     .push(Space::new().width(Length::Fill))

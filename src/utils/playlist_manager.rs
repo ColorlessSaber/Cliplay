@@ -17,6 +17,21 @@ impl PlaylistManager {
         }
     }
 
+    pub fn playlist_name(&self) -> &String {
+        &self.playlist_name
+    }
+
+    pub fn extract_file_name(&self) -> Option<String> {
+        self.playlist.get(self.index).map(|path| {
+            let path = std::path::Path::new(path);
+
+            path.file_name()
+                .and_then(std::ffi::OsStr::to_str)
+                .map(String::from)
+                .unwrap_or_else(|| "Unknown".to_string())
+        })
+    }
+
     pub fn is_playlist_empty(&self) -> bool {
         self.playlist.is_empty()
     }
