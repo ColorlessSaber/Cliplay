@@ -30,7 +30,6 @@ use crate::ui::{
     }
 };
 use crate::utils::{
-    app_state::AppState,
     create_url_from_file_path::{
         create_url_from_file_path,
         LoadVideoFileError,
@@ -56,6 +55,14 @@ use iced::{
 };
 use iced_video_player::{Video, VideoPlayer};
 use std::time::Duration;
+
+// Holds the state, or information, of the app that can be shared between different views
+pub struct AppState {
+    pub video: Option<Video>,
+    pub btn_struct: DynamicButtons,
+    pub playlist_manager: PlaylistManager,
+    pub settings: AppSettings,
+}
 
 #[derive(Clone, Debug)]
 pub enum Message {

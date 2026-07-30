@@ -21,16 +21,18 @@ use iced::{
     Length,
     Task,
 };
-use crate::ui::styling::{
-    button_styles::active_large_button_style,
-    container_styles::{
-        main_section_style,
-        playlist_entry_style,
-    },
-    icons::playlist_menu_icons,
+use crate::ui::{
+    app::AppState,
+    styling::{
+        button_styles::active_large_button_style,
+        container_styles::{
+            main_section_style,
+            playlist_entry_style,
+        },
+        icons::playlist_menu_icons,
+    }
 };
 use crate::utils::{
-    app_state::AppState,
     io_utils::{
         playlist_crud_cmds::{
             delete_selected_playlist,

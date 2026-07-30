@@ -18,7 +18,6 @@ use iced_aw::{
     }
 };
 use crate::utils::{
-    app_state::AppState,
     io_utils::{
         SaveError,
         app_settings_data_struct::{
@@ -28,6 +27,7 @@ use crate::utils::{
     },
 };
 use crate::ui::{
+    app::AppState,
     styling::{
         container_styles::{
             main_section_style

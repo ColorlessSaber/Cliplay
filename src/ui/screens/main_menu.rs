@@ -13,14 +13,17 @@ use iced::{
 };
 use iced_video_player::Video;
 use rfd::AsyncFileDialog;
-use crate::ui::screens::{
-    playlist_menu::{
-        PlaylistMenuMessages,
-        PlaylistMenuScreen,
-    },
-    settings_menu::{
-        SettingsMenu,
-        SettingsMenuMessage,
+use crate::ui::{
+    app::AppState,
+    screens::{
+        playlist_menu::{
+            PlaylistMenuMessages,
+            PlaylistMenuScreen,
+        },
+        settings_menu::{
+            SettingsMenu,
+            SettingsMenuMessage,
+        }
     }
 };
 use crate::ui::styling::{
@@ -29,7 +32,6 @@ use crate::ui::styling::{
     icons::main_menu_icons::*,
 };
 use crate::utils::{
-    app_state::AppState,
     create_url_from_file_path::{
         create_url_from_file_path,
         LoadVideoFileError,
