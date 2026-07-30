@@ -99,7 +99,9 @@ impl SettingsMenu {
         }
     }
 
-    pub fn view(&self, state: &AppState) -> Element<'_, SettingsMenuMessage> {
+    pub fn view<'a, 'b>(&'a self, state: &'a AppState) -> Element<'b, SettingsMenuMessage>
+    where 'a: 'b
+    {
 
         Container::new(
             Column::new()

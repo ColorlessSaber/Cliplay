@@ -145,7 +145,9 @@ impl MainMenuScreen {
         }
     }
 
-    pub fn view(&self, state: &AppState) -> Element<'_, MainMenuMessages> {
+    pub fn view<'a, 'b>(&'a self, state: &'a AppState) -> Element<'b, MainMenuMessages>
+    where 'a: 'b
+    {
 
         let default_btn = |image, message| {
             button(image).on_press(message).style(active_large_button_style)

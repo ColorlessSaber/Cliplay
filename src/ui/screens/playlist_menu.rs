@@ -265,7 +265,9 @@ impl PlaylistMenuScreen {
         }
     }
 
-    pub fn view(&self) -> Element<'_, PlaylistMenuMessages> {
+    pub fn view<'a, 'b>(&'a self) -> Element<'b, PlaylistMenuMessages>
+    where 'a: 'b
+    {
         match self.playlist_menu_state {
             PlaylistMenuState::PlaylistList => {
                 let playlists_found = scan_playlist_folder(app_directory_path());
