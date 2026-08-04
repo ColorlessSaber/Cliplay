@@ -125,9 +125,10 @@ impl PlaylistMenuScreen {
                         let video_file = if !try_again {
                             state.playlist_manager.pull_first_file_from_playlist()
                         } else {
-                            // the repeat_all parameter is set to false for if all video file(s)
-                            // are unable to load no point to keep trying
-                            state.playlist_manager.next_file_in_playlist(false)
+                            // the loop all parameter is set to false for if all video file(s)
+                            // are unable to load no point to keep trying.
+                            // Similar logic for shuffling the playlist.
+                            state.playlist_manager.next_file_in_playlist(false, false)
                         };
 
                         if let Some(video_file) = video_file {
@@ -136,7 +137,10 @@ impl PlaylistMenuScreen {
                             if let Ok(video_url_path) = video_url_path {
                                 let loaded_video = Video::new(&video_url_path);
 
-                                if let Ok(loaded_video) = loaded_video {
+                                if let Ok(mut loaded_video) = loaded_video {
+                                    loaded_video.set_looping(
+                                        state.btn_struct.loop_button.is_state_set_to_loop_single(),
+                                    );
                                     state.video = Some(loaded_video);
                                     break;
                                 } else {

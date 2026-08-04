@@ -140,6 +140,13 @@ pub mod dynamic_shuffle_button {
                 DynamicShuffleBtnState::Off => self.current_style = StyleState::InactiveStyle,
             }
         }
+
+        pub fn is_shuffle_on(&self) -> bool {
+            match self.current_state {
+                DynamicShuffleBtnState::On => true,
+                _ => false,
+            }
+        }
     }
 }
 

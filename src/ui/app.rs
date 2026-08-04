@@ -110,11 +110,12 @@ impl App {
         // This does mean if only one video file in an n+1 playlist is only playable it will check
         // all other video files before coming back to the only one that can be played.
         // This is fine, until otherwise.
+        let shuffle_state = self.state.btn_struct.shuffle_button.is_shuffle_on();
         loop {
             let video_file = match loading_process {
                 NextVideoLoadingProcess::EndOfVideo => {
                     let loop_entire_playlist = self.state.btn_struct.loop_button.is_state_set_to_loop_all();
-                    let video_file = self.state.playlist_manager.next_file_in_playlist(loop_entire_playlist);
+                    let video_file = self.state.playlist_manager.next_file_in_playlist(loop_entire_playlist, shuffle_state);
                     video_file
                 }
                 NextVideoLoadingProcess::AfterVideoStopped => {
@@ -124,7 +125,7 @@ impl App {
                 NextVideoLoadingProcess::SkipForward => {
                     // Passing true into .next_file_in_playlist to loop back to beginning of playlist
                     // if we reached the end, regardless if loop button is set to "loop all"
-                    let video_file = self.state.playlist_manager.next_file_in_playlist(true);
+                    let video_file = self.state.playlist_manager.next_file_in_playlist(true, shuffle_state);
                     video_file
                 }
                 NextVideoLoadingProcess::SkipBackward => {
@@ -140,7 +141,10 @@ impl App {
                     if let Ok(video_url_path) = video_url_path {
                         let loaded_video = Video::new(&video_url_path);
 
-                        if let Ok(loaded_video) = loaded_video {
+                        if let Ok(mut loaded_video) = loaded_video {
+                            loaded_video.set_looping(
+                                self.state.btn_struct.loop_button.is_state_set_to_loop_single(),
+                            );
                             self.state.video = Some(loaded_video);
                             break;
                         } else {
@@ -238,8 +242,12 @@ impl App {
             Message::ToggleShuffle => {
                 self.state.btn_struct.shuffle_button.toggle_state_and_style();
                 match self.state.btn_struct.shuffle_button.current_state() {
-                    DynamicShuffleBtnState::On => println!("Shuffle on"),
-                    DynamicShuffleBtnState::Off => println!("Shuffle off"),
+                    DynamicShuffleBtnState::On => {
+                        if !self.state.playlist_manager.is_playlist_empty() {
+                            self.state.playlist_manager.generate_shuffle_order()
+                        }
+                    },
+                    DynamicShuffleBtnState::Off => self.state.playlist_manager.clear_shuffle_order()
                 }
                 Task::none()
             }
