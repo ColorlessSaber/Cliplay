@@ -130,50 +130,52 @@ impl PlaylistMenuScreen {
                             // Similar logic for shuffling the playlist.
                             state.playlist_manager.next_file_in_playlist(false, false)
                         };
-
-                        if let Some(video_file) = video_file {
-                            let video_url_path = create_url_from_file_path(video_file);
-
-                            if let Ok(video_url_path) = video_url_path {
-                                let loaded_video = Video::new(&video_url_path);
-
-                                if let Ok(mut loaded_video) = loaded_video {
-                                    loaded_video.set_looping(
-                                        state.btn_struct.loop_button.is_state_set_to_loop_single(),
-                                    );
-                                    state.video = Some(loaded_video);
-                                    break;
-                                } else {
-                                    println!("Failed to load video: {:?}, Iced video error: {:?}", 
-                                             video_file,
-                                             loaded_video.unwrap_err()
-                                    );
-                                    try_again = true;
-                                };
-                            } else {
-                                let foo = video_url_path.unwrap_err();
-
-                                let error_message = match foo {
-                                    LoadVideoFileError::NotAbsolutePath => {
-                                        "the BufPath failed to generate absolute path.".to_string()
+                        
+                        match video_file {
+                            Some(video_file) => {
+                                match create_url_from_file_path(video_file) {
+                                    Ok(video_url_path) => {
+                                        match Video::new(&video_url_path) {
+                                            Ok(mut loaded_video) => {
+                                                loaded_video.set_looping(
+                                                    state.btn_struct.loop_button.is_state_set_to_loop_single(),
+                                                );
+                                                state.video = Some(loaded_video);
+                                                break;
+                                            },
+                                            Err(video_error) => {
+                                                println!("Failed to load video: {:?}, Iced video error: {:?}",
+                                                         video_file,
+                                                         video_error
+                                                );
+                                                try_again = true;
+                                            }
+                                        }
                                     },
-                                    LoadVideoFileError::Io(e) => {
-                                        format!("{:?}", e)
+                                    Err(url_error) => match url_error {
+                                        LoadVideoFileError::NotAbsolutePath => {
+                                            let error_message = "the BufPath failed to generate absolute path.".to_string();
+                                            println!("failed to create URL path from video file: {:?}, url error: {:?}",
+                                                     video_file,
+                                                     error_message
+                                            );
+                                        },
+                                        LoadVideoFileError::Io(io_error) => {
+                                            let error_message = format!("{:?}", io_error);
+                                            println!("failed to create URL path from video file: {:?}, url error: {:?}",
+                                                     video_file,
+                                                     error_message
+                                            );
+                                        }
                                     }
-                                };
-                                println!("failed to create URL path from video file: {:?}, url error: {:?}",
-                                         video_file,
-                                         error_message
-                                );
-                                
-                                try_again = true;
-                            }
-                        } else {
-                            break; // reached end of playlist, meaning all video file(s) in playlist failed to load
+                                }
+                            },
+                            None => break, // reached end of playlist, meaning all video file(s) in playlist failed to load
                         }
                     }
 
                     state.btn_struct.main_menu_button.toggle_state(); // switch to video view
+                    
                 } else {
                     println!("Failed to load playlist data"); // TODO add an error handling code later
                 }

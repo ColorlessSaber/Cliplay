@@ -19,7 +19,7 @@ pub struct PlaylistData {
 }
 
 impl PlaylistData {
-    pub fn path(file_name: &String) -> std::path::PathBuf {
+    pub fn path(file_name: &String) -> PathBuf {
         let path = app_directory_path();
 
         path.join(PLAYLIST_FOLDER)

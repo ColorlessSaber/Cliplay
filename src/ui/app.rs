@@ -134,42 +134,43 @@ impl App {
                 }
             };
 
+            // TODO pass error to a pop-up window
             match video_file {
                 Some(video_file) => {
-                    let video_url_path = create_url_from_file_path(video_file);
-
-                    // TODO pass error to a pop-up window
-                    if let Ok(video_url_path) = video_url_path {
-                        let loaded_video = Video::new(&video_url_path);
-
-                        if let Ok(mut loaded_video) = loaded_video {
-                            loaded_video.set_looping(
-                                self.state.btn_struct.loop_button.is_state_set_to_loop_single(),
-                            );
-                            self.state.video = Some(loaded_video);
-                            break;
-                        } else {
-                            println!("Failed to load video: {:?}, Iced video error: {:?}",
-                                     video_file,
-                                     loaded_video.unwrap_err()
-                            );
-                        }
-
-                    } else {
-                        let foo = video_url_path.unwrap_err();
-
-                        let error_message = match foo {
-                            LoadVideoFileError::NotAbsolutePath => {
-                                "the BufPath failed to generate absolute path.".to_string()
-                            },
-                            LoadVideoFileError::Io(e) => {
-                                format!("{:?}", e)
+                    match create_url_from_file_path(video_file) {
+                        Ok(video_url_path) => {
+                            match Video::new(&video_url_path) {
+                                Ok(mut loaded_video) => {
+                                    loaded_video.set_looping(
+                                        self.state.btn_struct.loop_button.is_state_set_to_loop_single(),
+                                    );
+                                    self.state.video = Some(loaded_video);
+                                    break;
+                                },
+                                Err(video_error) => {
+                                    println!("Failed to load video: {:?}, Iced video error: {:?}",
+                                             video_file,
+                                             video_error
+                                    );
+                                }
                             }
-                        };
-                        println!("failed to create URL path from video file: {:?}, url error: {:?}",
-                                 video_file,
-                                 error_message
-                        );
+                        },
+                        Err(url_error) => match url_error {
+                            LoadVideoFileError::NotAbsolutePath => {
+                                let error_message = "the BufPath failed to generate absolute path.".to_string();
+                                println!("failed to create URL path from video file: {:?}, url error: {:?}",
+                                         video_file,
+                                         error_message
+                                );
+                            },
+                            LoadVideoFileError::Io(io_error) => {
+                                let error_message = format!("{:?}", io_error);
+                                println!("failed to create URL path from video file: {:?}, url error: {:?}",
+                                         video_file,
+                                         error_message
+                                );
+                            }
+                        }
                     }
                 }
                 None => {
