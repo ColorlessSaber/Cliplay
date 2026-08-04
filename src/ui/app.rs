@@ -138,6 +138,7 @@ impl App {
                 Some(video_file) => {
                     let video_url_path = create_url_from_file_path(video_file);
 
+                    // TODO pass error to a pop-up window
                     if let Ok(video_url_path) = video_url_path {
                         let loaded_video = Video::new(&video_url_path);
 

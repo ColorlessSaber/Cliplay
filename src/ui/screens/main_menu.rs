@@ -95,7 +95,10 @@ impl MainMenuScreen {
                     if let Ok(video_url_path) = video_url_path {
                         let loaded_video = Video::new(&video_url_path);
 
-                        if let Ok(loaded_video) = loaded_video {
+                        if let Ok(mut loaded_video) = loaded_video {
+                            loaded_video.set_looping(
+                                state.btn_struct.loop_button.is_state_set_to_loop_single(),
+                            );
                             state.video = Some(loaded_video);
                         } else {
                             println!("Failed to load video: {:?}, Iced video error: {:?}",
