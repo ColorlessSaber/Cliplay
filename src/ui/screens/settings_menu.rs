@@ -1,41 +1,38 @@
+use crate::ui::{
+    app::AppState,
+    styling::{
+        container_styles::
+        main_section_style
+        ,
+        labeled_frame::
+        settings_label_frame,
+    },
+};
+use crate::utils::
+io_utils::{
+    SaveError,
+    app_settings_data_struct::{
+        AppSettings,
+        PlayerSettings,
+    },
+};
 use iced::{
     Element,
-    Task,
     Length,
+    Task,
     widget::{
-        Text,
+        Button,
         Column,
         Container,
-        Space,
-        Button,
         Row,
+        Space,
+        Text,
     },
 };
 use iced_aw::{
     number_input,
-    widget::{
-        LabeledFrame,
-    }
-};
-use crate::utils::{
-    io_utils::{
-        SaveError,
-        app_settings_data_struct::{
-            AppSettings,
-            PlayerSettings
-        },
-    },
-};
-use crate::ui::{
-    app::AppState,
-    styling::{
-        container_styles::{
-            main_section_style
-        },
-        labeled_frame::{
-            settings_label_frame
-        }
-    }
+    widget::
+    LabeledFrame,
 };
 
 #[derive(Debug, Clone)]

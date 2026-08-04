@@ -1,18 +1,8 @@
-use iced::{
-    widget::{
-        button,
-        column,
-        Container,
-        Image,
-        Row,
-        Space,
-    },
-    Element,
-    Length,
-    Task,
+use crate::ui::styling::{
+    button_styles::active_large_button_style,
+    container_styles::main_section_style,
+    icons::main_menu_icons::*,
 };
-use iced_video_player::Video;
-use rfd::AsyncFileDialog;
 use crate::ui::{
     app::AppState,
     screens::{
@@ -23,20 +13,30 @@ use crate::ui::{
         settings_menu::{
             SettingsMenu,
             SettingsMenuMessage,
-        }
-    }
+        },
+    },
 };
-use crate::ui::styling::{
-    button_styles::active_large_button_style,
-    container_styles::main_section_style,
-    icons::main_menu_icons::*,
+use crate::utils::
+create_url_from_file_path::{
+    LoadVideoFileError,
+    create_url_from_file_path,
+}
+;
+use iced::{
+    Element,
+    Length,
+    Task,
+    widget::{
+        Container,
+        Image,
+        Row,
+        Space,
+        button,
+        column,
+    },
 };
-use crate::utils::{
-    create_url_from_file_path::{
-        create_url_from_file_path,
-        LoadVideoFileError,
-    }
-};
+use iced_video_player::Video;
+use rfd::AsyncFileDialog;
 
 #[derive(Debug, Clone)]
 pub enum MainMenuMessages {

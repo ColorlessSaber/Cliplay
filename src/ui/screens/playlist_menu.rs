@@ -1,26 +1,3 @@
-use iced::{
-    widget::{
-        button,
-        column,
-        image,
-        keyed_column,
-        row,
-        scrollable,
-        text,
-        text_input,
-        Button,
-        Column,
-        Container,
-        Image,
-        Row,
-        Space,
-        Text,
-    },
-    Alignment,
-    Element,
-    Length,
-    Task,
-};
 use crate::ui::{
     app::AppState,
     styling::{
@@ -30,27 +7,50 @@ use crate::ui::{
             playlist_entry_style,
         },
         icons::playlist_menu_icons,
-    }
+    },
 };
 use crate::utils::{
+    create_url_from_file_path::{
+        LoadVideoFileError,
+        create_url_from_file_path,
+    }
+    ,
     io_utils::{
-        playlist_crud_cmds::{
-            delete_selected_playlist,
-            scan_playlist_folder,
-            PlaylistData
-        },
-        app_directory_path::app_directory_path,
         LoadError,
         SaveError,
+        app_directory_path::app_directory_path,
+        playlist_crud_cmds::{
+            PlaylistData
+            ,
+            delete_selected_playlist,
+            scan_playlist_folder},
+    }};
+use iced::{
+    Alignment,
+    Element,
+    Length,
+    Task,
+    widget::{
+        Button,
+        Column,
+        Container,
+        Image,
+        Row,
+        Space,
+        Text,
+        button,
+        column,
+        image,
+        keyed_column,
+        row,
+        scrollable,
+        text,
+        text_input,
     },
-    create_url_from_file_path::{
-        create_url_from_file_path,
-        LoadVideoFileError,
-    }
 };
+use iced_video_player::Video;
 use rfd::AsyncFileDialog;
 use std::path::Path;
-use iced_video_player::Video;
 
 #[derive(Debug, Clone)]
 pub enum PlaylistMenuMessages {

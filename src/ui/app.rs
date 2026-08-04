@@ -1,11 +1,11 @@
 use crate::ui::{
     dynamic_buttons::{
-        dynamic_loop_button::DynamicLoopBtnState,
-        dynamic_main_menu_button::DynamicMainMenuBtnState,
-        dynamic_shuffle_button::DynamicShuffleBtnState,
-        dynamic_playlist_info_button::DynamicPlaylistInfoBtnState,
         DynamicButtons,
         StyleState,
+        dynamic_loop_button::DynamicLoopBtnState,
+        dynamic_main_menu_button::DynamicMainMenuBtnState,
+        dynamic_playlist_info_button::DynamicPlaylistInfoBtnState,
+        dynamic_shuffle_button::DynamicShuffleBtnState,
     },
     screens::main_menu::{
         MainMenuMessages,
@@ -14,11 +14,11 @@ use crate::ui::{
     styling::container_styles::{
         control_bar_style,
         splash_screen_style,
-        video_playing_style
+        video_playing_style,
     },
     styling::icons::{
         logo_icons::CLIPLAY_LOGO_GREY_ICON,
-        video_player_icons::*
+        video_player_icons::*,
     },
     styling::{
         button_styles::{
@@ -27,31 +27,31 @@ use crate::ui::{
             player_control_button_style,
         },
         slider_styles::volume_slider_style,
-    }
+    },
 };
 use crate::utils::{
     create_url_from_file_path::{
-        create_url_from_file_path,
         LoadVideoFileError,
+        create_url_from_file_path,
     },
     io_utils::{
+        app_directory_path::app_directory_path,
         app_settings_data_struct::{
             AppSettings,
-            PlayerSettings
+            PlayerSettings,
         },
-        app_directory_path::app_directory_path,
         create_application_directory,
     },
     playlist_manager::PlaylistManager,
 };
 use iced::{
-    alignment::{Alignment, Horizontal, Vertical},
-    keyboard,
-    widget::{Button, Column, Container, Image, Row, Slider, Space, Text, Stack},
     Element,
     Length,
     Subscription,
     Task,
+    alignment::{Alignment, Horizontal, Vertical},
+    keyboard,
+    widget::{Button, Column, Container, Image, Row, Slider, Space, Stack, Text},
 };
 use iced_video_player::{Video, VideoPlayer};
 use std::time::Duration;
