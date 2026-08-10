@@ -35,7 +35,7 @@ also allows the creation of video playlists and each video in the playlist can h
 <br>
 All images created for this project--logo, widget icons--were custom-made using the Gimp app.
 <br><br>
-Currently in development. The final version will also include: selecting different subtitles and audio; file drag
+Currently, in development. The final version will also include: selecting different subtitles and audio; file drag
 and drop for quick play; and, if possible, be an option when playing a video on the computer.
 
 <p align="right">(<a href="#readme-top">Back To Top</a>)</p>
@@ -51,7 +51,28 @@ and drop for quick play; and, if possible, be an option when playing a video on 
 
 <!--Running the Program-->
 ## Running the Program
-TBD
+### Prerequisites
+Before you compile this project, ensure you have the following installed:
+- 'gstreamer' (required for video playback)
+
+### Installation Steps
+#### Debian/Ubuntu
+```bash
+sudo apt-get install gstreamer1.0
+```
+
+#### Red Hat/Fedora
+```bash
+sudo dnf/yum install gstreamer1
+```
+
+#### macOS
+```bash
+brew install gstreamer
+```
+
+#### Windows
+Install Gstreamer from the offical website.
 
 <p align="right">(<a href="#readme-top">Back To Top</a>)</p>
 
